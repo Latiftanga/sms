@@ -122,8 +122,11 @@ class School(models.Model):
     ownership = models.CharField(max_length=20, choices=OWNERSHIP_CHOICES)
 
     # Registration information
-    emis_code = models.CharField("EMIS Code", max_length=50, blank=True, null=True, unique=True,
-                                 help_text="Educational Management Information System code")
+    emis_code = models.CharField(
+        "EMIS Code", max_length=50, blank=True, null=True,
+        unique=True,
+        help_text="Educational Management Information System code"
+    )
     ges_number = models.CharField(
         "GES Number", max_length=50, blank=True, null=True)
     registration_date = models.DateTimeField(auto_now_add=True)
@@ -136,7 +139,7 @@ class School(models.Model):
     town = models.CharField(max_length=100)
     digital_address = models.CharField(
         "Ghana Post Digital Address", max_length=50, blank=True, null=True)
-    physical_address = models.TextField()
+    physical_address = models.CharField(max_length=255, blank=True, null=True)
 
     # Contact information
     headmaster_name = models.CharField(
@@ -193,6 +196,7 @@ class Person(TimeStampedModel):
     phone = models.CharField(max_length=15, blank=True,
                              null=True, validators=[PHONE_VALIDATOR])
     address = models.CharField(max_length=255, blank=True, null=True)
+    email = models.EmailField(max_length=128, blank=True, null=True)
     ghana_card_number = models.CharField(
         max_length=15, unique=True, blank=True,
         null=True, validators=[GHANA_CARD_VALIDATOR])
@@ -267,6 +271,10 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     """User in the system"""
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE,
+        related_name='users', blank=True, null=True
+    )
     user_id = models.CharField(max_length=32, unique=True)
     email = models.EmailField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
@@ -274,8 +282,72 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_student = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    is_guardian = models.BooleanField(default=False)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'user_id'
+
+
+class BaseVoucher(models.Model):
+    """Base abstract voucher model"""
+    serial_number = models.CharField(
+        max_length=15, unique=True, editable=False)
+    pin = models.CharField(max_length=12, editable=False)
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE, related_name='+')
+    can_signin = models.BooleanField(default=False)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        'core.User', on_delete=models.SET_NULL,
+        null=True, related_name='+'
+    )
+    used_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        abstract = True
+        indexes = [
+            models.Index(fields=['serial_number']),
+            models.Index(fields=['is_used']),
+        ]
+        ordering = ['-created_at']
+
+    def mark_as_used(self):
+        """Mark voucher as used"""
+        from django.utils import timezone
+        self.is_used = True
+        self.used_at = timezone.now()
+        self.save(update_fields=['is_used', 'used_at'])
+
+    def _generate_serial_number(self, prefix):
+        """Generate a unique serial number with the given prefix"""
+        school_prefix = self.school.name[:3].upper()
+        unique_id = uuid.uuid4().hex[:8].upper()
+        return f"{prefix}{school_prefix}-{unique_id}"
+
+    def _generate_pin(self):
+        """Generate a PIN number"""
+        return ''.join(random.choices(string.digits, k=12))
+
+    def save(self, *args, **kwargs):
+        """
+        Override save method to automatically generate serial_number and pin
+        Child classes should call super().save() after setting their prefix
+        """
+        # If no serial_number exists, generate one using child class's prefix
+        if not self.serial_number:
+            # This method should be overridden by child classes to provide their prefix
+            prefix = self.get_prefix()
+            self.serial_number = self._generate_serial_number(prefix)
+
+        # If no pin exists, generate one
+        if not self.pin:
+            self.pin = self._generate_pin()
+
+        super().save(*args, **kwargs)
+
+    def get_prefix(self):
+        """
+        Method to be implemented by child classes to specify their prefix
+        """
+        raise NotImplementedError("Child classes must implement get_prefix()")
