@@ -16,6 +16,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+
+    'core.apps.CoreConfig',
 ]
 
 MIDDLEWARE = [
@@ -57,7 +59,11 @@ DATABASES = {
     }
 }
 
-# AUTH_USER_MODEL = 'core.User'
+AUTH_USER_MODEL = 'core.User'
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/login/'
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Africa/Accra'
