@@ -1,11 +1,6 @@
 Django>=5.2,<5.3
-djangorestframework>=3.16.0,<3.17
-djangorestframework-simplejwt>=5.5.0,<5.6
-django-filter>=25.1,<26
 psycopg2>=2.9.10
 pillow>=11.2.1,<11.3
-drf-spectacular>=0.27.2,<0.28
-drf-yasg>=1.21.10,<1.22
 python-decouple>=3.8,<4.0
 
 # Redis support
@@ -16,4 +11,8 @@ redis>=4.5.0
 requests>=2.31.0  # For HTTP requests
 
 # Production server (optional)
-gunicorn>=21.2.0
+gunicorn>=23.0,<24.0
+
+#Bootstrap for frontend styling
+django-crispy-forms>=2.4,<3
+crispy-bootstrap5>=2024.6,<2025

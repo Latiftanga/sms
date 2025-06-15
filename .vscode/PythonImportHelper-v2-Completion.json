@@ -1,113 +1,5 @@
 [
     {
-        "label": "csv",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "csv",
-        "description": "csv",
-        "detail": "csv",
-        "documentation": {}
-    },
-    {
-        "label": "secrets",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "secrets",
-        "description": "secrets",
-        "detail": "secrets",
-        "documentation": {}
-    },
-    {
-        "label": "string",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "string",
-        "description": "string",
-        "detail": "string",
-        "documentation": {}
-    },
-    {
-        "label": "random",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "random",
-        "description": "random",
-        "detail": "random",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
-        "importPath": "django.utils",
-        "description": "django.utils",
-        "isExtraImport": true,
-        "detail": "django.utils",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
-        "importPath": "django.utils",
-        "description": "django.utils",
-        "isExtraImport": true,
-        "detail": "django.utils",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
-        "importPath": "django.utils",
-        "description": "django.utils",
-        "isExtraImport": true,
-        "detail": "django.utils",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
-        "importPath": "django.utils",
-        "description": "django.utils",
-        "isExtraImport": true,
-        "detail": "django.utils",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
-        "importPath": "django.utils",
-        "description": "django.utils",
-        "isExtraImport": true,
-        "detail": "django.utils",
-        "documentation": {}
-    },
-    {
-        "label": "BaseCommand",
-        "importPath": "django.core.management.base",
-        "description": "django.core.management.base",
-        "isExtraImport": true,
-        "detail": "django.core.management.base",
-        "documentation": {}
-    },
-    {
-        "label": "BaseCommand",
-        "importPath": "django.core.management.base",
-        "description": "django.core.management.base",
-        "isExtraImport": true,
-        "detail": "django.core.management.base",
-        "documentation": {}
-    },
-    {
-        "label": "CommandError",
-        "importPath": "django.core.management.base",
-        "description": "django.core.management.base",
-        "isExtraImport": true,
-        "detail": "django.core.management.base",
-        "documentation": {}
-    },
-    {
-        "label": "BaseCommand",
-        "importPath": "django.core.management.base",
-        "description": "django.core.management.base",
-        "isExtraImport": true,
-        "detail": "django.core.management.base",
-        "documentation": {}
-    },
-    {
         "label": "os",
         "kind": 6,
         "isExtraImport": true,
@@ -117,200 +9,23 @@
         "documentation": {}
     },
     {
-        "label": "get_user_model",
-        "importPath": "django.contrib.auth",
-        "description": "django.contrib.auth",
+        "label": "get_asgi_application",
+        "importPath": "django.core.asgi",
+        "description": "django.core.asgi",
         "isExtraImport": true,
-        "detail": "django.contrib.auth",
+        "detail": "django.core.asgi",
         "documentation": {}
     },
     {
-        "label": "authenticate",
-        "importPath": "django.contrib.auth",
-        "description": "django.contrib.auth",
+        "label": "Path",
+        "importPath": "pathlib",
+        "description": "pathlib",
         "isExtraImport": true,
-        "detail": "django.contrib.auth",
-        "documentation": {}
-    },
-    {
-        "label": "authenticate",
-        "importPath": "django.contrib.auth",
-        "description": "django.contrib.auth",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth",
-        "documentation": {}
-    },
-    {
-        "label": "login",
-        "importPath": "django.contrib.auth",
-        "description": "django.contrib.auth",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth",
-        "documentation": {}
-    },
-    {
-        "label": "logout",
-        "importPath": "django.contrib.auth",
-        "description": "django.contrib.auth",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth",
-        "documentation": {}
-    },
-    {
-        "label": "settings",
-        "importPath": "django.conf",
-        "description": "django.conf",
-        "isExtraImport": true,
-        "detail": "django.conf",
-        "documentation": {}
-    },
-    {
-        "label": "settings",
-        "importPath": "django.conf",
-        "description": "django.conf",
-        "isExtraImport": true,
-        "detail": "django.conf",
-        "documentation": {}
-    },
-    {
-        "label": "settings",
-        "importPath": "django.conf",
-        "description": "django.conf",
-        "isExtraImport": true,
-        "detail": "django.conf",
-        "documentation": {}
-    },
-    {
-        "label": "settings",
-        "importPath": "django.conf",
-        "description": "django.conf",
-        "isExtraImport": true,
-        "detail": "django.conf",
-        "documentation": {}
-    },
-    {
-        "label": "settings",
-        "importPath": "django.conf",
-        "description": "django.conf",
-        "isExtraImport": true,
-        "detail": "django.conf",
-        "documentation": {}
-    },
-    {
-        "label": "settings",
-        "importPath": "django.conf",
-        "description": "django.conf",
-        "isExtraImport": true,
-        "detail": "django.conf",
-        "documentation": {}
-    },
-    {
-        "label": "School",
-        "importPath": "core.models",
-        "description": "core.models",
-        "isExtraImport": true,
-        "detail": "core.models",
-        "documentation": {}
-    },
-    {
-        "label": "User",
-        "importPath": "core.models",
-        "description": "core.models",
-        "isExtraImport": true,
-        "detail": "core.models",
-        "documentation": {}
-    },
-    {
-        "label": "School",
-        "importPath": "core.models",
-        "description": "core.models",
-        "isExtraImport": true,
-        "detail": "core.models",
-        "documentation": {}
-    },
-    {
-        "label": "School",
-        "importPath": "core.models",
-        "description": "core.models",
-        "isExtraImport": true,
-        "detail": "core.models",
-        "documentation": {}
-    },
-    {
-        "label": "migrations",
-        "importPath": "django.db",
-        "description": "django.db",
-        "isExtraImport": true,
-        "detail": "django.db",
-        "documentation": {}
-    },
-    {
-        "label": "models",
-        "importPath": "django.db",
-        "description": "django.db",
-        "isExtraImport": true,
-        "detail": "django.db",
-        "documentation": {}
-    },
-    {
-        "label": "migrations",
-        "importPath": "django.db",
-        "description": "django.db",
-        "isExtraImport": true,
-        "detail": "django.db",
-        "documentation": {}
-    },
-    {
-        "label": "models",
-        "importPath": "django.db",
-        "description": "django.db",
-        "isExtraImport": true,
-        "detail": "django.db",
-        "documentation": {}
-    },
-    {
-        "label": "models",
-        "importPath": "django.db",
-        "description": "django.db",
-        "isExtraImport": true,
-        "detail": "django.db",
-        "documentation": {}
-    },
-    {
-        "label": "transaction",
-        "importPath": "django.db",
-        "description": "django.db",
-        "isExtraImport": true,
-        "detail": "django.db",
-        "documentation": {}
-    },
-    {
-        "label": "django.utils.timezone",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "django.utils.timezone",
-        "description": "django.utils.timezone",
-        "detail": "django.utils.timezone",
+        "detail": "pathlib",
         "documentation": {}
     },
     {
         "label": "admin",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
-        "isExtraImport": true,
-        "detail": "django.contrib",
-        "documentation": {}
-    },
-    {
-        "label": "messages",
         "importPath": "django.contrib",
         "description": "django.contrib",
         "isExtraImport": true,
@@ -326,259 +41,60 @@
         "documentation": {}
     },
     {
-        "label": "UserAdmin",
-        "importPath": "django.contrib.auth.admin",
-        "description": "django.contrib.auth.admin",
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
         "isExtraImport": true,
-        "detail": "django.contrib.auth.admin",
+        "detail": "django.urls",
         "documentation": {}
     },
     {
-        "label": "format_html",
-        "importPath": "django.utils.html",
-        "description": "django.utils.html",
+        "label": "get_wsgi_application",
+        "importPath": "django.core.wsgi",
+        "description": "django.core.wsgi",
         "isExtraImport": true,
-        "detail": "django.utils.html",
+        "detail": "django.core.wsgi",
         "documentation": {}
     },
     {
-        "label": "AppConfig",
-        "importPath": "django.apps",
-        "description": "django.apps",
+        "label": "BaseCommand",
+        "importPath": "django.core.management.base",
+        "description": "django.core.management.base",
         "isExtraImport": true,
-        "detail": "django.apps",
+        "detail": "django.core.management.base",
         "documentation": {}
     },
     {
-        "label": "ContentType",
-        "importPath": "django.contrib.contenttypes.models",
-        "description": "django.contrib.contenttypes.models",
-        "isExtraImport": true,
-        "detail": "django.contrib.contenttypes.models",
-        "documentation": {}
-    },
-    {
-        "label": "Permission",
-        "importPath": "django.contrib.auth.models",
-        "description": "django.contrib.auth.models",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.models",
-        "documentation": {}
-    },
-    {
-        "label": "AbstractBaseUser",
-        "importPath": "django.contrib.auth.models",
-        "description": "django.contrib.auth.models",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.models",
-        "documentation": {}
-    },
-    {
-        "label": "PermissionsMixin",
-        "importPath": "django.contrib.auth.models",
-        "description": "django.contrib.auth.models",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.models",
-        "documentation": {}
-    },
-    {
-        "label": "BaseUserManager",
-        "importPath": "django.contrib.auth.models",
-        "description": "django.contrib.auth.models",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.models",
-        "documentation": {}
-    },
-    {
-        "label": "wraps",
-        "importPath": "functools",
-        "description": "functools",
-        "isExtraImport": true,
-        "detail": "functools",
-        "documentation": {}
-    },
-    {
-        "label": "login_required",
-        "importPath": "django.contrib.auth.decorators",
-        "description": "django.contrib.auth.decorators",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "user_passes_test",
-        "importPath": "django.contrib.auth.decorators",
-        "description": "django.contrib.auth.decorators",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "login_required",
-        "importPath": "django.contrib.auth.decorators",
-        "description": "django.contrib.auth.decorators",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "login_required",
-        "importPath": "django.contrib.auth.decorators",
-        "description": "django.contrib.auth.decorators",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "user_passes_test",
-        "importPath": "django.contrib.auth.decorators",
-        "description": "django.contrib.auth.decorators",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "PermissionDenied",
-        "importPath": "django.core.exceptions",
-        "description": "django.core.exceptions",
-        "isExtraImport": true,
-        "detail": "django.core.exceptions",
-        "documentation": {}
-    },
-    {
-        "label": "ValidationError",
-        "importPath": "django.core.exceptions",
-        "description": "django.core.exceptions",
-        "isExtraImport": true,
-        "detail": "django.core.exceptions",
-        "documentation": {}
-    },
-    {
-        "label": "ValidationError",
-        "importPath": "django.core.exceptions",
-        "description": "django.core.exceptions",
-        "isExtraImport": true,
-        "detail": "django.core.exceptions",
-        "documentation": {}
-    },
-    {
-        "label": "ValidationError",
-        "importPath": "django.core.exceptions",
-        "description": "django.core.exceptions",
-        "isExtraImport": true,
-        "detail": "django.core.exceptions",
-        "documentation": {}
-    },
-    {
-        "label": "redirect",
-        "importPath": "django.shortcuts",
-        "description": "django.shortcuts",
-        "isExtraImport": true,
-        "detail": "django.shortcuts",
-        "documentation": {}
-    },
-    {
-        "label": "render",
-        "importPath": "django.shortcuts",
-        "description": "django.shortcuts",
-        "isExtraImport": true,
-        "detail": "django.shortcuts",
-        "documentation": {}
-    },
-    {
-        "label": "redirect",
-        "importPath": "django.shortcuts",
-        "description": "django.shortcuts",
-        "isExtraImport": true,
-        "detail": "django.shortcuts",
-        "documentation": {}
-    },
-    {
-        "label": "get_object_or_404",
-        "importPath": "django.shortcuts",
-        "description": "django.shortcuts",
-        "isExtraImport": true,
-        "detail": "django.shortcuts",
-        "documentation": {}
-    },
-    {
-        "label": "HttpResponseForbidden",
-        "importPath": "django.http",
-        "description": "django.http",
-        "isExtraImport": true,
-        "detail": "django.http",
-        "documentation": {}
-    },
-    {
-        "label": "JsonResponse",
-        "importPath": "django.http",
-        "description": "django.http",
-        "isExtraImport": true,
-        "detail": "django.http",
-        "documentation": {}
-    },
-    {
-        "label": "JsonResponse",
-        "importPath": "django.http",
-        "description": "django.http",
-        "isExtraImport": true,
-        "detail": "django.http",
-        "documentation": {}
-    },
-    {
-        "label": "method_decorator",
-        "importPath": "django.utils.decorators",
-        "description": "django.utils.decorators",
-        "isExtraImport": true,
-        "detail": "django.utils.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "LoginRequiredMixin",
-        "importPath": "django.contrib.auth.mixins",
-        "description": "django.contrib.auth.mixins",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.mixins",
-        "documentation": {}
-    },
-    {
-        "label": "UserPassesTestMixin",
-        "importPath": "django.contrib.auth.mixins",
-        "description": "django.contrib.auth.mixins",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.mixins",
-        "documentation": {}
-    },
-    {
-        "label": "logging",
+        "label": "time",
         "kind": 6,
         "isExtraImport": true,
-        "importPath": "logging",
-        "description": "logging",
-        "detail": "logging",
+        "importPath": "time",
+        "description": "time",
+        "detail": "time",
         "documentation": {}
     },
     {
-        "label": "forms",
-        "importPath": "django",
-        "description": "django",
+        "label": "OperationalError",
+        "importPath": "psycopg2",
+        "description": "psycopg2",
         "isExtraImport": true,
-        "detail": "django",
+        "detail": "psycopg2",
         "documentation": {}
     },
     {
-        "label": "MinValueValidator",
+        "label": "OperationalError",
+        "importPath": "django.db.utils",
+        "description": "django.db.utils",
+        "isExtraImport": true,
+        "detail": "django.db.utils",
+        "documentation": {}
+    },
+    {
+        "label": "django.core.validators",
+        "kind": 6,
+        "isExtraImport": true,
         "importPath": "django.core.validators",
         "description": "django.core.validators",
-        "isExtraImport": true,
-        "detail": "django.core.validators",
-        "documentation": {}
-    },
-    {
-        "label": "MaxValueValidator",
-        "importPath": "django.core.validators",
-        "description": "django.core.validators",
-        "isExtraImport": true,
         "detail": "django.core.validators",
         "documentation": {}
     },
@@ -599,19 +115,101 @@
         "documentation": {}
     },
     {
-        "label": "Sum",
-        "importPath": "django.db.models",
-        "description": "django.db.models",
+        "label": "django.db.models.deletion",
+        "kind": 6,
         "isExtraImport": true,
-        "detail": "django.db.models",
+        "importPath": "django.db.models.deletion",
+        "description": "django.db.models.deletion",
+        "detail": "django.db.models.deletion",
         "documentation": {}
     },
     {
-        "label": "Decimal",
-        "importPath": "decimal",
-        "description": "decimal",
+        "label": "school.models",
+        "kind": 6,
         "isExtraImport": true,
-        "detail": "decimal",
+        "importPath": "school.models",
+        "description": "school.models",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "BaseUserManager",
+        "importPath": "django.contrib.auth.base_user",
+        "description": "django.contrib.auth.base_user",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.base_user",
+        "documentation": {}
+    },
+    {
+        "label": "AbstractBaseUser",
+        "importPath": "django.contrib.auth.models",
+        "description": "django.contrib.auth.models",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.models",
+        "documentation": {}
+    },
+    {
+        "label": "PermissionsMixin",
+        "importPath": "django.contrib.auth.models",
+        "description": "django.contrib.auth.models",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.models",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
         "documentation": {}
     },
     {
@@ -623,6 +221,38 @@
         "documentation": {}
     },
     {
+        "label": "ValidationError",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
+        "isExtraImport": true,
+        "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "PHONE_VALIDATOR",
+        "importPath": "school.validators",
+        "description": "school.validators",
+        "isExtraImport": true,
+        "detail": "school.validators",
+        "documentation": {}
+    },
+    {
+        "label": "GHANA_CARD_VALIDATOR",
+        "importPath": "school.validators",
+        "description": "school.validators",
+        "isExtraImport": true,
+        "detail": "school.validators",
+        "documentation": {}
+    },
+    {
+        "label": "UserManager",
+        "importPath": "school.managers",
+        "description": "school.managers",
+        "isExtraImport": true,
+        "detail": "school.managers",
+        "documentation": {}
+    },
+    {
         "label": "TestCase",
         "importPath": "django.test",
         "description": "django.test",
@@ -631,108 +261,11 @@
         "documentation": {}
     },
     {
-        "label": "path",
-        "importPath": "django.urls",
-        "description": "django.urls",
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
         "isExtraImport": true,
-        "detail": "django.urls",
-        "documentation": {}
-    },
-    {
-        "label": "path",
-        "importPath": "django.urls",
-        "description": "django.urls",
-        "isExtraImport": true,
-        "detail": "django.urls",
-        "documentation": {}
-    },
-    {
-        "label": "include",
-        "importPath": "django.urls",
-        "description": "django.urls",
-        "isExtraImport": true,
-        "detail": "django.urls",
-        "documentation": {}
-    },
-    {
-        "label": "views",
-        "importPath": "core",
-        "description": "core",
-        "isExtraImport": true,
-        "detail": "core",
-        "documentation": {}
-    },
-    {
-        "label": "csrf_exempt",
-        "importPath": "django.views.decorators.csrf",
-        "description": "django.views.decorators.csrf",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.csrf",
-        "documentation": {}
-    },
-    {
-        "label": "require_http_methods",
-        "importPath": "django.views.decorators.http",
-        "description": "django.views.decorators.http",
-        "isExtraImport": true,
-        "detail": "django.views.decorators.http",
-        "documentation": {}
-    },
-    {
-        "label": "Paginator",
-        "importPath": "django.core.paginator",
-        "description": "django.core.paginator",
-        "isExtraImport": true,
-        "detail": "django.core.paginator",
-        "documentation": {}
-    },
-    {
-        "label": "json",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "json",
-        "description": "json",
-        "detail": "json",
-        "documentation": {}
-    },
-    {
-        "label": "get_asgi_application",
-        "importPath": "django.core.asgi",
-        "description": "django.core.asgi",
-        "isExtraImport": true,
-        "detail": "django.core.asgi",
-        "documentation": {}
-    },
-    {
-        "label": "Path",
-        "importPath": "pathlib",
-        "description": "pathlib",
-        "isExtraImport": true,
-        "detail": "pathlib",
-        "documentation": {}
-    },
-    {
-        "label": "config",
-        "importPath": "decouple",
-        "description": "decouple",
-        "isExtraImport": true,
-        "detail": "decouple",
-        "documentation": {}
-    },
-    {
-        "label": "static",
-        "importPath": "django.conf.urls.static",
-        "description": "django.conf.urls.static",
-        "isExtraImport": true,
-        "detail": "django.conf.urls.static",
-        "documentation": {}
-    },
-    {
-        "label": "get_wsgi_application",
-        "importPath": "django.core.wsgi",
-        "description": "django.core.wsgi",
-        "isExtraImport": true,
-        "detail": "django.core.wsgi",
+        "detail": "django.shortcuts",
         "documentation": {}
     },
     {
@@ -745,894 +278,345 @@
         "documentation": {}
     },
     {
-        "label": "Command",
-        "kind": 6,
-        "importPath": "sms.core.management.commands.setup_school",
-        "description": "sms.core.management.commands.setup_school",
-        "peekOfCode": "class Command(BaseCommand):\n    help = 'Setup initial school data for T. I. Ahmadiyya SHS'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--admin-username',\n            type=str,\n            default='admin',\n            help='Username for the admin user'\n        )\n        parser.add_argument(",
-        "detail": "sms.core.management.commands.setup_school",
-        "documentation": {}
-    },
-    {
-        "label": "Command",
-        "kind": 6,
-        "importPath": "sms.core.management.commands.setup_school",
-        "description": "sms.core.management.commands.setup_school",
-        "peekOfCode": "class Command(BaseCommand):\n    help = 'Create demo data for testing the school management system'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--teachers',\n            type=int,\n            default=10,\n            help='Number of demo teachers to create'\n        )\n        parser.add_argument(",
-        "detail": "sms.core.management.commands.setup_school",
-        "documentation": {}
-    },
-    {
-        "label": "Command",
-        "kind": 6,
-        "importPath": "sms.core.management.commands.setup_school",
-        "description": "sms.core.management.commands.setup_school",
-        "peekOfCode": "class Command(BaseCommand):\n    help = 'Reset passwords for users and generate new ones'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--user-type',\n            choices=['teacher', 'student', 'admin', 'all'],\n            default='all',\n            help='Type of users to reset passwords for'\n        )\n        parser.add_argument(",
-        "detail": "sms.core.management.commands.setup_school",
-        "documentation": {}
-    },
-    {
-        "label": "Command",
-        "kind": 6,
-        "importPath": "sms.core.management.commands.setup_school",
-        "description": "sms.core.management.commands.setup_school",
-        "peekOfCode": "class Command(BaseCommand):\n    help = 'Export user data to CSV file'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--output',\n            type=str,\n            default='users_export.csv',\n            help='Output CSV file name'\n        )\n        parser.add_argument(",
-        "detail": "sms.core.management.commands.setup_school",
-        "documentation": {}
-    },
-    {
-        "label": "User",
-        "kind": 5,
-        "importPath": "sms.core.management.commands.setup_school",
-        "description": "sms.core.management.commands.setup_school",
-        "peekOfCode": "User = get_user_model()\nclass Command(BaseCommand):\n    help = 'Setup initial school data for T. I. Ahmadiyya SHS'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--admin-username',\n            type=str,\n            default='admin',\n            help='Username for the admin user'\n        )",
-        "detail": "sms.core.management.commands.setup_school",
-        "documentation": {}
-    },
-    {
-        "label": "User",
-        "kind": 5,
-        "importPath": "sms.core.management.commands.setup_school",
-        "description": "sms.core.management.commands.setup_school",
-        "peekOfCode": "User = get_user_model()\nclass Command(BaseCommand):\n    help = 'Create demo data for testing the school management system'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--teachers',\n            type=int,\n            default=10,\n            help='Number of demo teachers to create'\n        )",
-        "detail": "sms.core.management.commands.setup_school",
-        "documentation": {}
-    },
-    {
-        "label": "User",
-        "kind": 5,
-        "importPath": "sms.core.management.commands.setup_school",
-        "description": "sms.core.management.commands.setup_school",
-        "peekOfCode": "User = get_user_model()\nclass Command(BaseCommand):\n    help = 'Reset passwords for users and generate new ones'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--user-type',\n            choices=['teacher', 'student', 'admin', 'all'],\n            default='all',\n            help='Type of users to reset passwords for'\n        )",
-        "detail": "sms.core.management.commands.setup_school",
-        "documentation": {}
-    },
-    {
-        "label": "User",
-        "kind": 5,
-        "importPath": "sms.core.management.commands.setup_school",
-        "description": "sms.core.management.commands.setup_school",
-        "peekOfCode": "User = get_user_model()\nclass Command(BaseCommand):\n    help = 'Export user data to CSV file'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--output',\n            type=str,\n            default='users_export.csv',\n            help='Output CSV file name'\n        )",
-        "detail": "sms.core.management.commands.setup_school",
-        "documentation": {}
-    },
-    {
-        "label": "Migration",
-        "kind": 6,
-        "importPath": "sms.core.migrations.0001_initial",
-        "description": "sms.core.migrations.0001_initial",
-        "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n        ('auth', '0012_alter_user_first_name_max_length'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='School',\n            fields=[\n                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),",
-        "detail": "sms.core.migrations.0001_initial",
-        "documentation": {}
-    },
-    {
-        "label": "Migration",
-        "kind": 6,
-        "importPath": "sms.core.migrations.0002_user_date_joined_alter_user_last_login",
-        "description": "sms.core.migrations.0002_user_date_joined_alter_user_last_login",
-        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('core', '0001_initial'),\n    ]\n    operations = [\n        migrations.AddField(\n            model_name='user',\n            name='date_joined',\n            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),\n            preserve_default=False,",
-        "detail": "sms.core.migrations.0002_user_date_joined_alter_user_last_login",
-        "documentation": {}
-    },
-    {
-        "label": "UserAdmin",
-        "kind": 6,
-        "importPath": "sms.core.admin",
-        "description": "sms.core.admin",
-        "peekOfCode": "class UserAdmin(BaseUserAdmin):\n    \"\"\"Custom User Admin\"\"\"\n    list_display = ('username', 'email', 'user_type_display',\n                    'is_active', 'date_joined')\n    list_filter = ('is_active', 'is_staff', 'is_teacher',\n                   'is_student', 'is_admin')\n    search_fields = ('username', 'email')\n    ordering = ('username',)\n    fieldsets = (\n        (None, {'fields': ('username', 'password')}),",
-        "detail": "sms.core.admin",
-        "documentation": {}
-    },
-    {
-        "label": "SchoolAdmin",
-        "kind": 6,
-        "importPath": "sms.core.admin",
-        "description": "sms.core.admin",
-        "peekOfCode": "class SchoolAdmin(admin.ModelAdmin):\n    \"\"\"School Admin\"\"\"\n    list_display = ('name', 'school_type', 'ownership',\n                    'region', 'district', 'is_active', 'created_at')\n    list_filter = ('school_type', 'ownership', 'region',\n                   'is_active', 'has_boarding')\n    search_fields = ('name', 'emis_code', 'ges_number', 'district', 'town')\n    readonly_fields = ('slug', 'created_at', 'updated_at', 'registration_date')\n    fieldsets = (\n        ('Basic Information', {",
-        "detail": "sms.core.admin",
-        "documentation": {}
-    },
-    {
-        "label": "admin.site.site_header",
-        "kind": 5,
-        "importPath": "sms.core.admin",
-        "description": "sms.core.admin",
-        "peekOfCode": "admin.site.site_header = \"T. I. Ahmadiyya SHS Administration\"\nadmin.site.site_title = \"T. I. Ahmadiyya SHS Admin\"\nadmin.site.index_title = \"School Management System\"\n# Add custom CSS for admin\nadmin.site.enable_nav_sidebar = True",
-        "detail": "sms.core.admin",
-        "documentation": {}
-    },
-    {
-        "label": "admin.site.site_title",
-        "kind": 5,
-        "importPath": "sms.core.admin",
-        "description": "sms.core.admin",
-        "peekOfCode": "admin.site.site_title = \"T. I. Ahmadiyya SHS Admin\"\nadmin.site.index_title = \"School Management System\"\n# Add custom CSS for admin\nadmin.site.enable_nav_sidebar = True",
-        "detail": "sms.core.admin",
-        "documentation": {}
-    },
-    {
-        "label": "admin.site.index_title",
-        "kind": 5,
-        "importPath": "sms.core.admin",
-        "description": "sms.core.admin",
-        "peekOfCode": "admin.site.index_title = \"School Management System\"\n# Add custom CSS for admin\nadmin.site.enable_nav_sidebar = True",
-        "detail": "sms.core.admin",
-        "documentation": {}
-    },
-    {
-        "label": "admin.site.enable_nav_sidebar",
-        "kind": 5,
-        "importPath": "sms.core.admin",
-        "description": "sms.core.admin",
-        "peekOfCode": "admin.site.enable_nav_sidebar = True",
-        "detail": "sms.core.admin",
-        "documentation": {}
-    },
-    {
-        "label": "CoreConfig",
-        "kind": 6,
-        "importPath": "sms.core.apps",
-        "description": "sms.core.apps",
-        "peekOfCode": "class CoreConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'core'",
-        "detail": "sms.core.apps",
-        "documentation": {}
-    },
-    {
-        "label": "school_context",
-        "kind": 2,
-        "importPath": "sms.core.context_preprocessors",
-        "description": "sms.core.context_preprocessors",
-        "peekOfCode": "def school_context(request):\n    \"\"\"\n    Context processor to provide school information to all templates\n    \"\"\"\n    context = {}\n    try:\n        # Get the first (and likely only) school\n        school = School.objects.first()\n        context['school'] = school\n        if school:",
-        "detail": "sms.core.context_preprocessors",
-        "documentation": {}
-    },
-    {
-        "label": "get_user_role_display",
-        "kind": 2,
-        "importPath": "sms.core.context_preprocessors",
-        "description": "sms.core.context_preprocessors",
-        "peekOfCode": "def get_user_role_display(user):\n    \"\"\"Get display name for user role\"\"\"\n    if user.is_superuser:\n        return \"Superuser\"\n    elif user.is_admin:\n        return \"Administrator\"\n    elif user.is_teacher:\n        return \"Teacher\"\n    elif user.is_student:\n        return \"Student\"",
-        "detail": "sms.core.context_preprocessors",
-        "documentation": {}
-    },
-    {
-        "label": "get_user_permissions",
-        "kind": 2,
-        "importPath": "sms.core.context_preprocessors",
-        "description": "sms.core.context_preprocessors",
-        "peekOfCode": "def get_user_permissions(user):\n    \"\"\"Get user permissions for template usage\"\"\"\n    permissions = {\n        'can_manage_school': user.is_superuser or user.is_admin or user.is_staff,\n        'can_manage_students': user.is_superuser or user.is_admin or user.is_staff,\n        'can_manage_teachers': user.is_superuser or user.is_admin or user.is_staff,\n        'can_view_reports': user.is_superuser or user.is_admin or user.is_staff or user.is_teacher,\n        'can_take_attendance': user.is_superuser or user.is_admin or user.is_staff or user.is_teacher,\n        'can_enter_grades': user.is_superuser or user.is_admin or user.is_staff or user.is_teacher,\n        'is_admin_or_staff': user.is_superuser or user.is_admin or user.is_staff,",
-        "detail": "sms.core.context_preprocessors",
-        "documentation": {}
-    },
-    {
-        "label": "SuperuserRequiredMixin",
-        "kind": 6,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "class SuperuserRequiredMixin(UserPassesTestMixin):\n    \"\"\"Mixin that requires superuser access\"\"\"\n    def test_func(self):\n        return is_superuser(self.request.user)\n    def handle_no_permission(self):\n        if not self.request.user.is_authenticated:\n            return redirect('admin:login')\n        messages.error(\n            self.request, \"You don't have permission to access this page.\")\n        return redirect('sms:dashboard')",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "AdminRequiredMixin",
-        "kind": 6,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "class AdminRequiredMixin(UserPassesTestMixin):\n    \"\"\"Mixin that requires admin access\"\"\"\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def handle_no_permission(self):\n        if not self.request.user.is_authenticated:\n            return redirect('admin:login')\n        messages.error(\n            self.request, \"You need admin privileges to access this page.\")\n        return redirect('sms:dashboard')",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "TeacherRequiredMixin",
-        "kind": 6,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "class TeacherRequiredMixin(UserPassesTestMixin):\n    \"\"\"Mixin that requires teacher access or higher\"\"\"\n    def test_func(self):\n        return is_teacher_user(self.request.user)\n    def handle_no_permission(self):\n        if not self.request.user.is_authenticated:\n            return redirect('admin:login')\n        messages.error(\n            self.request, \"You need teacher privileges to access this page.\")\n        return redirect('sms:dashboard')",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "SchoolManagerRequiredMixin",
-        "kind": 6,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "class SchoolManagerRequiredMixin(UserPassesTestMixin):\n    \"\"\"Mixin that requires school management permissions\"\"\"\n    def test_func(self):\n        return can_manage_schools(self.request.user)\n    def handle_no_permission(self):\n        if not self.request.user.is_authenticated:\n            return redirect('admin:login')\n        messages.error(\n            self.request, \"You don't have permission to manage school configurations.\")\n        return redirect('sms:dashboard')",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "AjaxRequiredMixin",
-        "kind": 6,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "class AjaxRequiredMixin:\n    \"\"\"Mixin for AJAX-only views\"\"\"\n    def dispatch(self, request, *args, **kwargs):\n        if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':\n            return JsonResponse({'error': 'This endpoint requires AJAX'}, status=400)\n        return super().dispatch(request, *args, **kwargs)\n# sms/permissions.py\nclass SchoolPermissions:\n    \"\"\"Custom permissions for school management\"\"\"\n    PERMISSIONS = [",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "SchoolPermissions",
-        "kind": 6,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "class SchoolPermissions:\n    \"\"\"Custom permissions for school management\"\"\"\n    PERMISSIONS = [\n        ('view_school_config', 'Can view school configuration'),\n        ('add_school_config', 'Can add school configuration'),\n        ('change_school_config', 'Can change school configuration'),\n        ('delete_school_config', 'Can delete school configuration'),\n        ('manage_school_bulk', 'Can perform bulk operations on schools'),\n        ('import_school_data', 'Can import school data'),\n        ('export_school_data', 'Can export school data'),",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "SchoolPermissionMixin",
-        "kind": 6,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "class SchoolPermissionMixin(UserPassesTestMixin):\n    \"\"\"Generic mixin for checking school permissions\"\"\"\n    permission_required = None\n    def test_func(self):\n        if not self.permission_required:\n            raise ValueError(\"permission_required must be set\")\n        return SchoolPermissions.has_school_permission(\n            self.request.user,\n            self.permission_required\n        )",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "is_superuser",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def is_superuser(user):\n    \"\"\"Check if user is superuser\"\"\"\n    return user.is_authenticated and user.is_superuser\ndef is_admin_user(user):\n    \"\"\"Check if user is admin or superuser\"\"\"\n    return user.is_authenticated and (user.is_superuser or getattr(user, 'is_admin', False))\ndef is_teacher_user(user):\n    \"\"\"Check if user is teacher, admin, or superuser\"\"\"\n    return user.is_authenticated and (\n        user.is_superuser or",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "is_admin_user",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def is_admin_user(user):\n    \"\"\"Check if user is admin or superuser\"\"\"\n    return user.is_authenticated and (user.is_superuser or getattr(user, 'is_admin', False))\ndef is_teacher_user(user):\n    \"\"\"Check if user is teacher, admin, or superuser\"\"\"\n    return user.is_authenticated and (\n        user.is_superuser or\n        getattr(user, 'is_admin', False) or\n        getattr(user, 'is_teacher', False)\n    )",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "is_teacher_user",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def is_teacher_user(user):\n    \"\"\"Check if user is teacher, admin, or superuser\"\"\"\n    return user.is_authenticated and (\n        user.is_superuser or\n        getattr(user, 'is_admin', False) or\n        getattr(user, 'is_teacher', False)\n    )\ndef is_student_user(user):\n    \"\"\"Check if user is student\"\"\"\n    return user.is_authenticated and getattr(user, 'is_student', False)",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "is_student_user",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def is_student_user(user):\n    \"\"\"Check if user is student\"\"\"\n    return user.is_authenticated and getattr(user, 'is_student', False)\ndef can_manage_schools(user):\n    \"\"\"Check if user can manage school configurations\"\"\"\n    return user.is_authenticated and (\n        user.is_superuser or\n        getattr(user, 'is_admin', False)\n    )\ndef can_view_schools(user):",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "can_manage_schools",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def can_manage_schools(user):\n    \"\"\"Check if user can manage school configurations\"\"\"\n    return user.is_authenticated and (\n        user.is_superuser or\n        getattr(user, 'is_admin', False)\n    )\ndef can_view_schools(user):\n    \"\"\"Check if user can view school information\"\"\"\n    return user.is_authenticated and (\n        user.is_superuser or",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "can_view_schools",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def can_view_schools(user):\n    \"\"\"Check if user can view school information\"\"\"\n    return user.is_authenticated and (\n        user.is_superuser or\n        getattr(user, 'is_admin', False) or\n        getattr(user, 'is_teacher', False)\n    )\n# Function-based view decorators\ndef superuser_required(view_func=None, redirect_url=None, message=None):\n    \"\"\"",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "superuser_required",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def superuser_required(view_func=None, redirect_url=None, message=None):\n    \"\"\"\n    Decorator for views that require superuser access\n    \"\"\"\n    def decorator(view_func):\n        @wraps(view_func)\n        def _wrapped_view(request, *args, **kwargs):\n            if not request.user.is_authenticated:\n                return redirect('admin:login')\n            if not is_superuser(request.user):",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "admin_required",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def admin_required(view_func=None, redirect_url=None, message=None):\n    \"\"\"\n    Decorator for views that require admin access\n    \"\"\"\n    def decorator(view_func):\n        @wraps(view_func)\n        def _wrapped_view(request, *args, **kwargs):\n            if not request.user.is_authenticated:\n                return redirect('admin:login')\n            if not is_admin_user(request.user):",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "teacher_required",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def teacher_required(view_func=None, redirect_url=None, message=None):\n    \"\"\"\n    Decorator for views that require teacher access or higher\n    \"\"\"\n    def decorator(view_func):\n        @wraps(view_func)\n        def _wrapped_view(request, *args, **kwargs):\n            if not request.user.is_authenticated:\n                return redirect('admin:login')\n            if not is_teacher_user(request.user):",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "school_manager_required",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def school_manager_required(view_func=None, redirect_url=None, message=None):\n    \"\"\"\n    Decorator for views that require school management permissions\n    \"\"\"\n    def decorator(view_func):\n        @wraps(view_func)\n        def _wrapped_view(request, *args, **kwargs):\n            if not request.user.is_authenticated:\n                return redirect('admin:login')\n            if not can_manage_schools(request.user):",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "ajax_required",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def ajax_required(view_func):\n    \"\"\"\n    Decorator for AJAX-only views\n    \"\"\"\n    @wraps(view_func)\n    def _wrapped_view(request, *args, **kwargs):\n        if not request.headers.get('X-Requested-With') == 'XMLHttpRequest':\n            return JsonResponse({'error': 'This endpoint requires AJAX'}, status=400)\n        return view_func(request, *args, **kwargs)\n    return _wrapped_view",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "api_permission_required",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def api_permission_required(permission_func, error_message=None):\n    \"\"\"\n    Decorator for API views that require specific permissions\n    \"\"\"\n    def decorator(view_func):\n        @wraps(view_func)\n        def _wrapped_view(request, *args, **kwargs):\n            if not request.user.is_authenticated:\n                return JsonResponse({'error': 'Authentication required'}, status=401)\n            if not permission_func(request.user):",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "check_school_permission",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def check_school_permission(permission_codename):\n    \"\"\"\n    Decorator factory for checking school permissions\n    \"\"\"\n    def decorator(view_func):\n        @wraps(view_func)\n        def _wrapped_view(request, *args, **kwargs):\n            if not request.user.is_authenticated:\n                return redirect('admin:login')\n            if not SchoolPermissions.has_school_permission(request.user, permission_codename):",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "log_school_operation",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def log_school_operation(operation_type):\n    \"\"\"\n    Decorator to log school management operations\n    \"\"\"\n    def decorator(view_func):\n        @wraps(view_func)\n        def _wrapped_view(request, *args, **kwargs):\n            try:\n                result = view_func(request, *args, **kwargs)\n                # Log successful operation",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "rate_limit",
-        "kind": 2,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "def rate_limit(max_requests=5, window_seconds=60):\n    \"\"\"\n    Basic rate limiting decorator\n    \"\"\"\n    def decorator(view_func):\n        @wraps(view_func)\n        def _wrapped_view(request, *args, **kwargs):\n            # This is a basic implementation\n            # In production, use Django-ratelimit or Redis\n            from django.core.cache import cache",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "logger",
-        "kind": 5,
-        "importPath": "sms.core.decorators",
-        "description": "sms.core.decorators",
-        "peekOfCode": "logger = logging.getLogger(__name__)\n# Permission checking functions\ndef is_superuser(user):\n    \"\"\"Check if user is superuser\"\"\"\n    return user.is_authenticated and user.is_superuser\ndef is_admin_user(user):\n    \"\"\"Check if user is admin or superuser\"\"\"\n    return user.is_authenticated and (user.is_superuser or getattr(user, 'is_admin', False))\ndef is_teacher_user(user):\n    \"\"\"Check if user is teacher, admin, or superuser\"\"\"",
-        "detail": "sms.core.decorators",
-        "documentation": {}
-    },
-    {
-        "label": "LoginForm",
-        "kind": 6,
-        "importPath": "sms.core.forms",
-        "description": "sms.core.forms",
-        "peekOfCode": "class LoginForm(forms.Form):\n    \"\"\"Login form for all user types\"\"\"\n    username = forms.CharField(\n        max_length=150,\n        widget=forms.TextInput(attrs={\n            'class': 'form-control',\n            'placeholder': 'Enter your username',\n            'autofocus': True,\n            'autocomplete': 'username'\n        })",
-        "detail": "sms.core.forms",
-        "documentation": {}
-    },
-    {
-        "label": "SchoolSettingsForm",
-        "kind": 6,
-        "importPath": "sms.core.forms",
-        "description": "sms.core.forms",
-        "peekOfCode": "class SchoolSettingsForm(forms.ModelForm):\n    \"\"\"Comprehensive school settings form\"\"\"\n    class Meta:\n        model = School\n        fields = [\n            'name', 'school_type', 'ownership', 'emis_code', 'ges_number',\n            'establishment_date', 'region', 'district', 'town',\n            'digital_address', 'physical_address', 'headmaster_name',\n            'email', 'phone_primary', 'phone_secondary', 'website',\n            'logo', 'motto', 'has_boarding', 'is_active'",
-        "detail": "sms.core.forms",
-        "documentation": {}
-    },
-    {
-        "label": "ContactInfoForm",
-        "kind": 6,
-        "importPath": "sms.core.forms",
-        "description": "sms.core.forms",
-        "peekOfCode": "class ContactInfoForm(forms.ModelForm):\n    \"\"\"Separate form for quick contact info updates\"\"\"\n    class Meta:\n        model = School\n        fields = ['email', 'phone_primary', 'phone_secondary', 'website']\n        widgets = {\n            'email': forms.EmailInput(attrs={\n                'class': 'form-control',\n                'placeholder': 'school@example.com'\n            }),",
-        "detail": "sms.core.forms",
-        "documentation": {}
-    },
-    {
-        "label": "QuickSettingsForm",
-        "kind": 6,
-        "importPath": "sms.core.forms",
-        "description": "sms.core.forms",
-        "peekOfCode": "class QuickSettingsForm(forms.Form):\n    \"\"\"Form for quick settings toggles\"\"\"\n    has_boarding = forms.BooleanField(\n        required=False,\n        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})\n    )\n    is_active = forms.BooleanField(\n        required=False,\n        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})\n    )",
-        "detail": "sms.core.forms",
-        "documentation": {}
-    },
-    {
-        "label": "validate_image_file",
-        "kind": 2,
-        "importPath": "sms.core.forms",
-        "description": "sms.core.forms",
-        "peekOfCode": "def validate_image_file(file):\n    \"\"\"Utility function to validate image files\"\"\"\n    if not file:\n        return True\n    # Check if this is a new uploaded file\n    if hasattr(file, 'content_type') and hasattr(file, 'size'):\n        # Check file size (limit to 5MB)\n        max_size = getattr(settings, 'SCHOOL_SETTINGS', {}).get(\n            'MAX_LOGO_SIZE', 5 * 1024 * 1024)\n        if file.size > max_size:",
-        "detail": "sms.core.forms",
-        "documentation": {}
-    },
-    {
-        "label": "TimeStampedModel",
-        "kind": 6,
-        "importPath": "sms.core.models",
-        "description": "sms.core.models",
-        "peekOfCode": "class TimeStampedModel(models.Model):\n    created_at = models.DateTimeField(auto_now_add=True, db_index=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    class Meta:\n        abstract = True\nclass IDGenerationMixin:\n    \"\"\"Mixin for models that need auto-generated IDs\"\"\"\n    ID_PREFIX = ''  # Default prefix, should be overridden in subclass\n    id_field = None  # Should be set in subclass\n    def generate_id(self):",
-        "detail": "sms.core.models",
-        "documentation": {}
-    },
-    {
-        "label": "IDGenerationMixin",
-        "kind": 6,
-        "importPath": "sms.core.models",
-        "description": "sms.core.models",
-        "peekOfCode": "class IDGenerationMixin:\n    \"\"\"Mixin for models that need auto-generated IDs\"\"\"\n    ID_PREFIX = ''  # Default prefix, should be overridden in subclass\n    id_field = None  # Should be set in subclass\n    def generate_id(self):\n        \"\"\"Generate a unique ID based on the prefix, school code, and year\"\"\"\n        if not hasattr(self, 'school') or not self.school:\n            raise ValueError(\"School is required for ID generation\")\n        year = str(getattr(self, 'year_admitted', timezone.now().year))[-2:]\n        prefix = self.ID_PREFIX",
-        "detail": "sms.core.models",
-        "documentation": {}
-    },
-    {
-        "label": "School",
-        "kind": 6,
-        "importPath": "sms.core.models",
-        "description": "sms.core.models",
-        "peekOfCode": "class School(TimeStampedModel):\n    SCHOOL_TYPE_CHOICES = [\n        ('basic', 'Basic School'),\n        ('shs', 'Senior High School (SHS)'),\n        ('technical', 'Technical/Vocational School'),\n        ('combined', 'Combined School (Multiple Levels)'),\n    ]\n    REGION_CHOICES = [\n        ('greater_accra', 'Greater Accra'),\n        ('ashanti', 'Ashanti'),",
-        "detail": "sms.core.models",
-        "documentation": {}
-    },
-    {
-        "label": "Person",
-        "kind": 6,
-        "importPath": "sms.core.models",
-        "description": "sms.core.models",
-        "peekOfCode": "class Person(TimeStampedModel):\n    GENDER_CHOICES = (('M', 'Male'), ('F', 'Female'))\n    school = models.ForeignKey(\n        School,\n        on_delete=models.CASCADE,\n        related_name=\"%(class)ss\"\n    )\n    user = models.OneToOneField(\n        settings.AUTH_USER_MODEL,\n        on_delete=models.SET_NULL,",
-        "detail": "sms.core.models",
-        "documentation": {}
-    },
-    {
-        "label": "UserManager",
-        "kind": 6,
-        "importPath": "sms.core.models",
-        "description": "sms.core.models",
-        "peekOfCode": "class UserManager(BaseUserManager):\n    \"\"\"Manager for users\"\"\"\n    def create_user(self, username, password=None, **extra_fields):\n        \"\"\"Create, save and return new user\"\"\"\n        if not username:\n            raise ValueError('User must have a user ID')\n        user = self.model(username=username, **extra_fields)\n        user.set_password(password)\n        user.save(using=self._db)\n        return user",
-        "detail": "sms.core.models",
-        "documentation": {}
-    },
-    {
-        "label": "User",
-        "kind": 6,
-        "importPath": "sms.core.models",
-        "description": "sms.core.models",
-        "peekOfCode": "class User(AbstractBaseUser, PermissionsMixin):\n    \"\"\"User in the system\"\"\"\n    username = models.CharField(max_length=150, unique=True)\n    email = models.EmailField(max_length=255, blank=True, null=True)\n    is_active = models.BooleanField(default=True)\n    is_teacher = models.BooleanField(default=False)\n    is_student = models.BooleanField(default=False)\n    is_admin = models.BooleanField(default=False)\n    is_staff = models.BooleanField(default=False)\n    date_joined = models.DateTimeField(auto_now_add=True)",
-        "detail": "sms.core.models",
-        "documentation": {}
-    },
-    {
-        "label": "PHONE_VALIDATOR",
-        "kind": 5,
-        "importPath": "sms.core.models",
-        "description": "sms.core.models",
-        "peekOfCode": "PHONE_VALIDATOR = RegexValidator(\n    regex=r'^\\+?\\d{10,15}$',\n    message=\"Phone number must be 10-15 digits, optionally starting with '+'\"\n)\nGHANA_CARD_VALIDATOR = RegexValidator(\n    regex=r'^GHA-\\d{9}-\\d$',\n    message=\"Ghana Card must follow format: GHA-123456789-1\"\n)\n# Abstracts\nclass TimeStampedModel(models.Model):",
-        "detail": "sms.core.models",
-        "documentation": {}
-    },
-    {
-        "label": "GHANA_CARD_VALIDATOR",
-        "kind": 5,
-        "importPath": "sms.core.models",
-        "description": "sms.core.models",
-        "peekOfCode": "GHANA_CARD_VALIDATOR = RegexValidator(\n    regex=r'^GHA-\\d{9}-\\d$',\n    message=\"Ghana Card must follow format: GHA-123456789-1\"\n)\n# Abstracts\nclass TimeStampedModel(models.Model):\n    created_at = models.DateTimeField(auto_now_add=True, db_index=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    class Meta:\n        abstract = True",
-        "detail": "sms.core.models",
-        "documentation": {}
-    },
-    {
-        "label": "urlpatterns",
-        "kind": 5,
-        "importPath": "sms.core.urls",
-        "description": "sms.core.urls",
-        "peekOfCode": "urlpatterns = [\n    # Authentication URLs\n    path('', views.login_view, name='login'),\n    path('login/', views.login_view, name='login'),\n    path('logout/', views.logout_view, name='logout'),\n    # Dashboard\n    path('dashboard/', login_required(views.dashboard), name='dashboard'),\n    # Settings\n    path('settings/', views.school_settings, name='school_settings'),\n    path('settings/school/', views.school_settings, name='school_settings'),",
-        "detail": "sms.core.urls",
-        "documentation": {}
-    },
-    {
-        "label": "is_admin_or_staff",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def is_admin_or_staff(user):\n    \"\"\"Check if user is admin or staff\"\"\"\n    return user.is_authenticated and (user.is_admin or user.is_staff or user.is_superuser)\ndef login_view(request):\n    \"\"\"Handle user login\"\"\"\n    if request.user.is_authenticated:\n        return redirect('dashboard')\n    if request.method == 'POST':\n        form = LoginForm(request.POST)\n        if form.is_valid():",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "login_view",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def login_view(request):\n    \"\"\"Handle user login\"\"\"\n    if request.user.is_authenticated:\n        return redirect('dashboard')\n    if request.method == 'POST':\n        form = LoginForm(request.POST)\n        if form.is_valid():\n            username = form.cleaned_data['username']\n            password = form.cleaned_data['password']\n            remember_me = form.cleaned_data.get('remember_me', False)",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "logout_view",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def logout_view(request):\n    \"\"\"Handle user logout\"\"\"\n    logout(request)\n    messages.success(request, 'You have been successfully logged out.')\n    return redirect('login')\n@login_required\ndef dashboard(request):\n    \"\"\"Main dashboard view\"\"\"\n    try:\n        # Get school statistics",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "dashboard",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def dashboard(request):\n    \"\"\"Main dashboard view\"\"\"\n    try:\n        # Get school statistics\n        context = {\n            'user': request.user,\n            'total_students': User.objects.filter(is_student=True, is_active=True).count(),\n            'total_teachers': User.objects.filter(is_teacher=True, is_active=True).count(),\n            'total_classes': 24,  # You can update this based on your models\n            'total_subjects': 15,  # You can update this based on your models",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "school_settings",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def school_settings(request):\n    \"\"\"School settings management\"\"\"\n    try:\n        # Get the first school (assuming single school setup)\n        school = School.objects.first()\n        if not school:\n            # Create a default school for T. I. Ahmadiyya SHS Wa\n            with transaction.atomic():\n                school = School.objects.create(\n                    name=\"T. I. Ahmadiyya Senior High School, Wa\",",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "update_school_contact",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def update_school_contact(request):\n    \"\"\"AJAX endpoint for updating school contact info\"\"\"\n    try:\n        school = School.objects.first()\n        if not school:\n            return JsonResponse({'success': False, 'error': 'School not found'})\n        data = json.loads(request.body)\n        # Update contact fields\n        if 'email' in data:\n            school.email = data['email']",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "toggle_school_status",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def toggle_school_status(request):\n    \"\"\"AJAX endpoint for toggling school active status\"\"\"\n    try:\n        school = School.objects.first()\n        if not school:\n            return JsonResponse({'success': False, 'error': 'School not found'})\n        school.is_active = not school.is_active\n        school.save()\n        status = \"activated\" if school.is_active else \"deactivated\"\n        return JsonResponse({",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "profile_view",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def profile_view(request):\n    \"\"\"User profile view\"\"\"\n    return render(request, 'core/profile.html', {'user': request.user})\n# Additional utility views\n@ login_required\ndef check_user_role(request):\n    \"\"\"API endpoint to check user role for frontend\"\"\"\n    return JsonResponse({\n        'is_admin': request.user.is_admin,\n        'is_staff': request.user.is_staff,",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "check_user_role",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def check_user_role(request):\n    \"\"\"API endpoint to check user role for frontend\"\"\"\n    return JsonResponse({\n        'is_admin': request.user.is_admin,\n        'is_staff': request.user.is_staff,\n        'is_teacher': request.user.is_teacher,\n        'is_student': request.user.is_student,\n        'is_superuser': request.user.is_superuser,\n        'username': request.user.username,\n        'email': request.user.email or '',",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "get_school_info",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def get_school_info(request):\n    \"\"\"API endpoint to get school information\"\"\"\n    try:\n        school = School.objects.first()\n        if not school:\n            return JsonResponse({'success': False, 'error': 'School not found'})\n        school_data = {\n            'name': school.name,\n            'school_type': school.get_school_type_display(),\n            'ownership': school.get_ownership_display(),",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "change_password",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def change_password(request):\n    \"\"\"Handle password change\"\"\"\n    if request.method == 'POST':\n        try:\n            data = json.loads(request.body)\n            current_password = data.get('current_password')\n            new_password = data.get('new_password')\n            confirm_password = data.get('confirm_password')\n            # Validate current password\n            if not request.user.check_password(current_password):",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "debug_info",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def debug_info(request):\n    \"\"\"Debug information view for administrators\"\"\"\n    if not settings.DEBUG:\n        return JsonResponse({'error': 'Debug mode is disabled'})\n    debug_data = {\n        'django_version': __import__('django').get_version(),\n        'python_version': __import__('sys').version,\n        'user_info': {\n            'username': request.user.username,\n            'is_admin': request.user.is_admin,",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "user_management",
-        "kind": 2,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "def user_management(request):\n    \"\"\"User management view for admins\"\"\"\n    user_type = request.GET.get('type', 'all')\n    search = request.GET.get('search', '')\n    # Filter users based on type\n    users = User.objects.all()\n    if user_type == 'teachers':\n        users = users.filter(is_teacher=True)\n    elif user_type == 'students':\n        users = users.filter(is_student=True)",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
-        "label": "logger",
-        "kind": 5,
-        "importPath": "sms.core.views",
-        "description": "sms.core.views",
-        "peekOfCode": "logger = logging.getLogger(__name__)\ndef is_admin_or_staff(user):\n    \"\"\"Check if user is admin or staff\"\"\"\n    return user.is_authenticated and (user.is_admin or user.is_staff or user.is_superuser)\ndef login_view(request):\n    \"\"\"Handle user login\"\"\"\n    if request.user.is_authenticated:\n        return redirect('dashboard')\n    if request.method == 'POST':\n        form = LoginForm(request.POST)",
-        "detail": "sms.core.views",
-        "documentation": {}
-    },
-    {
         "label": "application",
         "kind": 5,
-        "importPath": "sms.sms.asgi",
-        "description": "sms.sms.asgi",
+        "importPath": "app.asgi",
+        "description": "app.asgi",
         "peekOfCode": "application = get_asgi_application()",
-        "detail": "sms.sms.asgi",
+        "detail": "app.asgi",
         "documentation": {}
     },
     {
         "label": "BASE_DIR",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\nSECRET_KEY = config('SECRET_KEY', default='dev-secret-key-change-later')\nDEBUG = True\nALLOWED_HOSTS = ['*']\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = \"django-insecure-=hqc%(6$q-n33pl^*-b_%yco6yf7)n+vvavgp&6kg31z!+ih$j\"\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "SECRET_KEY",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "SECRET_KEY = config('SECRET_KEY', default='dev-secret-key-change-later')\nDEBUG = True\nALLOWED_HOSTS = ['*']\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "SECRET_KEY = \"django-insecure-=hqc%(6$q-n33pl^*-b_%yco6yf7)n+vvavgp&6kg31z!+ih$j\"\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "DEBUG",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "DEBUG = True\nALLOWED_HOSTS = ['*']\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'rest_framework',",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "DEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "ALLOWED_HOSTS",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "ALLOWED_HOSTS = ['*']\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'rest_framework',\n    'core.apps.CoreConfig',",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "ALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",\n    #Local apps",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "INSTALLED_APPS",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "INSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    'rest_framework',\n    'core.apps.CoreConfig',\n]",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "INSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",\n    #Local apps\n    'school.apps.SchoolConfig',\n]",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "MIDDLEWARE",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n]\nROOT_URLCONF = 'sms.urls'",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "MIDDLEWARE = [\n    \"django.middleware.security.SecurityMiddleware\",\n    \"django.contrib.sessions.middleware.SessionMiddleware\",\n    \"django.middleware.common.CommonMiddleware\",\n    \"django.middleware.csrf.CsrfViewMiddleware\",\n    \"django.contrib.auth.middleware.AuthenticationMiddleware\",\n    \"django.contrib.messages.middleware.MessageMiddleware\",\n    \"django.middleware.clickjacking.XFrameOptionsMiddleware\",\n]\nROOT_URLCONF = \"app.urls\"",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "ROOT_URLCONF",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "ROOT_URLCONF = 'sms.urls'\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [BASE_DIR / 'templates'],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',\n                'django.template.context_processors.request',",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "ROOT_URLCONF = \"app.urls\"\nTEMPLATES = [\n    {\n        \"BACKEND\": \"django.template.backends.django.DjangoTemplates\",\n        \"DIRS\": [],\n        \"APP_DIRS\": True,\n        \"OPTIONS\": {\n            \"context_processors\": [\n                \"django.template.context_processors.request\",\n                \"django.contrib.auth.context_processors.auth\",",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "TEMPLATES",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "TEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [BASE_DIR / 'templates'],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.debug',\n                'django.template.context_processors.request',\n                'django.contrib.auth.context_processors.auth',",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "TEMPLATES = [\n    {\n        \"BACKEND\": \"django.template.backends.django.DjangoTemplates\",\n        \"DIRS\": [],\n        \"APP_DIRS\": True,\n        \"OPTIONS\": {\n            \"context_processors\": [\n                \"django.template.context_processors.request\",\n                \"django.contrib.auth.context_processors.auth\",\n                \"django.contrib.messages.context_processors.messages\",",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "WSGI_APPLICATION",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "WSGI_APPLICATION = \"app.wsgi.application\"\n# Database\n# https://docs.djangoproject.com/en/5.2/ref/settings/#databases\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'HOST': os.environ.get('DB_HOST'),\n        'NAME': os.environ.get('DB_NAME'),\n        'USER': os.environ.get('DB_USER'),\n        'PASSWORD': os.environ.get('DB_PASS')",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "DATABASES",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "DATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'HOST': config('DB_HOST', default='localhost'),\n        'NAME': config('DB_NAME', default='sms_db'),\n        'USER': config('DB_USER', default='postgres'),\n        'PASSWORD': config('DB_PASS', default='password'),\n        'PORT': config('DB_PORT', default='5432'),\n    }\n}",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "DATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'HOST': os.environ.get('DB_HOST'),\n        'NAME': os.environ.get('DB_NAME'),\n        'USER': os.environ.get('DB_USER'),\n        'PASSWORD': os.environ.get('DB_PASS')\n    }\n}\nAUTH_USER_MODEL = 'school.User'",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "AUTH_USER_MODEL",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "AUTH_USER_MODEL = 'core.User'\nLOGIN_URL = '/login/'\nLOGIN_REDIRECT_URL = '/dashboard/'\nLOGOUT_REDIRECT_URL = '/login/'\nLANGUAGE_CODE = 'en-us'\nTIME_ZONE = 'Africa/Accra'\nUSE_I18N = True\nUSE_TZ = True\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [BASE_DIR / 'static']",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "AUTH_USER_MODEL = 'school.User'\n# Password validation\n# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators\nAUTH_PASSWORD_VALIDATORS = [\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.UserAttributeSimilarityValidator\",\n    },\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.MinimumLengthValidator\",\n    },",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
-        "label": "LOGIN_URL",
+        "label": "AUTH_PASSWORD_VALIDATORS",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "LOGIN_URL = '/login/'\nLOGIN_REDIRECT_URL = '/dashboard/'\nLOGOUT_REDIRECT_URL = '/login/'\nLANGUAGE_CODE = 'en-us'\nTIME_ZONE = 'Africa/Accra'\nUSE_I18N = True\nUSE_TZ = True\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [BASE_DIR / 'static']\nSTATIC_ROOT = BASE_DIR / 'staticfiles'",
-        "detail": "sms.sms.settings",
-        "documentation": {}
-    },
-    {
-        "label": "LOGIN_REDIRECT_URL",
-        "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "LOGIN_REDIRECT_URL = '/dashboard/'\nLOGOUT_REDIRECT_URL = '/login/'\nLANGUAGE_CODE = 'en-us'\nTIME_ZONE = 'Africa/Accra'\nUSE_I18N = True\nUSE_TZ = True\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [BASE_DIR / 'static']\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\nMEDIA_URL = '/media/'",
-        "detail": "sms.sms.settings",
-        "documentation": {}
-    },
-    {
-        "label": "LOGOUT_REDIRECT_URL",
-        "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "LOGOUT_REDIRECT_URL = '/login/'\nLANGUAGE_CODE = 'en-us'\nTIME_ZONE = 'Africa/Accra'\nUSE_I18N = True\nUSE_TZ = True\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [BASE_DIR / 'static']\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "AUTH_PASSWORD_VALIDATORS = [\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.UserAttributeSimilarityValidator\",\n    },\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.MinimumLengthValidator\",\n    },\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.CommonPasswordValidator\",\n    },",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "LANGUAGE_CODE",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "LANGUAGE_CODE = 'en-us'\nTIME_ZONE = 'Africa/Accra'\nUSE_I18N = True\nUSE_TZ = True\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [BASE_DIR / 'static']\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Console logging only",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "LANGUAGE_CODE = \"en-us\"\nTIME_ZONE = \"UTC\"\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = \"static/\"\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "TIME_ZONE",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "TIME_ZONE = 'Africa/Accra'\nUSE_I18N = True\nUSE_TZ = True\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [BASE_DIR / 'static']\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Console logging only\nLOGGING = {",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "TIME_ZONE = \"UTC\"\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = \"static/\"\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "USE_I18N",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "USE_I18N = True\nUSE_TZ = True\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [BASE_DIR / 'static']\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Console logging only\nLOGGING = {\n    'version': 1,",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "USE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = \"static/\"\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "USE_TZ",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "USE_TZ = True\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [BASE_DIR / 'static']\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Console logging only\nLOGGING = {\n    'version': 1,\n    'disable_existing_loggers': False,",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "USE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = \"static/\"\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "STATIC_URL",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "STATIC_URL = '/static/'\nSTATICFILES_DIRS = [BASE_DIR / 'static']\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Console logging only\nLOGGING = {\n    'version': 1,\n    'disable_existing_loggers': False,\n    'handlers': {",
-        "detail": "sms.sms.settings",
-        "documentation": {}
-    },
-    {
-        "label": "STATICFILES_DIRS",
-        "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "STATICFILES_DIRS = [BASE_DIR / 'static']\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Console logging only\nLOGGING = {\n    'version': 1,\n    'disable_existing_loggers': False,\n    'handlers': {\n        'console': {'class': 'logging.StreamHandler'},",
-        "detail": "sms.sms.settings",
-        "documentation": {}
-    },
-    {
-        "label": "STATIC_ROOT",
-        "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "STATIC_ROOT = BASE_DIR / 'staticfiles'\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Console logging only\nLOGGING = {\n    'version': 1,\n    'disable_existing_loggers': False,\n    'handlers': {\n        'console': {'class': 'logging.StreamHandler'},\n    },",
-        "detail": "sms.sms.settings",
-        "documentation": {}
-    },
-    {
-        "label": "MEDIA_URL",
-        "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "MEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Console logging only\nLOGGING = {\n    'version': 1,\n    'disable_existing_loggers': False,\n    'handlers': {\n        'console': {'class': 'logging.StreamHandler'},\n    },\n    'root': {'handlers': ['console']},",
-        "detail": "sms.sms.settings",
-        "documentation": {}
-    },
-    {
-        "label": "MEDIA_ROOT",
-        "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "MEDIA_ROOT = BASE_DIR / 'media'\n# Console logging only\nLOGGING = {\n    'version': 1,\n    'disable_existing_loggers': False,\n    'handlers': {\n        'console': {'class': 'logging.StreamHandler'},\n    },\n    'root': {'handlers': ['console']},\n}",
-        "detail": "sms.sms.settings",
-        "documentation": {}
-    },
-    {
-        "label": "LOGGING",
-        "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "LOGGING = {\n    'version': 1,\n    'disable_existing_loggers': False,\n    'handlers': {\n        'console': {'class': 'logging.StreamHandler'},\n    },\n    'root': {'handlers': ['console']},\n}\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "STATIC_URL = \"static/\"\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "DEFAULT_AUTO_FIELD",
         "kind": 5,
-        "importPath": "sms.sms.settings",
-        "description": "sms.sms.settings",
-        "peekOfCode": "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
-        "detail": "sms.sms.settings",
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "DEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "detail": "app.settings",
         "documentation": {}
     },
     {
         "label": "urlpatterns",
         "kind": 5,
-        "importPath": "sms.sms.urls",
-        "description": "sms.sms.urls",
-        "peekOfCode": "urlpatterns = [\n    path('admin/', admin.site.urls),\n    path('', include('core.urls')),  # Include core app URLs\n]\n# Serve media files during development\nif settings.DEBUG:\n    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)",
-        "detail": "sms.sms.urls",
+        "importPath": "app.urls",
+        "description": "app.urls",
+        "peekOfCode": "urlpatterns = [\n    path(\"admin/\", admin.site.urls),\n]",
+        "detail": "app.urls",
         "documentation": {}
     },
     {
         "label": "application",
         "kind": 5,
-        "importPath": "sms.sms.wsgi",
-        "description": "sms.sms.wsgi",
+        "importPath": "app.wsgi",
+        "description": "app.wsgi",
         "peekOfCode": "application = get_wsgi_application()",
-        "detail": "sms.sms.wsgi",
+        "detail": "app.wsgi",
+        "documentation": {}
+    },
+    {
+        "label": "Command",
+        "kind": 6,
+        "importPath": "school.management.commands.wait_for_db",
+        "description": "school.management.commands.wait_for_db",
+        "peekOfCode": "class Command(BaseCommand):\n    \"\"\"Django command to wait for database\"\"\"\n    def handle(self, *args, **options):\n        \"\"\"Entrypoint for command. \"\"\"\n        self.stdout.write('Waiting for Database...')\n        db_up = False\n        while db_up is False:\n            try:\n                self.check(databases=['default'])\n                db_up = True",
+        "detail": "school.management.commands.wait_for_db",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "school.migrations.0001_initial",
+        "description": "school.migrations.0001_initial",
+        "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n        ('auth', '0012_alter_user_first_name_max_length'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='Programme',\n            fields=[\n                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),",
+        "detail": "school.migrations.0001_initial",
+        "documentation": {}
+    },
+    {
+        "label": "SchoolConfig",
+        "kind": 6,
+        "importPath": "school.apps",
+        "description": "school.apps",
+        "peekOfCode": "class SchoolConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'school'",
+        "detail": "school.apps",
+        "documentation": {}
+    },
+    {
+        "label": "UserManager",
+        "kind": 6,
+        "importPath": "school.managers",
+        "description": "school.managers",
+        "peekOfCode": "class UserManager(BaseUserManager):\n    \"\"\"\"Manage for users\"\"\"\n    def create_user(self, email, password=None, **extra_fields):\n        \"\"\"Create, save and return new user\"\"\"\n        if not email:\n            raise ValueError('User must have an email address')\n        user = self.model(email=email, **extra_fields)\n        user.set_password(password)\n        user.save(using=self._db)\n        return user",
+        "detail": "school.managers",
+        "documentation": {}
+    },
+    {
+        "label": "TimeStampedModel",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class TimeStampedModel(models.Model):\n    \"\"\"Abstract model with created and modified timestamps\"\"\"\n    created_at = models.DateTimeField(auto_now_add=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    class Meta:\n        abstract = True\nclass IDGenerationMixin:\n    \"\"\"Mixin for models that need auto-generated IDs\"\"\"\n    ID_PREFIX = ''  # Default prefix, should be overridden in subclass\n    id_field = None  # Should be set in subclass",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "IDGenerationMixin",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class IDGenerationMixin:\n    \"\"\"Mixin for models that need auto-generated IDs\"\"\"\n    ID_PREFIX = ''  # Default prefix, should be overridden in subclass\n    id_field = None  # Should be set in subclass\n    def generate_id(self):\n        \"\"\"Generate a unique ID based on the prefix, school code, and year\"\"\"\n        if not hasattr(self, 'school') or not self.school:\n            raise ValueError(\"School is required for ID generation\")\n        year = str(getattr(self, 'year_admitted', timezone.now().year))[-2:]\n        prefix = self.ID_PREFIX",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "School",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class School(TimeStampedModel):\n    SCHOOL_TYPE = [\n        ('basic', 'Basic School'),\n        ('shs', 'Senior High School (SHS)'),\n        ('technical', 'Technical/Vocational School'),\n        ('combined', 'Combined School (Multiple Levels)'),\n    ]\n    REGION_CHOICES = [\n        ('greater_accra', 'Greater Accra'),\n        ('ashanti', 'Ashanti'),",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Person",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class Person(TimeStampedModel):\n    GENDER_CHOICES = (('M', 'Male'), ('F', 'Female'))\n    # school field is inherited from TenantAwareMixin\n    user = models.OneToOneField(\n        settings.AUTH_USER_MODEL,\n        on_delete=models.SET_NULL,\n        related_name=\"%(class)s_profile\",\n        blank=True, null=True\n    )\n    first_name = models.CharField(",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):\n    \"\"\"User in the system - each user belongs to a specific school/tenant\"\"\"\n    # school field is inherited from TenantAwareMixin\n    username = models.CharField(max_length=150, unique=True)\n    email = models.EmailField(max_length=255, blank=True, null=True)\n    is_active = models.BooleanField(default=True)\n    is_teacher = models.BooleanField(default=False)\n    is_student = models.BooleanField(default=False)\n    # School admin, not superuser\n    is_admin = models.BooleanField(default=False)",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Programme",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class Programme(TimeStampedModel):\n    \"\"\"Academic programmes like Arts, Business, Science\"\"\"\n    name = models.CharField(max_length=100, unique=True)\n    code = models.CharField(max_length=5, unique=True,\n                            editable=False, blank=True)\n    description = models.TextField(blank=True)\n    class Meta:\n        verbose_name = 'Programme'\n        verbose_name_plural = 'Programmes'\n        ordering = ['name']",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Class",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class Class(TimeStampedModel):\n    \"\"\"Enhanced Class/Form with Programme and Level structure\"\"\"\n    LEVEL_CHOICES = [\n        (1, 'Form 1'),\n        (2, 'Form 2'),\n        (3, 'Form 3'),\n    ]\n    name = models.CharField(\n        max_length=10,\n        help_text=\"Class section (e.g., A, B, C)\"",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class Student(Person, IDGenerationMixin):\n    \"\"\"Student profile\"\"\"\n    ID_PREFIX = 'STU'\n    id_field = 'student_id'\n    student_id = models.CharField(\n        max_length=20, unique=True, editable=False,\n        help_text=\"Auto-generated student ID\"\n    )\n    year_admitted = models.PositiveIntegerField(\n        \"Year Admitted\", default=timezone.now().year,",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Subject",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class Subject(TimeStampedModel):\n    \"\"\"Subject taught in the school\"\"\"\n    name = models.CharField(max_length=100, unique=True)\n    subject_type = models.CharField(\n        max_length=50,\n        choices=[\n            ('core', 'Core'),\n            ('elective', 'Elective'),\n            ('extracurricular', 'Extracurricular Activity')\n        ],",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Teacher",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class Teacher(Person, IDGenerationMixin):\n    \"\"\"Teacher profile\"\"\"\n    ID_PREFIX = 'TCH'\n    id_field = 'teacher_id'\n    teacher_id = models.CharField(\n        max_length=20, unique=True, editable=False,\n        help_text=\"Auto-generated teacher ID\"\n    )\n    subjects = models.ManyToManyField(\n        'Subject',",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "PHONE_VALIDATOR",
+        "kind": 5,
+        "importPath": "school.validators",
+        "description": "school.validators",
+        "peekOfCode": "PHONE_VALIDATOR = RegexValidator(\n    regex=r'^(\\+233|0)[0-9]{9}$',\n    message=\"Phone number must be in format: +233XXXXXXXXX or 0XXXXXXXXX\"\n)\n# Ghana Card ID validator\nGHANA_CARD_VALIDATOR = RegexValidator(\n    regex=r'^GHA-[0-9]{9}-[0-9]$',\n    message=\"Ghana Card number must be in format: GHA-XXXXXXXXX-X\"\n)",
+        "detail": "school.validators",
+        "documentation": {}
+    },
+    {
+        "label": "GHANA_CARD_VALIDATOR",
+        "kind": 5,
+        "importPath": "school.validators",
+        "description": "school.validators",
+        "peekOfCode": "GHANA_CARD_VALIDATOR = RegexValidator(\n    regex=r'^GHA-[0-9]{9}-[0-9]$',\n    message=\"Ghana Card number must be in format: GHA-XXXXXXXXX-X\"\n)",
+        "detail": "school.validators",
         "documentation": {}
     },
     {
         "label": "main",
         "kind": 2,
-        "importPath": "sms.manage",
-        "description": "sms.manage",
-        "peekOfCode": "def main():\n    \"\"\"Run administrative tasks.\"\"\"\n    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sms.settings')\n    try:\n        from django.core.management import execute_from_command_line\n    except ImportError as exc:\n        raise ImportError(\n            \"Couldn't import Django. Are you sure it's installed and \"\n            \"available on your PYTHONPATH environment variable? Did you \"\n            \"forget to activate a virtual environment?\"",
-        "detail": "sms.manage",
+        "importPath": "manage",
+        "description": "manage",
+        "peekOfCode": "def main():\n    \"\"\"Run administrative tasks.\"\"\"\n    os.environ.setdefault(\"DJANGO_SETTINGS_MODULE\", \"app.settings\")\n    try:\n        from django.core.management import execute_from_command_line\n    except ImportError as exc:\n        raise ImportError(\n            \"Couldn't import Django. Are you sure it's installed and \"\n            \"available on your PYTHONPATH environment variable? Did you \"\n            \"forget to activate a virtual environment?\"",
+        "detail": "manage",
         "documentation": {}
     }
 ]
