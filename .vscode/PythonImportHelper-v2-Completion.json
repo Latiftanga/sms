@@ -124,11 +124,36 @@
         "documentation": {}
     },
     {
+        "label": "django.utils.timezone",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "django.utils.timezone",
+        "description": "django.utils.timezone",
+        "detail": "django.utils.timezone",
+        "documentation": {}
+    },
+    {
         "label": "school.models",
         "kind": 6,
         "isExtraImport": true,
         "importPath": "school.models",
         "description": "school.models",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "School",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "School",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
         "detail": "school.models",
         "documentation": {}
     },
@@ -189,6 +214,24 @@
         "documentation": {}
     },
     {
+        "label": "string",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "string",
+        "description": "string",
+        "detail": "string",
+        "documentation": {}
+    },
+    {
+        "label": "random",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "random",
+        "description": "random",
+        "detail": "random",
+        "documentation": {}
+    },
+    {
         "label": "AbstractBaseUser",
         "importPath": "django.contrib.auth.models",
         "description": "django.contrib.auth.models",
@@ -210,14 +253,6 @@
         "description": "django.utils",
         "isExtraImport": true,
         "detail": "django.utils",
-        "documentation": {}
-    },
-    {
-        "label": "slugify",
-        "importPath": "django.utils.text",
-        "description": "django.utils.text",
-        "isExtraImport": true,
-        "detail": "django.utils.text",
         "documentation": {}
     },
     {
@@ -291,7 +326,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = \"django-insecure-=hqc%(6$q-n33pl^*-b_%yco6yf7)n+vvavgp&6kg31z!+ih$j\"\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [",
+        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'django-insecure-gq$h$dr&__gg$j2$6hlinofq9(c=ydk&62a53jir879dm+kvx('\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -300,7 +335,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "SECRET_KEY = \"django-insecure-=hqc%(6$q-n33pl^*-b_%yco6yf7)n+vvavgp&6kg31z!+ih$j\"\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",",
+        "peekOfCode": "SECRET_KEY = 'django-insecure-gq$h$dr&__gg$j2$6hlinofq9(c=ydk&62a53jir879dm+kvx('\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -309,7 +344,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "DEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",",
+        "peekOfCode": "DEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -318,7 +353,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "ALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",\n    #Local apps",
+        "peekOfCode": "ALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    #Local apps",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -327,7 +362,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "INSTALLED_APPS = [\n    \"django.contrib.admin\",\n    \"django.contrib.auth\",\n    \"django.contrib.contenttypes\",\n    \"django.contrib.sessions\",\n    \"django.contrib.messages\",\n    \"django.contrib.staticfiles\",\n    #Local apps\n    'school.apps.SchoolConfig',\n]",
+        "peekOfCode": "INSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    #Local apps\n    'school.apps.SchoolConfig',\n]",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -336,7 +371,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "MIDDLEWARE = [\n    \"django.middleware.security.SecurityMiddleware\",\n    \"django.contrib.sessions.middleware.SessionMiddleware\",\n    \"django.middleware.common.CommonMiddleware\",\n    \"django.middleware.csrf.CsrfViewMiddleware\",\n    \"django.contrib.auth.middleware.AuthenticationMiddleware\",\n    \"django.contrib.messages.middleware.MessageMiddleware\",\n    \"django.middleware.clickjacking.XFrameOptionsMiddleware\",\n]\nROOT_URLCONF = \"app.urls\"",
+        "peekOfCode": "MIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n]\nROOT_URLCONF = 'app.urls'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -345,7 +380,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "ROOT_URLCONF = \"app.urls\"\nTEMPLATES = [\n    {\n        \"BACKEND\": \"django.template.backends.django.DjangoTemplates\",\n        \"DIRS\": [],\n        \"APP_DIRS\": True,\n        \"OPTIONS\": {\n            \"context_processors\": [\n                \"django.template.context_processors.request\",\n                \"django.contrib.auth.context_processors.auth\",",
+        "peekOfCode": "ROOT_URLCONF = 'app.urls'\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.request',\n                'django.contrib.auth.context_processors.auth',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -354,7 +389,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "TEMPLATES = [\n    {\n        \"BACKEND\": \"django.template.backends.django.DjangoTemplates\",\n        \"DIRS\": [],\n        \"APP_DIRS\": True,\n        \"OPTIONS\": {\n            \"context_processors\": [\n                \"django.template.context_processors.request\",\n                \"django.contrib.auth.context_processors.auth\",\n                \"django.contrib.messages.context_processors.messages\",",
+        "peekOfCode": "TEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.request',\n                'django.contrib.auth.context_processors.auth',\n                'django.contrib.messages.context_processors.messages',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -363,7 +398,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "WSGI_APPLICATION = \"app.wsgi.application\"\n# Database\n# https://docs.djangoproject.com/en/5.2/ref/settings/#databases\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'HOST': os.environ.get('DB_HOST'),\n        'NAME': os.environ.get('DB_NAME'),\n        'USER': os.environ.get('DB_USER'),\n        'PASSWORD': os.environ.get('DB_PASS')",
+        "peekOfCode": "WSGI_APPLICATION = 'app.wsgi.application'\n# Database\n# https://docs.djangoproject.com/en/5.2/ref/settings/#databases\nDATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'HOST': os.environ.get('DB_HOST'),\n        'NAME': os.environ.get('DB_NAME'),\n        'USER': os.environ.get('DB_USER'),\n        'PASSWORD': os.environ.get('DB_PASS')",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -381,7 +416,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "AUTH_USER_MODEL = 'school.User'\n# Password validation\n# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators\nAUTH_PASSWORD_VALIDATORS = [\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.UserAttributeSimilarityValidator\",\n    },\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.MinimumLengthValidator\",\n    },",
+        "peekOfCode": "AUTH_USER_MODEL = 'school.User'\n# Password validation\n# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators\nAUTH_PASSWORD_VALIDATORS = [\n    {\n        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',\n    },",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -390,7 +425,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "AUTH_PASSWORD_VALIDATORS = [\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.UserAttributeSimilarityValidator\",\n    },\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.MinimumLengthValidator\",\n    },\n    {\n        \"NAME\": \"django.contrib.auth.password_validation.CommonPasswordValidator\",\n    },",
+        "peekOfCode": "AUTH_PASSWORD_VALIDATORS = [\n    {\n        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',\n    },",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -399,7 +434,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "LANGUAGE_CODE = \"en-us\"\nTIME_ZONE = \"UTC\"\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = \"static/\"\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "peekOfCode": "LANGUAGE_CODE = 'en-us'\nTIME_ZONE = 'UTC'\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = 'static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -408,7 +443,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "TIME_ZONE = \"UTC\"\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = \"static/\"\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "peekOfCode": "TIME_ZONE = 'UTC'\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = 'static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -417,7 +452,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "USE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = \"static/\"\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "peekOfCode": "USE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = 'static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -426,7 +461,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "USE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = \"static/\"\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "peekOfCode": "USE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = 'static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -435,7 +470,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "STATIC_URL = \"static/\"\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "peekOfCode": "STATIC_URL = 'static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -444,7 +479,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "DEFAULT_AUTO_FIELD = \"django.db.models.BigAutoField\"",
+        "peekOfCode": "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -453,7 +488,7 @@
         "kind": 5,
         "importPath": "app.urls",
         "description": "app.urls",
-        "peekOfCode": "urlpatterns = [\n    path(\"admin/\", admin.site.urls),\n]",
+        "peekOfCode": "urlpatterns = [\n    path('admin/', admin.site.urls),\n]",
         "detail": "app.urls",
         "documentation": {}
     },
@@ -485,6 +520,15 @@
         "documentation": {}
     },
     {
+        "label": "SchoolAdmin",
+        "kind": 6,
+        "importPath": "school.admin",
+        "description": "school.admin",
+        "peekOfCode": "class SchoolAdmin(admin.ModelAdmin):\n    list_display = ['name', 'code', 'phone', 'email', 'established_year']\n    fieldsets = [\n        ('Basic Information', {\n            'fields': ['name', 'code', 'address', 'phone', 'email', 'website']\n        }),\n        ('School Details', {\n            'fields': ['motto', 'established_year', 'logo']\n        }),\n        ('Administration', {",
+        "detail": "school.admin",
+        "documentation": {}
+    },
+    {
         "label": "SchoolConfig",
         "kind": 6,
         "importPath": "school.apps",
@@ -494,11 +538,20 @@
         "documentation": {}
     },
     {
+        "label": "school_context",
+        "kind": 2,
+        "importPath": "school.context_processors",
+        "description": "school.context_processors",
+        "peekOfCode": "def school_context(request):\n    \"\"\"Add school information to all templates\"\"\"\n    try:\n        school = School.get_current_school()\n        return {\n            'school': school,\n            'school_name': school.name,\n            'school_code': school.code,\n            'school_motto': school.motto,\n            'school_colors': {",
+        "detail": "school.context_processors",
+        "documentation": {}
+    },
+    {
         "label": "UserManager",
         "kind": 6,
         "importPath": "school.managers",
         "description": "school.managers",
-        "peekOfCode": "class UserManager(BaseUserManager):\n    \"\"\"\"Manage for users\"\"\"\n    def create_user(self, email, password=None, **extra_fields):\n        \"\"\"Create, save and return new user\"\"\"\n        if not email:\n            raise ValueError('User must have an email address')\n        user = self.model(email=email, **extra_fields)\n        user.set_password(password)\n        user.save(using=self._db)\n        return user",
+        "peekOfCode": "class UserManager(BaseUserManager):\n    \"\"\"Custom user manager for Django authentication\"\"\"\n    def create_user(self, username, email=None, password=None, **extra_fields):\n        \"\"\"Create and save a regular user\"\"\"\n        if not username:\n            raise ValueError('The username field must be set')\n        extra_fields.setdefault('is_staff', False)\n        extra_fields.setdefault('is_superuser', False)\n        if email:\n            email = self.normalize_email(email)",
         "detail": "school.managers",
         "documentation": {}
     },
@@ -507,16 +560,7 @@
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class TimeStampedModel(models.Model):\n    \"\"\"Abstract model with created and modified timestamps\"\"\"\n    created_at = models.DateTimeField(auto_now_add=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    class Meta:\n        abstract = True\nclass IDGenerationMixin:\n    \"\"\"Mixin for models that need auto-generated IDs\"\"\"\n    ID_PREFIX = ''  # Default prefix, should be overridden in subclass\n    id_field = None  # Should be set in subclass",
-        "detail": "school.models",
-        "documentation": {}
-    },
-    {
-        "label": "IDGenerationMixin",
-        "kind": 6,
-        "importPath": "school.models",
-        "description": "school.models",
-        "peekOfCode": "class IDGenerationMixin:\n    \"\"\"Mixin for models that need auto-generated IDs\"\"\"\n    ID_PREFIX = ''  # Default prefix, should be overridden in subclass\n    id_field = None  # Should be set in subclass\n    def generate_id(self):\n        \"\"\"Generate a unique ID based on the prefix, school code, and year\"\"\"\n        if not hasattr(self, 'school') or not self.school:\n            raise ValueError(\"School is required for ID generation\")\n        year = str(getattr(self, 'year_admitted', timezone.now().year))[-2:]\n        prefix = self.ID_PREFIX",
+        "peekOfCode": "class TimeStampedModel(models.Model):\n    \"\"\"Abstract model with created and modified timestamps\"\"\"\n    created_at = models.DateTimeField(auto_now_add=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    class Meta:\n        abstract = True\n# School Model\n# ============\nclass School(TimeStampedModel):\n    \"\"\"School information stored in database\"\"\"",
         "detail": "school.models",
         "documentation": {}
     },
@@ -525,16 +569,7 @@
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class School(TimeStampedModel):\n    SCHOOL_TYPE = [\n        ('basic', 'Basic School'),\n        ('shs', 'Senior High School (SHS)'),\n        ('technical', 'Technical/Vocational School'),\n        ('combined', 'Combined School (Multiple Levels)'),\n    ]\n    REGION_CHOICES = [\n        ('greater_accra', 'Greater Accra'),\n        ('ashanti', 'Ashanti'),",
-        "detail": "school.models",
-        "documentation": {}
-    },
-    {
-        "label": "Person",
-        "kind": 6,
-        "importPath": "school.models",
-        "description": "school.models",
-        "peekOfCode": "class Person(TimeStampedModel):\n    GENDER_CHOICES = (('M', 'Male'), ('F', 'Female'))\n    # school field is inherited from TenantAwareMixin\n    user = models.OneToOneField(\n        settings.AUTH_USER_MODEL,\n        on_delete=models.SET_NULL,\n        related_name=\"%(class)s_profile\",\n        blank=True, null=True\n    )\n    first_name = models.CharField(",
+        "peekOfCode": "class School(TimeStampedModel):\n    \"\"\"School information stored in database\"\"\"\n    # Basic Information\n    name = models.CharField(max_length=200)\n    # Used for ID generation\n    code = models.CharField(max_length=10, unique=True)\n    address = models.CharField(max_length=255, blank=True, null=True)\n    phone = models.CharField(max_length=15)\n    email = models.EmailField()\n    website = models.URLField(blank=True, null=True)",
         "detail": "school.models",
         "documentation": {}
     },
@@ -543,7 +578,25 @@
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):\n    \"\"\"User in the system - each user belongs to a specific school/tenant\"\"\"\n    # school field is inherited from TenantAwareMixin\n    username = models.CharField(max_length=150, unique=True)\n    email = models.EmailField(max_length=255, blank=True, null=True)\n    is_active = models.BooleanField(default=True)\n    is_teacher = models.BooleanField(default=False)\n    is_student = models.BooleanField(default=False)\n    # School admin, not superuser\n    is_admin = models.BooleanField(default=False)",
+        "peekOfCode": "class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):\n    \"\"\"Custom User model for Django authentication\"\"\"\n    # Core fields required by Django\n    username = models.CharField(max_length=150, unique=True)\n    email = models.EmailField(max_length=255, blank=True, null=True)\n    first_name = models.CharField(\n        max_length=150, blank=True)  # Django compatibility\n    last_name = models.CharField(\n        max_length=150, blank=True)   # Django compatibility\n    # Permission fields (from PermissionsMixin)",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "IDGenerationMixin",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class IDGenerationMixin:\n    \"\"\"Mixin for models that need auto-generated IDs using School model\"\"\"\n    ID_PREFIX = ''  # Default prefix, should be overridden in subclass\n    id_field = None  # Should be set in subclass\n    def generate_id(self):\n        \"\"\"Generate a unique ID with pattern: {ID_PREFIX}{school_code}{SEQ:03d}{Year}\"\"\"\n        # Get school code from database\n        school = School.get_current_school()\n        school_code = school.code\n        # Get year (2 digits)",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Person",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class Person(IDGenerationMixin, TimeStampedModel):\n    \"\"\"Abstract base model for all person types (Student, Teacher, etc.)\"\"\"\n    GENDER_CHOICES = (('M', 'Male'), ('F', 'Female'))\n    user = models.OneToOneField(\n        settings.AUTH_USER_MODEL,  # Use settings instead of direct User reference\n        on_delete=models.SET_NULL,\n        # Creates student_profile, teacher_profile automatically\n        related_name=\"%(class)s_profile\",\n        blank=True, null=True\n    )",
         "detail": "school.models",
         "documentation": {}
     },
@@ -557,24 +610,6 @@
         "documentation": {}
     },
     {
-        "label": "Class",
-        "kind": 6,
-        "importPath": "school.models",
-        "description": "school.models",
-        "peekOfCode": "class Class(TimeStampedModel):\n    \"\"\"Enhanced Class/Form with Programme and Level structure\"\"\"\n    LEVEL_CHOICES = [\n        (1, 'Form 1'),\n        (2, 'Form 2'),\n        (3, 'Form 3'),\n    ]\n    name = models.CharField(\n        max_length=10,\n        help_text=\"Class section (e.g., A, B, C)\"",
-        "detail": "school.models",
-        "documentation": {}
-    },
-    {
-        "label": "Student",
-        "kind": 6,
-        "importPath": "school.models",
-        "description": "school.models",
-        "peekOfCode": "class Student(Person, IDGenerationMixin):\n    \"\"\"Student profile\"\"\"\n    ID_PREFIX = 'STU'\n    id_field = 'student_id'\n    student_id = models.CharField(\n        max_length=20, unique=True, editable=False,\n        help_text=\"Auto-generated student ID\"\n    )\n    year_admitted = models.PositiveIntegerField(\n        \"Year Admitted\", default=timezone.now().year,",
-        "detail": "school.models",
-        "documentation": {}
-    },
-    {
         "label": "Subject",
         "kind": 6,
         "importPath": "school.models",
@@ -584,11 +619,56 @@
         "documentation": {}
     },
     {
+        "label": "Class",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class Class(TimeStampedModel):\n    \"\"\"Enhanced Class/Form with Programme and Level structure\"\"\"\n    LEVEL_CHOICES = [\n        (1, 'Form 1'),\n        (2, 'Form 2'),\n        (3, 'Form 3'),\n    ]\n    name = models.CharField(\n        max_length=10, help_text=\"Class section (e.g., A, B, C)\")\n    programme = models.ForeignKey(",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class Student(Person):\n    \"\"\"Student model - inherits from Person with IDGenerationMixin\"\"\"\n    # ID Generation configuration\n    ID_PREFIX = 'STU'  # Student prefix\n    id_field = 'student_id'\n    student_id = models.CharField(max_length=20, unique=True, blank=True)\n    # Academic Information\n    current_class = models.ForeignKey(\n        Class,\n        on_delete=models.SET_NULL,",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
         "label": "Teacher",
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class Teacher(Person, IDGenerationMixin):\n    \"\"\"Teacher profile\"\"\"\n    ID_PREFIX = 'TCH'\n    id_field = 'teacher_id'\n    teacher_id = models.CharField(\n        max_length=20, unique=True, editable=False,\n        help_text=\"Auto-generated teacher ID\"\n    )\n    subjects = models.ManyToManyField(\n        'Subject',",
+        "peekOfCode": "class Teacher(Person):\n    \"\"\"Teacher model - inherits from Person with IDGenerationMixin\"\"\"\n    # ID Generation configuration\n    ID_PREFIX = 'TCH'  # Teacher prefix\n    id_field = 'teacher_id'\n    teacher_id = models.CharField(max_length=20, unique=True, blank=True)\n    # Professional Information\n    qualification = models.CharField(max_length=200)\n    specialization = models.CharField(max_length=200, blank=True, null=True)\n    years_of_experience = models.IntegerField(default=0)",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "generate_random_password",
+        "kind": 2,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "def generate_random_password(length=8):\n    \"\"\"Generate a random password\"\"\"\n    characters = string.ascii_letters + string.digits\n    return ''.join(random.choice(characters) for _ in range(length))\ndef create_student_with_user(first_name, last_name, year_admitted, password=None, email=None, **student_data):\n    \"\"\"Create both User account AND Student profile\"\"\"\n    # Generate password if not provided\n    if not password:\n        password = generate_random_password()\n    # Create Student profile first (to generate ID)",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "create_student_with_user",
+        "kind": 2,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "def create_student_with_user(first_name, last_name, year_admitted, password=None, email=None, **student_data):\n    \"\"\"Create both User account AND Student profile\"\"\"\n    # Generate password if not provided\n    if not password:\n        password = generate_random_password()\n    # Create Student profile first (to generate ID)\n    student = Student(\n        first_name=first_name,\n        last_name=last_name,\n        year_admitted=year_admitted,",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "create_teacher_with_user",
+        "kind": 2,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "def create_teacher_with_user(first_name, last_name, date_of_employment, password=None, email=None, is_admin=False, **teacher_data):\n    \"\"\"Create both User account AND Teacher profile\"\"\"\n    # Generate password if not provided\n    if not password:\n        password = generate_random_password()\n    # Create Teacher profile first (to generate ID)\n    teacher = Teacher(\n        first_name=first_name,\n        last_name=last_name,\n        date_of_employment=date_of_employment,",
         "detail": "school.models",
         "documentation": {}
     },
@@ -615,7 +695,7 @@
         "kind": 2,
         "importPath": "manage",
         "description": "manage",
-        "peekOfCode": "def main():\n    \"\"\"Run administrative tasks.\"\"\"\n    os.environ.setdefault(\"DJANGO_SETTINGS_MODULE\", \"app.settings\")\n    try:\n        from django.core.management import execute_from_command_line\n    except ImportError as exc:\n        raise ImportError(\n            \"Couldn't import Django. Are you sure it's installed and \"\n            \"available on your PYTHONPATH environment variable? Did you \"\n            \"forget to activate a virtual environment?\"",
+        "peekOfCode": "def main():\n    \"\"\"Run administrative tasks.\"\"\"\n    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'app.settings')\n    try:\n        from django.core.management import execute_from_command_line\n    except ImportError as exc:\n        raise ImportError(\n            \"Couldn't import Django. Are you sure it's installed and \"\n            \"available on your PYTHONPATH environment variable? Did you \"\n            \"forget to activate a virtual environment?\"",
         "detail": "manage",
         "documentation": {}
     }
