@@ -1,0 +1,311 @@
+<!-- File: templates/school/configuration.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}School Configuration - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title">School Configuration</h1>
+        <p class="page-subtitle">Configure your school's basic information and settings.</p>
+    </div>
+    <a href="{% url 'core:dashboard' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Back to Dashboard
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">School Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <!-- Basic Information -->
+                        <div class="col-lg-6">
+                            <h6 class="text-muted mb-3">Basic Information</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.name.label }}</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.name.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.code.label }}</label>
+                                {{ form.code }}
+                                {% if form.code.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.code.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.address.label }}</label>
+                                {{ form.address }}
+                                {% if form.address.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.address.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ form.phone.label }}</label>
+                                        {{ form.phone }}
+                                        {% if form.phone.errors %}
+                                            <div class="text-danger small">
+                                                {% for error in form.phone.errors %}
+                                                    <div>{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ form.email.label }}</label>
+                                        {{ form.email }}
+                                        {% if form.email.errors %}
+                                            <div class="text-danger small">
+                                                {% for error in form.email.errors %}
+                                                    <div>{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.website.label }}</label>
+                                {{ form.website }}
+                                {% if form.website.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.website.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- School Details -->
+                        <div class="col-lg-6">
+                            <h6 class="text-muted mb-3">School Details</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.motto.label }}</label>
+                                {{ form.motto }}
+                                {% if form.motto.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.motto.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.established_year.label }}</label>
+                                {{ form.established_year }}
+                                {% if form.established_year.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.established_year.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.logo.label }}</label>
+                                {{ form.logo }}
+                                {% if form.logo.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.logo.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                {% if school.logo %}
+                                    <div class="mt-2">
+                                        <small class="text-muted">Current logo:</small><br>
+                                        <img src="{{ school.logo.url }}" alt="School Logo" style="max-width: 100px; max-height: 100px;" class="mt-1">
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ form.academic_year_start_month.label }}</label>
+                                        {{ form.academic_year_start_month }}
+                                        {% if form.academic_year_start_month.errors %}
+                                            <div class="text-danger small">
+                                                {% for error in form.academic_year_start_month.errors %}
+                                                    <div>{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ form.terms_per_year.label }}</label>
+                                        {{ form.terms_per_year }}
+                                        {% if form.terms_per_year.errors %}
+                                            <div class="text-danger small">
+                                                {% for error in form.terms_per_year.errors %}
+                                                    <div>{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="row">
+                        <!-- Contact Information -->
+                        <div class="col-lg-6">
+                            <h6 class="text-muted mb-3">Contact Information</h6>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.headmaster_name.label }}</label>
+                                {{ form.headmaster_name }}
+                                {% if form.headmaster_name.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.headmaster_name.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.assistant_headmaster_name.label }}</label>
+                                {{ form.assistant_headmaster_name }}
+                                {% if form.assistant_headmaster_name.errors %}
+                                    <div class="text-danger small">
+                                        {% for error in form.assistant_headmaster_name.errors %}
+                                            <div>{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- School Colors -->
+                        <div class="col-lg-6">
+                            <h6 class="text-muted mb-3">School Colors</h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ form.primary_color.label }}</label>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {{ form.primary_color }}
+                                            <div id="primary-color-preview" class="color-preview" style="background-color: {{ form.primary_color.value|default:'#1B5E20' }};"></div>
+                                        </div>
+                                        {% if form.primary_color.errors %}
+                                            <div class="text-danger small">
+                                                {% for error in form.primary_color.errors %}
+                                                    <div>{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">{{ form.secondary_color.label }}</label>
+                                        <div class="d-flex align-items-center gap-2">
+                                            {{ form.secondary_color }}
+                                            <div id="secondary-color-preview" class="color-preview" style="background-color: {{ form.secondary_color.value|default:'#2E7D32' }};"></div>
+                                        </div>
+                                        {% if form.secondary_color.errors %}
+                                            <div class="text-danger small">
+                                                {% for error in form.secondary_color.errors %}
+                                                    <div>{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'core:dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Save Configuration
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .color-preview {
+        width: 2rem;
+        height: 2rem;
+        border: 2px solid var(--tblr-border-color);
+        border-radius: 0.375rem;
+        flex-shrink: 0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Color picker preview updates
+        const primaryColorInput = document.querySelector('#id_primary_color');
+        const secondaryColorInput = document.querySelector('#id_secondary_color');
+        const primaryPreview = document.querySelector('#primary-color-preview');
+        const secondaryPreview = document.querySelector('#secondary-color-preview');
+        
+        if (primaryColorInput && primaryPreview) {
+            primaryColorInput.addEventListener('input', function() {
+                primaryPreview.style.backgroundColor = this.value;
+            });
+        }
+        
+        if (secondaryColorInput && secondaryPreview) {
+            secondaryColorInput.addEventListener('input', function() {
+                secondaryPreview.style.backgroundColor = this.value;
+            });
+        }
+    });
+</script>
+{% endblock %}

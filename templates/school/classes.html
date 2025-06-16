@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Classes - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title">Classes</h1>
+        <p class="page-subtitle">Manage all classes in your school.</p>
+    </div>
+    <div>
+        <a href="{% url 'school:setup_dashboard' %}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left me-2"></i>
+            Back to Setup
+        </a>
+        <a href="{% url 'school:class_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Add Class
+        </a>
+    </div>
+</div>
+
+{% if classes_by_level %}
+    {% for level_name, level_classes in classes_by_level.items %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ level_name }}</h5>
+                        <span class="badge badge-primary">{{ level_classes|length }} Class{{ level_classes|length|pluralize:"es" }}</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for class in level_classes %}
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <div class="card border">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="card-title mb-0">{{ class }}</h6>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                                                        <i class="fas fa-ellipsis-v"></i>
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li><a class="dropdown-item" href="{% url 'school:class_edit' class.pk %}"><i class="fas fa-eye me-2"></i>View</a></li>
+                                                        <li><a class="dropdown-item" href="{% url 'school:class_edit' class.pk %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                                        <li><a class="dropdown-item text-danger" href="{% url 'school:class_delete' class.pk %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            
+                                            <p class="text-muted small mb-2">{{ class.get_full_name }}</p>
+                                            
+                                            {% if class.programme %}
+                                                <span class="badge badge-success mb-2">{{ class.programme.name }}</span>
+                                            {% else %}
+                                                <span class="badge badge-secondary mb-2">General</span>
+                                            {% endif %}
+                                            
+                                            <div class="row text-center">
+                                                <div class="col-6">
+                                                    <div class="border-end">
+                                                        <div class="fw-bold">{{ class.get_student_count }}</div>
+                                                        <small class="text-muted">Students</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="fw-bold">{{ class.capacity }}</div>
+                                                    <small class="text-muted">Capacity</small>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if class.class_teacher %}
+                                                <hr class="my-2">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar avatar-sm me-2" style="background-color: var(--tblr-primary);">
+                                                        {{ class.class_teacher.first_name|slice:":1" }}{{ class.class_teacher.last_name|slice:":1" }}
+                                                    </div>
+                                                    <div>
+                                                        <small class="fw-medium">{{ class.class_teacher.get_full_name }}</small>
+                                                        <div class="text-muted" style="font-size: 0.75rem;">Class Teacher</div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                            
+                                            <!-- Capacity indicator -->
+                                            <div class="mt-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <small class="text-muted">Capacity</small>
+                                                    <small class="text-muted">{{ class.get_student_count }}/{{ class.capacity }}</small>
+                                                </div>
+                                                <div class="progress" style="height: 4px;">
+                                                    {% with percentage=class.get_student_count|floatformat:0 capacity=class.capacity|floatformat:0 %}
+                                                        {% widthratio class.get_student_count class.capacity 100 as progress_percentage %}
+                                                        <div class="progress-bar {% if progress_percentage >= 90 %}bg-danger{% elif progress_percentage >= 75 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                             style="width: {{ progress_percentage }}%"></div>
+                                                    {% endwith %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-door-open fa-3x text-muted mb-3"></i>
+                    <h5>No Classes Yet</h5>
+                    <p class="text-muted">Create your first class to start organizing students.</p>
+                    <a href="{% url 'school:class_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>
+                        Create Class
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+{% if classes %}
+    <!-- Summary Stats -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ classes.count }}</h3>
+                    <p class="mb-0">Total Classes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">0</h3>
+                    <p class="mb-0">Total Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">
+                        {% for class in classes %}
+                            {{ class.capacity|add:0 }}
+                        {% empty %}
+                            0
+                        {% endfor %}
+                    </h3>
+                    <p class="mb-0">Total Capacity</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">0%</h3>
+                    <p class="mb-0">Utilization</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

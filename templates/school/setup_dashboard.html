@@ -1,0 +1,347 @@
+<!-- File: templates/school/setup_dashboard.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Setup Dashboard - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title">School Setup Dashboard</h1>
+        <p class="page-subtitle">Configure your school system step by step.</p>
+    </div>
+    <a href="{% url 'core:dashboard' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>
+        Back to Dashboard
+    </a>
+</div>
+
+<!-- Setup Progress -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Setup Progress</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-2 col-md-4 col-6 mb-3">
+                        <div class="setup-step {% if school.name != 'T. I. Ahmadiyya SHS' %}completed{% endif %}">
+                            <div class="setup-icon">
+                                <i class="fas fa-school"></i>
+                            </div>
+                            <div class="setup-label">School Info</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6 mb-3">
+                        <div class="setup-step {% if current_academic_year %}completed{% endif %}">
+                            <div class="setup-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="setup-label">Academic Year</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6 mb-3">
+                        <div class="setup-step {% if programmes_count > 0 %}completed{% endif %}">
+                            <div class="setup-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="setup-label">Programmes</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6 mb-3">
+                        <div class="setup-step {% if houses_count > 0 %}completed{% endif %}">
+                            <div class="setup-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="setup-label">Houses</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6 mb-3">
+                        <div class="setup-step {% if subjects_count > 0 %}completed{% endif %}">
+                            <div class="setup-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div class="setup-label">Subjects</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-6 mb-3">
+                        <div class="setup-step {% if classes_count > 0 %}completed{% endif %}">
+                            <div class="setup-icon">
+                                <i class="fas fa-door-open"></i>
+                            </div>
+                            <div class="setup-label">Classes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Setup Cards -->
+<div class="row">
+    <!-- School Configuration -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>
+                    School Configuration
+                </h5>
+                {% if school.name != 'T. I. Ahmadiyya SHS' %}
+                    <span class="badge badge-success">Configured</span>
+                {% else %}
+                    <span class="badge badge-warning">Pending</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <p class="card-text">Set up your school's basic information, contact details, and academic settings.</p>
+                <div class="mb-3">
+                    <small class="text-muted">School Name:</small><br>
+                    <strong>{{ school.name }}</strong>
+                </div>
+                <div class="mb-3">
+                    <small class="text-muted">School Code:</small><br>
+                    <strong>{{ school.code }}</strong>
+                </div>
+                <a href="{% url 'school:configuration' %}" class="btn btn-primary">
+                    <i class="fas fa-edit me-2"></i>
+                    Configure School
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Academic Years -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    Academic Years
+                </h5>
+                {% if current_academic_year %}
+                    <span class="badge badge-success">{{ academic_years_count }} Created</span>
+                {% else %}
+                    <span class="badge badge-warning">Not Set</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <p class="card-text">Create and manage academic years and terms for your school.</p>
+                {% if current_academic_year %}
+                    <div class="mb-3">
+                        <small class="text-muted">Current Academic Year:</small><br>
+                        <strong>{{ current_academic_year.year }}</strong>
+                    </div>
+                    {% if current_term %}
+                        <div class="mb-3">
+                            <small class="text-muted">Current Term:</small><br>
+                            <strong>{{ current_term.get_term_number_display }}</strong>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                <a href="{% url 'school:academic_years' %}" class="btn btn-primary">
+                    <i class="fas fa-calendar-plus me-2"></i>
+                    Manage Academic Years
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Programmes -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-graduation-cap me-2"></i>
+                    Academic Programmes
+                </h5>
+                <span class="badge {% if programmes_count > 0 %}badge-success{% else %}badge-warning{% endif %}">
+                    {{ programmes_count }} Programme{{ programmes_count|pluralize }}
+                </span>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Set up academic programmes like General Arts, Business, Science, etc.</p>
+                {% if programmes_count == 0 %}
+                    <div class="alert alert-info">
+                        <small>No programmes created yet. Start by creating your first programme.</small>
+                    </div>
+                {% endif %}
+                <a href="{% url 'school:programmes' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>
+                    Manage Programmes
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Houses -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-home me-2"></i>
+                    Student Houses
+                </h5>
+                <span class="badge {% if houses_count > 0 %}badge-success{% else %}badge-warning{% endif %}">
+                    {{ houses_count }} House{{ houses_count|pluralize }}
+                </span>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Create student houses for organization and house competitions.</p>
+                {% if houses_count == 0 %}
+                    <div class="alert alert-info">
+                        <small>No houses created yet. Houses help organize students into groups.</small>
+                    </div>
+                {% endif %}
+                <a href="{% url 'school:houses' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>
+                    Manage Houses
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subjects -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-book me-2"></i>
+                    Subjects
+                </h5>
+                <span class="badge {% if subjects_count > 0 %}badge-success{% else %}badge-warning{% endif %}">
+                    {{ subjects_count }} Subject{{ subjects_count|pluralize }}
+                </span>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Add subjects taught in your school (Core, Electives, etc.).</p>
+                {% if subjects_count == 0 %}
+                    <div class="alert alert-info">
+                        <small>No subjects added yet. Add core and elective subjects.</small>
+                    </div>
+                {% endif %}
+                <a href="{% url 'school:subjects' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>
+                    Manage Subjects
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Classes -->
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-door-open me-2"></i>
+                    Classes
+                </h5>
+                <span class="badge {% if classes_count > 0 %}badge-success{% else %}badge-warning{% endif %}">
+                    {{ classes_count }} Class{{ classes_count|pluralize:"es" }}
+                </span>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Create classes for different levels and programmes.</p>
+                {% if classes_count == 0 %}
+                    <div class="alert alert-info">
+                        <small>No classes created yet. You need programmes first, then create classes.</small>
+                    </div>
+                {% endif %}
+                <a href="{% url 'school:classes' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>
+                    Manage Classes
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Setup Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'school:quick_setup' %}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-magic me-2"></i>
+                            Quick Setup Wizard
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-outline-secondary w-100" disabled>
+                            <i class="fas fa-user-plus me-2"></i>
+                            Add Students
+                            <small class="d-block">Coming Soon</small>
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-outline-secondary w-100" disabled>
+                            <i class="fas fa-chalkboard-teacher me-2"></i>
+                            Add Teachers
+                            <small class="d-block">Coming Soon</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .setup-step {
+        text-align: center;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .setup-step.completed {
+        background-color: rgba(var(--tblr-success-rgb), 0.1);
+        border: 2px solid var(--tblr-success);
+    }
+    
+    .setup-step:not(.completed) {
+        background-color: var(--tblr-light);
+        border: 2px solid var(--tblr-border-color);
+    }
+    
+    .setup-icon {
+        width: 3rem;
+        height: 3rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+        font-size: 1.25rem;
+    }
+    
+    .setup-step.completed .setup-icon {
+        background-color: var(--tblr-success);
+        color: white;
+    }
+    
+    .setup-step:not(.completed) .setup-icon {
+        background-color: var(--tblr-border-color);
+        color: var(--tblr-body-color);
+    }
+    
+    .setup-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .setup-step.completed .setup-label {
+        color: var(--tblr-success);
+    }
+</style>
+{% endblock %}

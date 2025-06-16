@@ -1,0 +1,157 @@
+<!-- File: templates/school/houses.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Houses - {{ school.name|default:"School Name" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title">Student Houses</h1>
+        <p class="page-subtitle">Manage student houses for organization and competitions.</p>
+    </div>
+    <div>
+        <a href="{% url 'school:setup_dashboard' %}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left me-2"></i>
+            Back to Setup
+        </a>
+        <a href="{% url 'school:house_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Add House
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">All Houses</h5>
+            </div>
+            <div class="card-body">
+                {% if houses %}
+                    <div class="row">
+                        {% for house in houses %}
+                            <div class="col-lg-6 col-xl-4 mb-4">
+                                <div class="card border" style="border-color: {{ house.color }};">
+                                    <div class="card-header" style="background-color: {{ house.color }}; color: white;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h6 class="mb-0">{{ house.name }}</h6>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm text-white" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{% url 'school:house_edit' house.pk %}"><i class="fas fa-eye me-2"></i>View</a></li>
+                                                    <li><a class="dropdown-item" href="{% url 'school:house_edit' house.pk %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="{% url 'school:house_delete' house.pk %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if house.description %}
+                                            <p class="card-text small text-muted">{{ house.description|truncatewords:10 }}</p>
+                                        {% endif %}
+                                        
+                                        <div class="row text-center mb-3">
+                                            <div class="col-6">
+                                                <div class="border-end">
+                                                    <div class="fw-bold">{{ house.students.count }}</div>
+                                                    <small class="text-muted">Students</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="fw-bold">0</div>
+                                                <small class="text-muted">Points</small>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if house.house_master %}
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar avatar-sm me-2" style="background-color: {{ house.color }};">
+                                                    {{ house.house_master.first_name|slice:":1" }}{{ house.house_master.last_name|slice:":1" }}
+                                                </div>
+                                                <div>
+                                                    <div class="fw-medium small">{{ house.house_master.get_full_name }}</div>
+                                                    <div class="text-muted" style="font-size: 0.75rem;">House Master</div>
+                                                </div>
+                                            </div>
+                                        {% else %}
+                                            <div class="text-center text-muted">
+                                                <i class="fas fa-user-times"></i>
+                                                <div class="small">No House Master</div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-home fa-3x text-muted mb-3"></i>
+                        <h5>No Houses Yet</h5>
+                        <p class="text-muted">Create student houses to organize your school community.</p>
+                        <a href="{% url 'school:house_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>
+                            Create House
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if houses %}
+    <!-- House Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ houses.count }}</h3>
+                    <p class="mb-0">Total Houses</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">
+                        {% for house in houses %}
+                            {{ house.students.count|add:0 }}
+                        {% empty %}
+                            0
+                        {% endfor %}
+                    </h3>
+                    <p class="mb-0">Total Students</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">
+                        {% for house in houses %}
+                            {% if house.house_master %}1{% else %}0{% endif %}
+                        {% empty %}
+                            0
+                        {% endfor %}
+                    </h3>
+                    <p class="mb-0">With Masters</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">0</h3>
+                    <p class="mb-0">Competitions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

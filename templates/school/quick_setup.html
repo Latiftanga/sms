@@ -1,0 +1,314 @@
+<!-- File: templates/school/quick_setup.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quick Setup - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Quick Setup Wizard</h1>
+        <p class="page-subtitle">Set up your school system quickly with our guided wizard.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">School Setup Wizard</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- School Information -->
+                    <div class="setup-section">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-school me-2"></i>
+                            School Information
+                        </h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.school_name.label }}</label>
+                                    {{ form.school_name }}
+                                    {% if form.school_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.school_name.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.school_code.label }}</label>
+                                    {{ form.school_code }}
+                                    {% if form.school_code.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.school_code.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Academic Year -->
+                    <div class="setup-section">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-calendar-alt me-2"></i>
+                            Academic Year
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.academic_year.label }}</label>
+                            {{ form.academic_year }}
+                            {% if form.academic_year.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.academic_year.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Programmes -->
+                    <div class="setup-section">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-graduation-cap me-2"></i>
+                            Academic Programmes
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Select programmes to create:</label>
+                            <div class="row">
+                                {% for choice in form.create_programmes %}
+                                    <div class="col-md-6 mb-2">
+                                        <div class="form-check">
+                                            {{ choice.tag }}
+                                            <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                                {{ choice.choice_label }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.create_programmes.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.create_programmes.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Houses -->
+                    <div class="setup-section">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-home me-2"></i>
+                            Student Houses
+                        </h6>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Select houses to create:</label>
+                            <div class="row">
+                                {% for choice in form.create_houses %}
+                                    <div class="col-md-6 mb-2">
+                                        <div class="form-check">
+                                            {{ choice.tag }}
+                                            <label class="form-check-label" for="{{ choice.id_for_label }}">
+                                                {{ choice.choice_label }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.create_houses.errors %}
+                                <div class="text-danger">
+                                    {% for error in form.create_houses.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Admin User -->
+                    <div class="setup-section">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-user-shield me-2"></i>
+                            Admin User
+                        </h6>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.admin_username.label }}</label>
+                                    {{ form.admin_username }}
+                                    {% if form.admin_username.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.admin_username.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.admin_password.label }}</label>
+                                    {{ form.admin_password }}
+                                    {% if form.admin_password.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.admin_password.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">{{ form.admin_email.label }}</label>
+                                    {{ form.admin_email }}
+                                    {% if form.admin_email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in form.admin_email.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'school:setup_dashboard' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-magic me-2"></i>
+                            Complete Setup
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Setup Progress</h5>
+            </div>
+            <div class="card-body">
+                <div class="setup-checklist">
+                    <div class="setup-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span>School Information</span>
+                    </div>
+                    <div class="setup-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span>Academic Year</span>
+                    </div>
+                    <div class="setup-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span>Academic Programmes</span>
+                    </div>
+                    <div class="setup-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span>Student Houses</span>
+                    </div>
+                    <div class="setup-item">
+                        <i class="fas fa-check-circle text-success me-2"></i>
+                        <span>Admin User</span>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h6 class="text-muted">What will be created:</h6>
+                <ul class="text-muted small">
+                    <li>School information updated</li>
+                    <li>Current academic year</li>
+                    <li>Selected academic programmes</li>
+                    <li>Student houses with colors</li>
+                    <li>Admin user account</li>
+                </ul>
+                
+                <hr>
+                
+                <h6 class="text-muted">Next Steps:</h6>
+                <ul class="text-muted small">
+                    <li>Add subjects</li>
+                    <li>Create classes</li>
+                    <li>Register students</li>
+                    <li>Add teachers</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="text-muted small">
+                    <li>Choose a memorable school code (3-5 characters)</li>
+                    <li>Select only the programmes you offer</li>
+                    <li>You can add more programmes later</li>
+                    <li>Houses help organize students</li>
+                    <li>Use a strong admin password</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .setup-section {
+        margin-bottom: 1rem;
+    }
+    
+    .setup-checklist .setup-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .form-check {
+        padding-left: 1.5rem;
+    }
+    
+    .form-check-input {
+        margin-left: -1.5rem;
+    }
+</style>
+{% endblock %}

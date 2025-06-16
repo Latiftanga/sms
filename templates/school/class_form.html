@@ -1,0 +1,147 @@
+<!-- File: templates/school/class_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Class - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{% if object %}Edit{% else %}Create{% endif %} Class</h1>
+        <p class="page-subtitle">{% if object %}Update class information{% else %}Add a new class{% endif %}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Class Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.level.label }}</label>
+                                {{ form.level }}
+                                {% if form.level.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.level.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.name.label }}</label>
+                                {{ form.name }}
+                                {% if form.name.help_text %}
+                                    <div class="form-text">{{ form.name.help_text }}</div>
+                                {% endif %}
+                                {% if form.name.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.name.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.programme.label }}</label>
+                                {{ form.programme }}
+                                {% if form.programme.help_text %}
+                                    <div class="form-text">{{ form.programme.help_text }}</div>
+                                {% endif %}
+                                {% if form.programme.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.programme.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.capacity.label }}</label>
+                                {{ form.capacity }}
+                                {% if form.capacity.help_text %}
+                                    <div class="form-text">{{ form.capacity.help_text }}</div>
+                                {% endif %}
+                                {% if form.capacity.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.capacity.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.class_teacher.label }}</label>
+                        {{ form.class_teacher }}
+                        {% if form.class_teacher.help_text %}
+                            <div class="form-text">{{ form.class_teacher.help_text }}</div>
+                        {% endif %}
+                        {% if form.class_teacher.errors %}
+                            <div class="text-danger">
+                                {% for error in form.class_teacher.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'school:classes' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if object %}Update{% else %}Create{% endif %} Class
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Class Naming</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-muted">Examples:</h6>
+                <ul class="list-unstyled">
+                    <li><strong>1A</strong> - Form 1, Section A</li>
+                    <li><strong>2BUSA</strong> - Form 2, Business A</li>
+                    <li><strong>3SCIA</strong> - Form 3, Science A</li>
+                </ul>
+                
+                <hr>
+                
+                <h6 class="text-muted">Guidelines:</h6>
+                <ul class="text-muted small">
+                    <li>Select the appropriate form level</li>
+                    <li>Choose a programme (optional for Form 1)</li>
+                    <li>Use single letters for sections (A, B, C, etc.)</li>
+                    <li>Set realistic capacity limits</li>
+                    <li>Assign a class teacher if available</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

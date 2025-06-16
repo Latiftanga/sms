@@ -1,0 +1,417 @@
+<!-- File: templates/auth/profile.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">My Profile</h1>
+        <p class="page-subtitle">Manage your account information and settings.</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4">
+        <!-- Profile Card -->
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="avatar mx-auto mb-3" style="background-color: var(--tblr-primary); width: 4rem; height: 4rem; font-size: 1.5rem;">
+                    {% if user.get_full_name %}
+                        {{ user.get_full_name|slice:":2"|upper }}
+                    {% else %}
+                        {{ user.username|slice:":2"|upper }}
+                    {% endif %}
+                </div>
+                <h5 class="card-title">{{ user.get_full_name|default:user.username }}</h5>
+                <p class="text-muted">{{ user.get_user_type }}</p>
+                {% if user.email %}
+                    <p class="text-muted small">{{ user.email }}</p>
+                {% endif %}
+                <span class="badge {% if user.is_active %}badge-success{% else %}badge-warning{% endif %}">
+                    {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-key me-2"></i>
+                        Change Password
+                    </a>
+                    {% if user.is_admin or user.is_superuser %}
+                        <a href="{% url 'school:configuration' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-cog me-2"></i>
+                            School Settings
+                        </a>
+                    {% endif %}
+                    <a href="{% url 'core:dashboard' %}" class="btn btn-outline-info">
+                        <i class="fas fa-home me-2"></i>
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <!-- Account Information -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Account Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Username</label>
+                            <p class="fw-medium">{{ user.username }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">User Type</label>
+                            <p class="fw-medium">{{ user.get_user_type }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Email</label>
+                            <p class="fw-medium">{{ user.email|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Date Joined</label>
+                            <p class="fw-medium">{{ user.date_joined|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Last Login</label>
+                            <p class="fw-medium">{{ user.last_login|date:"M d, Y g:i A"|default:"Never" }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Status</label>
+                            <p class="fw-medium">
+                                {% if user.is_active %}
+                                    <span class="text-success">Active</span>
+                                {% else %}
+                                    <span class="text-warning">Inactive</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Details -->
+        {% if profile %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        {% if user.is_student %}Student{% elif user.is_teacher %}Teacher{% endif %} Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Full Name</label>
+                                <p class="fw-medium">{{ profile.get_full_name }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">
+                                    {% if user.is_student %}Student ID{% elif user.is_teacher %}Teacher ID{% endif %}
+                                </label>
+                                <p class="fw-medium">
+                                    {% if user.is_student %}{{ profile.student_id }}{% elif user.is_teacher %}{{ profile.teacher_id }}{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Gender</label>
+                                <p class="fw-medium">{{ profile.get_gender_display }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Date of Birth</label>
+                                <p class="fw-medium">{{ profile.date_of_birth|date:"M d, Y" }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Phone</label>
+                                <p class="fw-medium">{{ profile.phone|default:"Not provided" }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label text-muted">Email</label>
+                                <p class="fw-medium">{{ profile.email|default:"Not provided" }}</p>
+                            </div>
+                        </div>
+                        
+                        {% if user.is_student %}
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">Class</label>
+                                    <p class="fw-medium">{{ profile.current_class|default:"Not assigned" }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">House</label>
+                                    <p class="fw-medium">{{ profile.house|default:"Not assigned" }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">Year Admitted</label>
+                                    <p class="fw-medium">{{ profile.year_admitted }}</p>
+                                </div>
+                            </div>
+                        {% elif user.is_teacher %}
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">Qualification</label>
+                                    <p class="fw-medium">{{ profile.qualification }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">Years of Experience</label>
+                                    <p class="fw-medium">{{ profile.years_of_experience }} years</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label text-muted">Date of Employment</label>
+                                    <p class="fw-medium">{{ profile.date_of_employment|date:"M d, Y" }}</p>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Permissions -->
+        {% if user.is_admin or user.is_superuser %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Permissions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" {% if user.is_superuser %}checked{% endif %} disabled>
+                                <label class="form-check-label">Super Administrator</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" {% if user.is_admin %}checked{% endif %} disabled>
+                                <label class="form-check-label">Administrator</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" {% if user.is_staff %}checked{% endif %} disabled>
+                                <label class="form-check-label">Staff Access</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" {% if user.is_teacher %}checked{% endif %} disabled>
+                                <label class="form-check-label">Teacher</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" {% if user.is_student %}checked{% endif %} disabled>
+                                <label class="form-check-label">Student</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- File: templates/auth/change_password.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Change Password - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Change Password</h1>
+        <p class="page-subtitle">Update your account password for security.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Password Change</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="current_password" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" required>
+                        <div class="form-text">Password must be at least 8 characters long.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            Change Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Password Security Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="text-muted small">
+                    <li>Use at least 8 characters</li>
+                    <li>Include uppercase and lowercase letters</li>
+                    <li>Add numbers and special characters</li>
+                    <li>Avoid using personal information</li>
+                    <li>Don't reuse old passwords</li>
+                    <li>Keep your password confidential</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- File: templates/404.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Page Not Found - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid d-flex align-items-center justify-content-center" style="min-height: 60vh;">
+    <div class="text-center">
+        <div class="display-1 text-muted mb-3">404</div>
+        <h1 class="h2 mb-3">Page Not Found</h1>
+        <p class="text-muted mb-4">The page you're looking for doesn't exist or has been moved.</p>
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="{% url 'core:dashboard' %}" class="btn btn-primary">
+                <i class="fas fa-home me-2"></i>
+                Go to Dashboard
+            </a>
+            <button onclick="history.back()" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Go Back
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+<!-- File: templates/500.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - T. I. Ahmadiyya SHS</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container-fluid d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+        <div class="text-center">
+            <div class="display-1 text-danger mb-3">500</div>
+            <h1 class="h2 mb-3">Server Error</h1>
+            <p class="text-muted mb-4">Something went wrong on our end. We're working to fix it.</p>
+            <div class="d-flex gap-2 justify-content-center">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home me-2"></i>
+                    Go to Home
+                </a>
+                <button onclick="location.reload()" class="btn btn-outline-secondary">
+                    <i class="fas fa-refresh me-2"></i>
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+<!-- File: templates/403.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Access Denied - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid d-flex align-items-center justify-content-center" style="min-height: 60vh;">
+    <div class="text-center">
+        <div class="display-1 text-warning mb-3">403</div>
+        <h1 class="h2 mb-3">Access Denied</h1>
+        <p class="text-muted mb-4">You don't have permission to access this page.</p>
+        <div class="d-flex gap-2 justify-content-center">
+            <a href="{% url 'core:dashboard' %}" class="btn btn-primary">
+                <i class="fas fa-home me-2"></i>
+                Go to Dashboard
+            </a>
+            <button onclick="history.back()" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Go Back
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

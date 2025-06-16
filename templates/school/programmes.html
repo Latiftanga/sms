@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Programmes - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title">Academic Programmes</h1>
+        <p class="page-subtitle">Manage academic programmes offered by your school.</p>
+    </div>
+    <div>
+        <a href="{% url 'school:setup_dashboard' %}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left me-2"></i>
+            Back to Setup
+        </a>
+        <a href="{% url 'school:programme_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Add Programme
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">All Programmes</h5>
+            </div>
+            <div class="card-body">
+                {% if programmes %}
+                    <div class="row">
+                        {% for programme in programmes %}
+                            <div class="col-lg-4 col-md-6 mb-4">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <div>
+                                                <h6 class="card-title mb-1">{{ programme.name }}</h6>
+                                                <span class="badge badge-primary">{{ programme.code }}</span>
+                                            </div>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{% url 'school:programme_edit' programme.pk %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="{% url 'school:programme_delete' programme.pk %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        {% if programme.description %}
+                                            <p class="card-text text-muted small">{{ programme.description|truncatewords:15 }}</p>
+                                        {% endif %}
+                                        
+                                        <div class="row text-center">
+                                            <div class="col-6">
+                                                <div class="border-end">
+                                                    <div class="fw-bold">{{ programme.class_set.count }}</div>
+                                                    <small class="text-muted">Classes</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="fw-bold">
+                                                    {% with programme.class_set.all as classes %}
+                                                        {% for class in classes %}
+                                                            {{ class.get_student_count|add:0 }}
+                                                        {% empty %}
+                                                            0
+                                                        {% endfor %}
+                                                    {% endwith %}
+                                                </div>
+                                                <small class="text-muted">Students</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                        <h5>No Programmes Yet</h5>
+                        <p class="text-muted">Create your first academic programme to get started.</p>
+                        <a href="{% url 'school:programme_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>
+                            Create Programme
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if programmes %}
+    <!-- Quick Stats -->
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ programmes.count }}</h3>
+                    <p class="mb-0">Total Programmes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">
+                        {% for programme in programmes %}
+                            {{ programme.class_set.count|add:0 }}
+                        {% empty %}
+                            0
+                        {% endfor %}
+                    </h3>
+                    <p class="mb-0">Total Classes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">0</h3>
+                    <p class="mb-0">Total Students</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

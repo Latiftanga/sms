@@ -1,0 +1,152 @@
+<!-- File: templates/school/academic_year_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Academic Year - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{% if object %}Edit{% else %}Create{% endif %} Academic Year</h1>
+        <p class="page-subtitle">{% if object %}Update academic year information{% else %}Add a new academic year{% endif %}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Academic Year Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.year.label }}</label>
+                                {{ form.year }}
+                                {% if form.year.help_text %}
+                                    <div class="form-text">{{ form.year.help_text }}</div>
+                                {% endif %}
+                                {% if form.year.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.year.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.is_current.label }}</label>
+                                <div class="form-check">
+                                    {{ form.is_current }}
+                                    <label class="form-check-label" for="{{ form.is_current.id_for_label }}">
+                                        Set as current academic year
+                                    </label>
+                                </div>
+                                {% if form.is_current.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.is_current.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.start_date.label }}</label>
+                                {{ form.start_date }}
+                                {% if form.start_date.help_text %}
+                                    <div class="form-text">{{ form.start_date.help_text }}</div>
+                                {% endif %}
+                                {% if form.start_date.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.start_date.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">{{ form.end_date.label }}</label>
+                                {{ form.end_date }}
+                                {% if form.end_date.help_text %}
+                                    <div class="form-text">{{ form.end_date.help_text }}</div>
+                                {% endif %}
+                                {% if form.end_date.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.end_date.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'school:academic_years' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if object %}Update{% else %}Create{% endif %} Academic Year
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Academic Year Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-muted">Important Notes:</h6>
+                <ul class="text-muted small">
+                    <li>Only one academic year can be current at a time</li>
+                    <li>Academic year typically runs from September to August</li>
+                    <li>End date must be after start date</li>
+                    <li>Create terms after creating the academic year</li>
+                </ul>
+                
+                <hr>
+                
+                <h6 class="text-muted">Example Dates:</h6>
+                <ul class="text-muted small">
+                    <li><strong>Start:</strong> September 1, 2024</li>
+                    <li><strong>End:</strong> August 31, 2025</li>
+                </ul>
+                
+                <hr>
+                
+                <h6 class="text-muted">Next Steps:</h6>
+                <ul class="text-muted small">
+                    <li>After creating, add terms for this academic year</li>
+                    <li>Set one term as current</li>
+                    <li>Enroll students for the academic year</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

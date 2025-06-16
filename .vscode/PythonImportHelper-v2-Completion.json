@@ -1,5 +1,945 @@
 [
     {
+        "label": "django.utils.timezone",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "django.utils.timezone",
+        "description": "django.utils.timezone",
+        "detail": "django.utils.timezone",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "transaction",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "transaction",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "transaction",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "admin",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
+        "label": "UserAdmin",
+        "importPath": "django.contrib.auth.admin",
+        "description": "django.contrib.auth.admin",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.admin",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "importPath": "account.models",
+        "description": "account.models",
+        "isExtraImport": true,
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "create_student_with_user",
+        "importPath": "account.models",
+        "description": "account.models",
+        "isExtraImport": true,
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "create_teacher_with_user",
+        "importPath": "account.models",
+        "description": "account.models",
+        "isExtraImport": true,
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "importPath": "account.models",
+        "description": "account.models",
+        "isExtraImport": true,
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "importPath": "account.models",
+        "description": "account.models",
+        "isExtraImport": true,
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "importPath": "account.models",
+        "description": "account.models",
+        "isExtraImport": true,
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "AuthenticationForm",
+        "importPath": "django.contrib.auth.forms",
+        "description": "django.contrib.auth.forms",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.forms",
+        "documentation": {}
+    },
+    {
+        "label": "UserCreationForm",
+        "importPath": "django.contrib.auth.forms",
+        "description": "django.contrib.auth.forms",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.forms",
+        "documentation": {}
+    },
+    {
+        "label": "authenticate",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "login",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "logout",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "BaseUserManager",
+        "importPath": "django.contrib.auth.base_user",
+        "description": "django.contrib.auth.base_user",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.base_user",
+        "documentation": {}
+    },
+    {
+        "label": "AbstractBaseUser",
+        "importPath": "django.contrib.auth.models",
+        "description": "django.contrib.auth.models",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.models",
+        "documentation": {}
+    },
+    {
+        "label": "PermissionsMixin",
+        "importPath": "django.contrib.auth.models",
+        "description": "django.contrib.auth.models",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.models",
+        "documentation": {}
+    },
+    {
+        "label": "AbstractBaseUser",
+        "importPath": "django.contrib.auth.models",
+        "description": "django.contrib.auth.models",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.models",
+        "documentation": {}
+    },
+    {
+        "label": "PermissionsMixin",
+        "importPath": "django.contrib.auth.models",
+        "description": "django.contrib.auth.models",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.models",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "UserManager",
+        "importPath": "account.managers",
+        "description": "account.managers",
+        "isExtraImport": true,
+        "detail": "account.managers",
+        "documentation": {}
+    },
+    {
+        "label": "string",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "string",
+        "description": "string",
+        "detail": "string",
+        "documentation": {}
+    },
+    {
+        "label": "random",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "random",
+        "description": "random",
+        "detail": "random",
+        "documentation": {}
+    },
+    {
+        "label": "school.models",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "school.models",
+        "description": "school.models",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Teacher",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "School",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYear",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Programme",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "House",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Class",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Subject",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Teacher",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "School",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYear",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Programme",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "House",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Subject",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "School",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYear",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Programme",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "House",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Subject",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "School",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYear",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Term",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "School",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYear",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Term",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Subject",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Class",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Teacher",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "School",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYear",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Term",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Programme",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "House",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Subject",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Class",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Teacher",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "School",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "reverse_lazy",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "include",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "reverse_lazy",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "views",
+        "importPath": "account",
+        "description": "account",
+        "isExtraImport": true,
+        "detail": "account",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "user_passes_test",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "csrf_protect",
+        "importPath": "django.views.decorators.csrf",
+        "description": "django.views.decorators.csrf",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.csrf",
+        "documentation": {}
+    },
+    {
+        "label": "never_cache",
+        "importPath": "django.views.decorators.cache",
+        "description": "django.views.decorators.cache",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.cache",
+        "documentation": {}
+    },
+    {
+        "label": "LoginView",
+        "importPath": "django.contrib.auth.views",
+        "description": "django.contrib.auth.views",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.views",
+        "documentation": {}
+    },
+    {
+        "label": "LogoutView",
+        "importPath": "django.contrib.auth.views",
+        "description": "django.contrib.auth.views",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.views",
+        "documentation": {}
+    },
+    {
         "label": "os",
         "kind": 6,
         "isExtraImport": true,
@@ -17,6 +957,14 @@
         "documentation": {}
     },
     {
+        "label": "constants",
+        "importPath": "django.contrib.messages",
+        "description": "django.contrib.messages",
+        "isExtraImport": true,
+        "detail": "django.contrib.messages",
+        "documentation": {}
+    },
+    {
         "label": "Path",
         "importPath": "pathlib",
         "description": "pathlib",
@@ -25,27 +973,35 @@
         "documentation": {}
     },
     {
-        "label": "admin",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.conf",
         "documentation": {}
     },
     {
-        "label": "admin",
-        "importPath": "django.contrib",
-        "description": "django.contrib",
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
         "isExtraImport": true,
-        "detail": "django.contrib",
+        "detail": "django.conf",
         "documentation": {}
     },
     {
-        "label": "path",
-        "importPath": "django.urls",
-        "description": "django.urls",
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
         "isExtraImport": true,
-        "detail": "django.urls",
+        "detail": "django.conf",
+        "documentation": {}
+    },
+    {
+        "label": "static",
+        "importPath": "django.conf.urls.static",
+        "description": "django.conf.urls.static",
+        "isExtraImport": true,
+        "detail": "django.conf.urls.static",
         "documentation": {}
     },
     {
@@ -62,6 +1018,62 @@
         "description": "django.core.management.base",
         "isExtraImport": true,
         "detail": "django.core.management.base",
+        "documentation": {}
+    },
+    {
+        "label": "BaseCommand",
+        "importPath": "django.core.management.base",
+        "description": "django.core.management.base",
+        "isExtraImport": true,
+        "detail": "django.core.management.base",
+        "documentation": {}
+    },
+    {
+        "label": "BaseCommand",
+        "importPath": "django.core.management.base",
+        "description": "django.core.management.base",
+        "isExtraImport": true,
+        "detail": "django.core.management.base",
+        "documentation": {}
+    },
+    {
+        "label": "BaseCommand",
+        "importPath": "django.core.management.base",
+        "description": "django.core.management.base",
+        "isExtraImport": true,
+        "detail": "django.core.management.base",
+        "documentation": {}
+    },
+    {
+        "label": "date",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "timedelta",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "views",
+        "importPath": "core",
+        "description": "core",
+        "isExtraImport": true,
+        "detail": "core",
+        "documentation": {}
+    },
+    {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
         "documentation": {}
     },
     {
@@ -124,135 +1136,11 @@
         "documentation": {}
     },
     {
-        "label": "django.utils.timezone",
-        "kind": 6,
+        "label": "ValidationError",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
         "isExtraImport": true,
-        "importPath": "django.utils.timezone",
-        "description": "django.utils.timezone",
-        "detail": "django.utils.timezone",
-        "documentation": {}
-    },
-    {
-        "label": "school.models",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "school.models",
-        "description": "school.models",
-        "detail": "school.models",
-        "documentation": {}
-    },
-    {
-        "label": "School",
-        "importPath": "school.models",
-        "description": "school.models",
-        "isExtraImport": true,
-        "detail": "school.models",
-        "documentation": {}
-    },
-    {
-        "label": "School",
-        "importPath": "school.models",
-        "description": "school.models",
-        "isExtraImport": true,
-        "detail": "school.models",
-        "documentation": {}
-    },
-    {
-        "label": "settings",
-        "importPath": "django.conf",
-        "description": "django.conf",
-        "isExtraImport": true,
-        "detail": "django.conf",
-        "documentation": {}
-    },
-    {
-        "label": "settings",
-        "importPath": "django.conf",
-        "description": "django.conf",
-        "isExtraImport": true,
-        "detail": "django.conf",
-        "documentation": {}
-    },
-    {
-        "label": "migrations",
-        "importPath": "django.db",
-        "description": "django.db",
-        "isExtraImport": true,
-        "detail": "django.db",
-        "documentation": {}
-    },
-    {
-        "label": "models",
-        "importPath": "django.db",
-        "description": "django.db",
-        "isExtraImport": true,
-        "detail": "django.db",
-        "documentation": {}
-    },
-    {
-        "label": "models",
-        "importPath": "django.db",
-        "description": "django.db",
-        "isExtraImport": true,
-        "detail": "django.db",
-        "documentation": {}
-    },
-    {
-        "label": "AppConfig",
-        "importPath": "django.apps",
-        "description": "django.apps",
-        "isExtraImport": true,
-        "detail": "django.apps",
-        "documentation": {}
-    },
-    {
-        "label": "BaseUserManager",
-        "importPath": "django.contrib.auth.base_user",
-        "description": "django.contrib.auth.base_user",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.base_user",
-        "documentation": {}
-    },
-    {
-        "label": "string",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "string",
-        "description": "string",
-        "detail": "string",
-        "documentation": {}
-    },
-    {
-        "label": "random",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "random",
-        "description": "random",
-        "detail": "random",
-        "documentation": {}
-    },
-    {
-        "label": "AbstractBaseUser",
-        "importPath": "django.contrib.auth.models",
-        "description": "django.contrib.auth.models",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.models",
-        "documentation": {}
-    },
-    {
-        "label": "PermissionsMixin",
-        "importPath": "django.contrib.auth.models",
-        "description": "django.contrib.auth.models",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.models",
-        "documentation": {}
-    },
-    {
-        "label": "timezone",
-        "importPath": "django.utils",
-        "description": "django.utils",
-        "isExtraImport": true,
-        "detail": "django.utils",
+        "detail": "django.core.exceptions",
         "documentation": {}
     },
     {
@@ -264,43 +1152,59 @@
         "documentation": {}
     },
     {
-        "label": "PHONE_VALIDATOR",
-        "importPath": "school.validators",
-        "description": "school.validators",
+        "label": "ListView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
         "isExtraImport": true,
-        "detail": "school.validators",
+        "detail": "django.views.generic",
         "documentation": {}
     },
     {
-        "label": "GHANA_CARD_VALIDATOR",
-        "importPath": "school.validators",
-        "description": "school.validators",
+        "label": "CreateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
         "isExtraImport": true,
-        "detail": "school.validators",
+        "detail": "django.views.generic",
         "documentation": {}
     },
     {
-        "label": "UserManager",
-        "importPath": "school.managers",
-        "description": "school.managers",
+        "label": "UpdateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
         "isExtraImport": true,
-        "detail": "school.managers",
+        "detail": "django.views.generic",
         "documentation": {}
     },
     {
-        "label": "TestCase",
-        "importPath": "django.test",
-        "description": "django.test",
+        "label": "DeleteView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
         "isExtraImport": true,
-        "detail": "django.test",
+        "detail": "django.views.generic",
         "documentation": {}
     },
     {
-        "label": "render",
-        "importPath": "django.shortcuts",
-        "description": "django.shortcuts",
+        "label": "DetailView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
         "isExtraImport": true,
-        "detail": "django.shortcuts",
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "LoginRequiredMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "UserPassesTestMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
         "documentation": {}
     },
     {
@@ -310,6 +1214,177 @@
         "importPath": "sys",
         "description": "sys",
         "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "account.migrations.0001_initial",
+        "description": "account.migrations.0001_initial",
+        "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n        ('auth', '0012_alter_user_first_name_max_length'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='User',\n            fields=[\n                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),",
+        "detail": "account.migrations.0001_initial",
+        "documentation": {}
+    },
+    {
+        "label": "UserAdmin",
+        "kind": 6,
+        "importPath": "account.admin",
+        "description": "account.admin",
+        "peekOfCode": "class UserAdmin(BaseUserAdmin):\n    list_display = ('username', 'email', 'get_full_name', 'is_student', 'is_teacher', 'is_admin', 'is_active', 'date_joined')\n    list_filter = ('is_student', 'is_teacher', 'is_admin', 'is_staff', 'is_superuser', 'is_active', 'date_joined')\n    search_fields = ('username', 'email', 'first_name', 'last_name')\n    ordering = ('-date_joined',)\n    fieldsets = (\n        (None, {'fields': ('username', 'password')}),\n        ('Personal info', {'fields': ('first_name', 'last_name', 'email')}),\n        ('School Permissions', {'fields': ('is_student', 'is_teacher', 'is_admin')}),\n        ('Django Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),",
+        "detail": "account.admin",
+        "documentation": {}
+    },
+    {
+        "label": "AccountConfig",
+        "kind": 6,
+        "importPath": "account.apps",
+        "description": "account.apps",
+        "peekOfCode": "class AccountConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'account'",
+        "detail": "account.apps",
+        "documentation": {}
+    },
+    {
+        "label": "CustomLoginForm",
+        "kind": 6,
+        "importPath": "account.forms",
+        "description": "account.forms",
+        "peekOfCode": "class CustomLoginForm(AuthenticationForm):\n    \"\"\"Custom login form with Bootstrap styling\"\"\"\n    username = forms.CharField(\n        max_length=150,\n        widget=forms.TextInput(attrs={\n            'class': 'form-control',\n            'placeholder': 'Enter your username or ID',\n            'autofocus': True\n        })\n    )",
+        "detail": "account.forms",
+        "documentation": {}
+    },
+    {
+        "label": "UserCreateForm",
+        "kind": 6,
+        "importPath": "account.forms",
+        "description": "account.forms",
+        "peekOfCode": "class UserCreateForm(UserCreationForm):\n    \"\"\"Form for creating new users\"\"\"\n    email = forms.EmailField(\n        required=False,\n        widget=forms.EmailInput(attrs={\n            'class': 'form-control',\n            'placeholder': 'Email address (optional)'\n        })\n    )\n    first_name = forms.CharField(",
+        "detail": "account.forms",
+        "documentation": {}
+    },
+    {
+        "label": "AdminCreateForm",
+        "kind": 6,
+        "importPath": "account.forms",
+        "description": "account.forms",
+        "peekOfCode": "class AdminCreateForm(forms.ModelForm):\n    \"\"\"Form for creating admin users\"\"\"\n    password1 = forms.CharField(\n        label='Password',\n        widget=forms.PasswordInput(attrs={\n            'class': 'form-control',\n            'placeholder': 'Password'\n        })\n    )\n    password2 = forms.CharField(",
+        "detail": "account.forms",
+        "documentation": {}
+    },
+    {
+        "label": "UserManager",
+        "kind": 6,
+        "importPath": "account.managers",
+        "description": "account.managers",
+        "peekOfCode": "class UserManager(BaseUserManager):\n    \"\"\"Custom user manager for Django authentication\"\"\"\n    def create_user(self, username, email=None, password=None, **extra_fields):\n        \"\"\"Create and save a regular user\"\"\"\n        if not username:\n            raise ValueError('The username field must be set')\n        extra_fields.setdefault('is_staff', False)\n        extra_fields.setdefault('is_superuser', False)\n        if email:\n            email = self.normalize_email(email)",
+        "detail": "account.managers",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 6,
+        "importPath": "account.models",
+        "description": "account.models",
+        "peekOfCode": "class User(AbstractBaseUser, PermissionsMixin):\n    \"\"\"Custom User model for Django authentication\"\"\"\n    # Core fields required by Django\n    username = models.CharField(max_length=150, unique=True)\n    email = models.EmailField(max_length=255, blank=True, null=True)\n    first_name = models.CharField(max_length=150, blank=True)\n    last_name = models.CharField(max_length=150, blank=True)\n    # Permission fields (from PermissionsMixin)\n    is_active = models.BooleanField(default=True)\n    is_staff = models.BooleanField(default=False)",
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "generate_random_password",
+        "kind": 2,
+        "importPath": "account.models",
+        "description": "account.models",
+        "peekOfCode": "def generate_random_password(length=8):\n    \"\"\"Generate a random password\"\"\"\n    characters = string.ascii_letters + string.digits\n    return ''.join(random.choice(characters) for _ in range(length))\ndef create_student_with_user(\n    first_name, last_name, year_admitted,\n    password=None, email=None, **student_data):\n    \"\"\"Create both User account AND Student profile\"\"\"\n    from school.models import Student\n    from account.models import User",
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "create_student_with_user",
+        "kind": 2,
+        "importPath": "account.models",
+        "description": "account.models",
+        "peekOfCode": "def create_student_with_user(\n    first_name, last_name, year_admitted,\n    password=None, email=None, **student_data):\n    \"\"\"Create both User account AND Student profile\"\"\"\n    from school.models import Student\n    from account.models import User\n    if not password:\n        password = generate_random_password()\n    student = Student(\n        first_name=first_name,",
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "create_teacher_with_user",
+        "kind": 2,
+        "importPath": "account.models",
+        "description": "account.models",
+        "peekOfCode": "def create_teacher_with_user(\n    first_name, last_name, date_of_employment,\n    password=None, email=None, is_admin=False, **teacher_data\n):\n    \"\"\"Create both User account AND Teacher profile\"\"\"\n    from account.models import User\n    if not password:\n        password = generate_random_password()\n    teacher = Teacher(\n        first_name=first_name,",
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "app_name",
+        "kind": 5,
+        "importPath": "account.urls",
+        "description": "account.urls",
+        "peekOfCode": "app_name = 'account'\nurlpatterns = [\n    path('login/', views.CustomLoginView.as_view(), name='login'),\n    path('logout/', views.CustomLogoutView.as_view(), name='logout'),\n    path('profile/', views.profile_view, name='profile'),\n    path('change-password/', views.change_password_view, name='change_password'),\n]",
+        "detail": "account.urls",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "account.urls",
+        "description": "account.urls",
+        "peekOfCode": "urlpatterns = [\n    path('login/', views.CustomLoginView.as_view(), name='login'),\n    path('logout/', views.CustomLogoutView.as_view(), name='logout'),\n    path('profile/', views.profile_view, name='profile'),\n    path('change-password/', views.change_password_view, name='change_password'),\n]",
+        "detail": "account.urls",
+        "documentation": {}
+    },
+    {
+        "label": "CustomLoginView",
+        "kind": 6,
+        "importPath": "account.views",
+        "description": "account.views",
+        "peekOfCode": "class CustomLoginView(LoginView):\n    \"\"\"Custom login view with enhanced functionality\"\"\"\n    form_class = CustomLoginForm\n    template_name = 'auth/login.html'\n    redirect_authenticated_user = True\n    def get_success_url(self):\n        \"\"\"Redirect based on user type\"\"\"\n        user = self.request.user\n        if user.is_superuser or user.is_admin:\n            return reverse_lazy('core:dashboard')",
+        "detail": "account.views",
+        "documentation": {}
+    },
+    {
+        "label": "CustomLogoutView",
+        "kind": 6,
+        "importPath": "account.views",
+        "description": "account.views",
+        "peekOfCode": "class CustomLogoutView(LogoutView):\n    \"\"\"Custom logout view\"\"\"\n    next_page = 'accounts:login'\n    def dispatch(self, request, *args, **kwargs):\n        if request.user.is_authenticated:\n            messages.success(request, 'You have been logged out successfully.')\n        return super().dispatch(request, *args, **kwargs)\n@csrf_protect\n@never_cache\ndef login_view(request):",
+        "detail": "account.views",
+        "documentation": {}
+    },
+    {
+        "label": "login_view",
+        "kind": 2,
+        "importPath": "account.views",
+        "description": "account.views",
+        "peekOfCode": "def login_view(request):\n    \"\"\"Alternative function-based login view\"\"\"\n    if request.user.is_authenticated:\n        return redirect('core:dashboard')\n    if request.method == 'POST':\n        form = CustomLoginForm(request, data=request.POST)\n        if form.is_valid():\n            user = form.get_user()\n            login(request, user)\n            messages.success(",
+        "detail": "account.views",
+        "documentation": {}
+    },
+    {
+        "label": "logout_view",
+        "kind": 2,
+        "importPath": "account.views",
+        "description": "account.views",
+        "peekOfCode": "def logout_view(request):\n    \"\"\"Function-based logout view\"\"\"\n    logout(request)\n    messages.success(request, 'You have been logged out successfully.')\n    return redirect('accounts:login')\n@login_required\ndef profile_view(request):\n    \"\"\"User profile view\"\"\"\n    user = request.user\n    profile = user.get_profile()",
+        "detail": "account.views",
+        "documentation": {}
+    },
+    {
+        "label": "profile_view",
+        "kind": 2,
+        "importPath": "account.views",
+        "description": "account.views",
+        "peekOfCode": "def profile_view(request):\n    \"\"\"User profile view\"\"\"\n    user = request.user\n    profile = user.get_profile()\n    context = {\n        'user': user,\n        'profile': profile,\n        'title': 'My Profile'\n    }\n    return render(request, 'auth/profile.html', context)",
+        "detail": "account.views",
+        "documentation": {}
+    },
+    {
+        "label": "change_password_view",
+        "kind": 2,
+        "importPath": "account.views",
+        "description": "account.views",
+        "peekOfCode": "def change_password_view(request):\n    \"\"\"Change password view\"\"\"\n    if request.method == 'POST':\n        current_password = request.POST.get('current_password')\n        new_password = request.POST.get('new_password')\n        confirm_password = request.POST.get('confirm_password')\n        user = request.user\n        if not user.check_password(current_password):\n            messages.error(request, 'Current password is incorrect.')\n        elif new_password != confirm_password:",
+        "detail": "account.views",
         "documentation": {}
     },
     {
@@ -326,7 +1401,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'django-insecure-gq$h$dr&__gg$j2$6hlinofq9(c=ydk&62a53jir879dm+kvx('\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [",
+        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'django-insecure-gq$h$dr&__gg$j2$6hlinofq9(c=ydk&62a53jir879dm+kvx('\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = ['localhost', '127.0.0.1']\n# Application definition\nDJANGO_APPS = [",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -335,7 +1410,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "SECRET_KEY = 'django-insecure-gq$h$dr&__gg$j2$6hlinofq9(c=ydk&62a53jir879dm+kvx('\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',",
+        "peekOfCode": "SECRET_KEY = 'django-insecure-gq$h$dr&__gg$j2$6hlinofq9(c=ydk&62a53jir879dm+kvx('\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = ['localhost', '127.0.0.1']\n# Application definition\nDJANGO_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -344,7 +1419,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "DEBUG = True\nALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',",
+        "peekOfCode": "DEBUG = True\nALLOWED_HOSTS = ['localhost', '127.0.0.1']\n# Application definition\nDJANGO_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -353,7 +1428,34 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "ALLOWED_HOSTS = []\n# Application definition\nINSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    #Local apps",
+        "peekOfCode": "ALLOWED_HOSTS = ['localhost', '127.0.0.1']\n# Application definition\nDJANGO_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n]",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "DJANGO_APPS",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "DJANGO_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n]\nLOCAL_APPS = [\n    'account.apps.AccountConfig',",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "LOCAL_APPS",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "LOCAL_APPS = [\n    'account.apps.AccountConfig',\n    'school.apps.SchoolConfig',\n    'core.apps.CoreConfig',\n]\nTHIRD_PARTY_APPS = [\n    # Add third party apps here if needed\n]\nINSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS\nMIDDLEWARE = [",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "THIRD_PARTY_APPS",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "THIRD_PARTY_APPS = [\n    # Add third party apps here if needed\n]\nINSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS\nMIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -362,7 +1464,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "INSTALLED_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',\n    'django.contrib.contenttypes',\n    'django.contrib.sessions',\n    'django.contrib.messages',\n    'django.contrib.staticfiles',\n    #Local apps\n    'school.apps.SchoolConfig',\n]",
+        "peekOfCode": "INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS\nMIDDLEWARE = [\n    'django.middleware.security.SecurityMiddleware',\n    'django.contrib.sessions.middleware.SessionMiddleware',\n    'django.middleware.common.CommonMiddleware',\n    'django.middleware.csrf.CsrfViewMiddleware',\n    'django.contrib.auth.middleware.AuthenticationMiddleware',\n    'django.contrib.messages.middleware.MessageMiddleware',\n    'django.middleware.clickjacking.XFrameOptionsMiddleware',\n]",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -380,7 +1482,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "ROOT_URLCONF = 'app.urls'\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.request',\n                'django.contrib.auth.context_processors.auth',",
+        "peekOfCode": "ROOT_URLCONF = 'app.urls'\nTEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [BASE_DIR / 'templates'],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.request',\n                'django.contrib.auth.context_processors.auth',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -389,7 +1491,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "TEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.request',\n                'django.contrib.auth.context_processors.auth',\n                'django.contrib.messages.context_processors.messages',",
+        "peekOfCode": "TEMPLATES = [\n    {\n        'BACKEND': 'django.template.backends.django.DjangoTemplates',\n        'DIRS': [BASE_DIR / 'templates'],\n        'APP_DIRS': True,\n        'OPTIONS': {\n            'context_processors': [\n                'django.template.context_processors.request',\n                'django.contrib.auth.context_processors.auth',\n                'django.contrib.messages.context_processors.messages',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -407,7 +1509,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "DATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'HOST': os.environ.get('DB_HOST'),\n        'NAME': os.environ.get('DB_NAME'),\n        'USER': os.environ.get('DB_USER'),\n        'PASSWORD': os.environ.get('DB_PASS')\n    }\n}\nAUTH_USER_MODEL = 'school.User'",
+        "peekOfCode": "DATABASES = {\n    'default': {\n        'ENGINE': 'django.db.backends.postgresql',\n        'HOST': os.environ.get('DB_HOST'),\n        'NAME': os.environ.get('DB_NAME'),\n        'USER': os.environ.get('DB_USER'),\n        'PASSWORD': os.environ.get('DB_PASS')\n    }\n}\nAUTH_USER_MODEL = 'account.User'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -416,7 +1518,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "AUTH_USER_MODEL = 'school.User'\n# Password validation\n# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators\nAUTH_PASSWORD_VALIDATORS = [\n    {\n        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',\n    },",
+        "peekOfCode": "AUTH_USER_MODEL = 'account.User'\n# Password validation\n# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators\nAUTH_PASSWORD_VALIDATORS = [\n    {\n        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',\n    },\n    {\n        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',\n    },",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -434,7 +1536,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "LANGUAGE_CODE = 'en-us'\nTIME_ZONE = 'UTC'\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = 'static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "peekOfCode": "LANGUAGE_CODE = 'en-us'\nTIME_ZONE = 'Africa/Accra'\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [\n    BASE_DIR / 'static',\n]\nSTATIC_ROOT = BASE_DIR / 'staticfiles'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -443,7 +1545,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "TIME_ZONE = 'UTC'\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = 'static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "peekOfCode": "TIME_ZONE = 'Africa/Accra'\nUSE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [\n    BASE_DIR / 'static',\n]\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\n# Media files",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -452,7 +1554,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "USE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = 'static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "peekOfCode": "USE_I18N = True\nUSE_TZ = True\n# Static files (CSS, JavaScript, Images)\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [\n    BASE_DIR / 'static',\n]\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\n# Media files\nMEDIA_URL = '/media/'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -461,7 +1563,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "USE_TZ = True\n# Static files (CSS, JavaScript, Images)\n# https://docs.djangoproject.com/en/5.2/howto/static-files/\nSTATIC_URL = 'static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "peekOfCode": "USE_TZ = True\n# Static files (CSS, JavaScript, Images)\nSTATIC_URL = '/static/'\nSTATICFILES_DIRS = [\n    BASE_DIR / 'static',\n]\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\n# Media files\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -470,7 +1572,43 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "STATIC_URL = 'static/'\n# Default primary key field type\n# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "peekOfCode": "STATIC_URL = '/static/'\nSTATICFILES_DIRS = [\n    BASE_DIR / 'static',\n]\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\n# Media files\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Default primary key field type\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "STATICFILES_DIRS",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "STATICFILES_DIRS = [\n    BASE_DIR / 'static',\n]\nSTATIC_ROOT = BASE_DIR / 'staticfiles'\n# Media files\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Default primary key field type\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "STATIC_ROOT",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "STATIC_ROOT = BASE_DIR / 'staticfiles'\n# Media files\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Default primary key field type\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'accounts:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "MEDIA_URL",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "MEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Default primary key field type\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'accounts:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "MEDIA_ROOT",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "MEDIA_ROOT = BASE_DIR / 'media'\n# Default primary key field type\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'accounts:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -479,7 +1617,52 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'",
+        "peekOfCode": "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'accounts:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "LOGIN_URL",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "LOGIN_URL = 'accounts:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',\n    messages.WARNING: 'warning',\n    messages.ERROR: 'danger',",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "LOGIN_REDIRECT_URL",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "LOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',\n    messages.WARNING: 'warning',\n    messages.ERROR: 'danger',\n}",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "LOGOUT_REDIRECT_URL",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "LOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',\n    messages.WARNING: 'warning',\n    messages.ERROR: 'danger',\n}\n# School Configuration",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "MESSAGE_TAGS",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "MESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',\n    messages.WARNING: 'warning',\n    messages.ERROR: 'danger',\n}\n# School Configuration\nSCHOOL_SETTINGS = {\n    'DEFAULT_ACADEMIC_YEAR_START_MONTH': 9,  # September",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "SCHOOL_SETTINGS",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "SCHOOL_SETTINGS = {\n    'DEFAULT_ACADEMIC_YEAR_START_MONTH': 9,  # September\n    'DEFAULT_TERMS_PER_YEAR': 3,\n    'DEFAULT_CLASS_CAPACITY': 45,\n}\n# Security Settings (for production)\nif not DEBUG:\n    SECURE_BROWSER_XSS_FILTER = True\n    SECURE_CONTENT_TYPE_NOSNIFF = True\n    SECURE_HSTS_INCLUDE_SUBDOMAINS = True",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -488,7 +1671,43 @@
         "kind": 5,
         "importPath": "app.urls",
         "description": "app.urls",
-        "peekOfCode": "urlpatterns = [\n    path('admin/', admin.site.urls),\n]",
+        "peekOfCode": "urlpatterns = [\n    path('admin/', admin.site.urls),\n]\nfrom django.contrib import admin\nfrom django.urls import path, include\nfrom django.conf import settings\nfrom django.conf.urls.static import static\nurlpatterns = [\n    path('admin/', admin.site.urls),\n    path('', include('core.urls')),",
+        "detail": "app.urls",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "app.urls",
+        "description": "app.urls",
+        "peekOfCode": "urlpatterns = [\n    path('admin/', admin.site.urls),\n    path('', include('core.urls')),\n    path('', include('account.urls')),\n    path('', include('school.urls')),\n]\n# Serve media files in development\nif settings.DEBUG:\n    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)\n    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])",
+        "detail": "app.urls",
+        "documentation": {}
+    },
+    {
+        "label": "admin.site.site_header",
+        "kind": 5,
+        "importPath": "app.urls",
+        "description": "app.urls",
+        "peekOfCode": "admin.site.site_header = \"T. I. Ahmadiyya SHS Admin\"\nadmin.site.site_title = \"TTEK SMS Admin\"\nadmin.site.index_title = \"School Management System\"",
+        "detail": "app.urls",
+        "documentation": {}
+    },
+    {
+        "label": "admin.site.site_title",
+        "kind": 5,
+        "importPath": "app.urls",
+        "description": "app.urls",
+        "peekOfCode": "admin.site.site_title = \"TTEK SMS Admin\"\nadmin.site.index_title = \"School Management System\"",
+        "detail": "app.urls",
+        "documentation": {}
+    },
+    {
+        "label": "admin.site.index_title",
+        "kind": 5,
+        "importPath": "app.urls",
+        "description": "app.urls",
+        "peekOfCode": "admin.site.index_title = \"School Management System\"",
         "detail": "app.urls",
         "documentation": {}
     },
@@ -499,6 +1718,114 @@
         "description": "app.wsgi",
         "peekOfCode": "application = get_wsgi_application()",
         "detail": "app.wsgi",
+        "documentation": {}
+    },
+    {
+        "label": "Command",
+        "kind": 6,
+        "importPath": "core.management.commands.create_demo_data",
+        "description": "core.management.commands.create_demo_data",
+        "peekOfCode": "class Command(BaseCommand):\n    help = 'Create demo data for testing'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--students',\n            type=int,\n            default=50,\n            help='Number of students to create',\n        )\n        parser.add_argument(",
+        "detail": "core.management.commands.create_demo_data",
+        "documentation": {}
+    },
+    {
+        "label": "Command",
+        "kind": 6,
+        "importPath": "core.management.commands.create_superuser",
+        "description": "core.management.commands.create_superuser",
+        "peekOfCode": "class Command(BaseCommand):\n    help = 'Create a superuser account'\n    def add_arguments(self, parser):\n        parser.add_argument('--username', required=True,\n                            help='Username for superuser')\n        parser.add_argument('--email', help='Email for superuser')\n        parser.add_argument('--password', help='Password for superuser')\n    def handle(self, *args, **options):\n        username = options['username']\n        email = options.get('email', '')",
+        "detail": "core.management.commands.create_superuser",
+        "documentation": {}
+    },
+    {
+        "label": "Command",
+        "kind": 6,
+        "importPath": "core.management.commands.setup_school",
+        "description": "core.management.commands.setup_school",
+        "peekOfCode": "class Command(BaseCommand):\n    help = 'Set up initial school data'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--school-name',\n            default='T. I. Ahmadiyya SHS',\n            help='School name',\n        )\n        parser.add_argument(\n            '--school-code',",
+        "detail": "core.management.commands.setup_school",
+        "documentation": {}
+    },
+    {
+        "label": "CoreConfig",
+        "kind": 6,
+        "importPath": "core.apps",
+        "description": "core.apps",
+        "peekOfCode": "class CoreConfig(AppConfig):\n    default_auto_field = 'django.db.models.BigAutoField'\n    name = 'core'",
+        "detail": "core.apps",
+        "documentation": {}
+    },
+    {
+        "label": "school_context",
+        "kind": 2,
+        "importPath": "core.context_preprocessors",
+        "description": "core.context_preprocessors",
+        "peekOfCode": "def school_context(request):\n    \"\"\"Add school context to all templates\"\"\"\n    try:\n        school = School.get_current_school()\n        current_academic_year = AcademicYear.objects.filter(\n            is_current=True).first()\n        current_term = Term.objects.filter(is_current=True).first()\n        return {\n            'school': school,\n            'current_academic_year': current_academic_year,",
+        "detail": "core.context_preprocessors",
+        "documentation": {}
+    },
+    {
+        "label": "app_name",
+        "kind": 5,
+        "importPath": "core.urls",
+        "description": "core.urls",
+        "peekOfCode": "app_name = 'core'\nurlpatterns = [\n    path('', views.home_view, name='home'),\n    path('dashboard/', views.dashboard_view, name='dashboard'),\n    path('profile/', views.profile_view, name='profile'),\n]",
+        "detail": "core.urls",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "core.urls",
+        "description": "core.urls",
+        "peekOfCode": "urlpatterns = [\n    path('', views.home_view, name='home'),\n    path('dashboard/', views.dashboard_view, name='dashboard'),\n    path('profile/', views.profile_view, name='profile'),\n]",
+        "detail": "core.urls",
+        "documentation": {}
+    },
+    {
+        "label": "AdminRequiredMixin",
+        "kind": 6,
+        "importPath": "core.views",
+        "description": "core.views",
+        "peekOfCode": "class AdminRequiredMixin:\n    \"\"\"Mixin for views that require admin access\"\"\"\n    def dispatch(self, request, *args, **kwargs):\n        if not (request.user.is_authenticated and \n                (request.user.is_admin or request.user.is_superuser)):\n            from django.contrib.auth.views import redirect_to_login\n            return redirect_to_login(request.get_full_path())\n        return super().dispatch(request, *args, **kwargs)\nclass TeacherRequiredMixin:\n    \"\"\"Mixin for views that require teacher access\"\"\"",
+        "detail": "core.views",
+        "documentation": {}
+    },
+    {
+        "label": "TeacherRequiredMixin",
+        "kind": 6,
+        "importPath": "core.views",
+        "description": "core.views",
+        "peekOfCode": "class TeacherRequiredMixin:\n    \"\"\"Mixin for views that require teacher access\"\"\"\n    def dispatch(self, request, *args, **kwargs):\n        if not (request.user.is_authenticated and \n                (request.user.is_teacher or request.user.is_admin or \n                 request.user.is_superuser)):\n            from django.contrib.auth.views import redirect_to_login\n            return redirect_to_login(request.get_full_path())\n        return super().dispatch(request, *args, **kwargs)",
+        "detail": "core.views",
+        "documentation": {}
+    },
+    {
+        "label": "dashboard_view",
+        "kind": 2,
+        "importPath": "core.views",
+        "description": "core.views",
+        "peekOfCode": "def dashboard_view(request):\n    \"\"\"Main dashboard view\"\"\"\n    user = request.user\n    school = School.get_current_school()\n    # Get basic counts\n    total_students = Student.objects.filter(is_active=True).count()\n    total_teachers = Teacher.objects.filter(is_active=True).count()\n    total_classes = Class.objects.count()\n    total_subjects = Subject.objects.count()\n    # Get current academic info",
+        "detail": "core.views",
+        "documentation": {}
+    },
+    {
+        "label": "home_view",
+        "kind": 2,
+        "importPath": "core.views",
+        "description": "core.views",
+        "peekOfCode": "def home_view(request):\n    \"\"\"Home page view - redirects to dashboard if logged in\"\"\"\n    if request.user.is_authenticated:\n        return redirect('core:dashboard')\n    return redirect('account:login')\n@login_required\ndef profile_view(request):\n    \"\"\"User profile view\"\"\"\n    user = request.user\n    profile = user.get_profile()",
+        "detail": "core.views",
+        "documentation": {}
+    },
+    {
+        "label": "profile_view",
+        "kind": 2,
+        "importPath": "core.views",
+        "description": "core.views",
+        "peekOfCode": "def profile_view(request):\n    \"\"\"User profile view\"\"\"\n    user = request.user\n    profile = user.get_profile()\n    context = {\n        'user': user,\n        'profile': profile,\n        'title': 'My Profile'\n    }\n    return render(request, 'core/profile.html', context)",
+        "detail": "core.views",
         "documentation": {}
     },
     {
@@ -515,8 +1842,17 @@
         "kind": 6,
         "importPath": "school.migrations.0001_initial",
         "description": "school.migrations.0001_initial",
-        "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n        ('auth', '0012_alter_user_first_name_max_length'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='Programme',\n            fields=[\n                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),",
+        "peekOfCode": "class Migration(migrations.Migration):\n    initial = True\n    dependencies = [\n        migrations.swappable_dependency(settings.AUTH_USER_MODEL),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='AcademicYear',\n            fields=[\n                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),",
         "detail": "school.migrations.0001_initial",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "school.migrations.0002_alter_programme_code",
+        "description": "school.migrations.0002_alter_programme_code",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('school', '0001_initial'),\n    ]\n    operations = [\n        migrations.AlterField(\n            model_name='programme',\n            name='code',\n            field=models.CharField(blank=True, max_length=5, unique=True),\n        ),",
+        "detail": "school.migrations.0002_alter_programme_code",
         "documentation": {}
     },
     {
@@ -524,7 +1860,79 @@
         "kind": 6,
         "importPath": "school.admin",
         "description": "school.admin",
-        "peekOfCode": "class SchoolAdmin(admin.ModelAdmin):\n    list_display = ['name', 'code', 'phone', 'email', 'established_year']\n    fieldsets = [\n        ('Basic Information', {\n            'fields': ['name', 'code', 'address', 'phone', 'email', 'website']\n        }),\n        ('School Details', {\n            'fields': ['motto', 'established_year', 'logo']\n        }),\n        ('Administration', {",
+        "peekOfCode": "class SchoolAdmin(admin.ModelAdmin):\n    list_display = ('name', 'code', 'phone', 'email', 'established_year')\n    search_fields = ('name', 'code', 'email')\n    fieldsets = (\n        ('Basic Information', {\n            'fields': ('name', 'code', 'address', 'phone', 'email', 'website')\n        }),\n        ('School Details', {\n            'fields': ('motto', 'established_year', 'logo')\n        }),",
+        "detail": "school.admin",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYearAdmin",
+        "kind": 6,
+        "importPath": "school.admin",
+        "description": "school.admin",
+        "peekOfCode": "class AcademicYearAdmin(admin.ModelAdmin):\n    list_display = ('year', 'start_date', 'end_date',\n                    'is_current', 'created_at')\n    list_filter = ('is_current', 'year')\n    search_fields = ('year',)\n    ordering = ('-year',)\n@admin.register(Term)\nclass TermAdmin(admin.ModelAdmin):\n    list_display = ('__str__', 'academic_year',\n                    'start_date', 'end_date', 'is_current')",
+        "detail": "school.admin",
+        "documentation": {}
+    },
+    {
+        "label": "TermAdmin",
+        "kind": 6,
+        "importPath": "school.admin",
+        "description": "school.admin",
+        "peekOfCode": "class TermAdmin(admin.ModelAdmin):\n    list_display = ('__str__', 'academic_year',\n                    'start_date', 'end_date', 'is_current')\n    list_filter = ('academic_year', 'term_number', 'is_current')\n    search_fields = ('academic_year__year',)\n    ordering = ('-academic_year__year', 'term_number')\n@admin.register(Programme)\nclass ProgrammeAdmin(admin.ModelAdmin):\n    list_display = ('name', 'code', 'created_at')\n    search_fields = ('name', 'code')",
+        "detail": "school.admin",
+        "documentation": {}
+    },
+    {
+        "label": "ProgrammeAdmin",
+        "kind": 6,
+        "importPath": "school.admin",
+        "description": "school.admin",
+        "peekOfCode": "class ProgrammeAdmin(admin.ModelAdmin):\n    list_display = ('name', 'code', 'created_at')\n    search_fields = ('name', 'code')\n    readonly_fields = ('code',)\n    ordering = ('name',)\n@admin.register(House)\nclass HouseAdmin(admin.ModelAdmin):\n    list_display = ('name', 'house_master', 'color', 'created_at')\n    list_filter = ('house_master',)\n    search_fields = ('name', 'house_master__first_name',",
+        "detail": "school.admin",
+        "documentation": {}
+    },
+    {
+        "label": "HouseAdmin",
+        "kind": 6,
+        "importPath": "school.admin",
+        "description": "school.admin",
+        "peekOfCode": "class HouseAdmin(admin.ModelAdmin):\n    list_display = ('name', 'house_master', 'color', 'created_at')\n    list_filter = ('house_master',)\n    search_fields = ('name', 'house_master__first_name',\n                     'house_master__last_name')\n    ordering = ('name',)\n@admin.register(Subject)\nclass SubjectAdmin(admin.ModelAdmin):\n    list_display = ('name', 'code', 'subject_type', 'created_at')\n    list_filter = ('subject_type',)",
+        "detail": "school.admin",
+        "documentation": {}
+    },
+    {
+        "label": "SubjectAdmin",
+        "kind": 6,
+        "importPath": "school.admin",
+        "description": "school.admin",
+        "peekOfCode": "class SubjectAdmin(admin.ModelAdmin):\n    list_display = ('name', 'code', 'subject_type', 'created_at')\n    list_filter = ('subject_type',)\n    search_fields = ('name', 'code')\n    readonly_fields = ('code',)\n    ordering = ('name',)\n@admin.register(Class)\nclass ClassAdmin(admin.ModelAdmin):\n    list_display = ('__str__', 'get_full_name', 'level', 'programme',\n                    'class_teacher', 'get_student_count', 'capacity')",
+        "detail": "school.admin",
+        "documentation": {}
+    },
+    {
+        "label": "ClassAdmin",
+        "kind": 6,
+        "importPath": "school.admin",
+        "description": "school.admin",
+        "peekOfCode": "class ClassAdmin(admin.ModelAdmin):\n    list_display = ('__str__', 'get_full_name', 'level', 'programme',\n                    'class_teacher', 'get_student_count', 'capacity')\n    list_filter = ('level', 'programme', 'class_teacher')\n    search_fields = ('name', 'programme__name',\n                     'class_teacher__first_name', 'class_teacher__last_name')\n    ordering = ('level', 'programme__name', 'name')\n    def get_student_count(self, obj):\n        return obj.get_student_count()\n    get_student_count.short_description = 'Students'",
+        "detail": "school.admin",
+        "documentation": {}
+    },
+    {
+        "label": "StudentAdmin",
+        "kind": 6,
+        "importPath": "school.admin",
+        "description": "school.admin",
+        "peekOfCode": "class StudentAdmin(admin.ModelAdmin):\n    list_display = ('student_id', 'get_full_name',\n                    'current_class', 'house', 'year_admitted', 'is_active')\n    list_filter = ('current_class', 'house',\n                   'year_admitted', 'is_active', 'gender')\n    search_fields = ('student_id', 'first_name',\n                     'last_name', 'email', 'guardian_name')\n    readonly_fields = ('student_id', 'created_at', 'updated_at')\n    ordering = ('-created_at',)\n    fieldsets = (",
+        "detail": "school.admin",
+        "documentation": {}
+    },
+    {
+        "label": "TeacherAdmin",
+        "kind": 6,
+        "importPath": "school.admin",
+        "description": "school.admin",
+        "peekOfCode": "class TeacherAdmin(admin.ModelAdmin):\n    list_display = ('teacher_id', 'get_full_name', 'qualification',\n                    'date_of_employment', 'years_of_experience', 'is_active')\n    list_filter = ('qualification', 'date_of_employment',\n                   'is_active', 'gender')\n    search_fields = ('teacher_id', 'first_name',\n                     'last_name', 'email', 'qualification')\n    readonly_fields = ('teacher_id', 'created_at', 'updated_at')\n    filter_horizontal = ('subjects',)\n    ordering = ('-created_at',)",
         "detail": "school.admin",
         "documentation": {}
     },
@@ -547,12 +1955,75 @@
         "documentation": {}
     },
     {
-        "label": "UserManager",
+        "label": "SchoolConfigurationForm",
         "kind": 6,
-        "importPath": "school.managers",
-        "description": "school.managers",
-        "peekOfCode": "class UserManager(BaseUserManager):\n    \"\"\"Custom user manager for Django authentication\"\"\"\n    def create_user(self, username, email=None, password=None, **extra_fields):\n        \"\"\"Create and save a regular user\"\"\"\n        if not username:\n            raise ValueError('The username field must be set')\n        extra_fields.setdefault('is_staff', False)\n        extra_fields.setdefault('is_superuser', False)\n        if email:\n            email = self.normalize_email(email)",
-        "detail": "school.managers",
+        "importPath": "school.forms",
+        "description": "school.forms",
+        "peekOfCode": "class SchoolConfigurationForm(forms.ModelForm):\n    \"\"\"Form for school basic configuration\"\"\"\n    class Meta:\n        model = School\n        fields = [\n            'name', 'code', 'address', 'phone', 'email', 'website',\n            'motto', 'established_year', 'logo', 'academic_year_start_month',\n            'terms_per_year', 'headmaster_name', 'assistant_headmaster_name',\n            'primary_color', 'secondary_color'\n        ]",
+        "detail": "school.forms",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYearForm",
+        "kind": 6,
+        "importPath": "school.forms",
+        "description": "school.forms",
+        "peekOfCode": "class AcademicYearForm(forms.ModelForm):\n    \"\"\"Form for academic year management\"\"\"\n    class Meta:\n        model = AcademicYear\n        fields = ['year', 'start_date', 'end_date', 'is_current']\n        widgets = {\n            'year': forms.NumberInput(attrs={\n                'class': 'form-control',\n                'min': 2020,\n                'max': 2050",
+        "detail": "school.forms",
+        "documentation": {}
+    },
+    {
+        "label": "TermForm",
+        "kind": 6,
+        "importPath": "school.forms",
+        "description": "school.forms",
+        "peekOfCode": "class TermForm(forms.ModelForm):\n    \"\"\"Form for term management\"\"\"\n    class Meta:\n        model = Term\n        fields = ['academic_year', 'term_number',\n                  'start_date', 'end_date', 'is_current']\n        widgets = {\n            'academic_year': forms.Select(attrs={\n                'class': 'form-select'\n            }),",
+        "detail": "school.forms",
+        "documentation": {}
+    },
+    {
+        "label": "ProgrammeForm",
+        "kind": 6,
+        "importPath": "school.forms",
+        "description": "school.forms",
+        "peekOfCode": "class ProgrammeForm(forms.ModelForm):\n    \"\"\"Form for programme management\"\"\"\n    class Meta:\n        model = Programme\n        fields = ['name', 'code', 'description']\n        widgets = {\n            'name': forms.TextInput(attrs={\n                'class': 'form-control',\n                'placeholder': 'Programme Name (e.g., General Arts)'\n            }),",
+        "detail": "school.forms",
+        "documentation": {}
+    },
+    {
+        "label": "HouseForm",
+        "kind": 6,
+        "importPath": "school.forms",
+        "description": "school.forms",
+        "peekOfCode": "class HouseForm(forms.ModelForm):\n    \"\"\"Form for house management\"\"\"\n    class Meta:\n        model = House\n        fields = ['name', 'color', 'description', 'house_master']\n        widgets = {\n            'name': forms.TextInput(attrs={\n                'class': 'form-control',\n                'placeholder': 'House Name'\n            }),",
+        "detail": "school.forms",
+        "documentation": {}
+    },
+    {
+        "label": "SubjectForm",
+        "kind": 6,
+        "importPath": "school.forms",
+        "description": "school.forms",
+        "peekOfCode": "class SubjectForm(forms.ModelForm):\n    \"\"\"Form for subject management\"\"\"\n    class Meta:\n        model = Subject\n        fields = ['name', 'subject_type']\n        widgets = {\n            'name': forms.TextInput(attrs={\n                'class': 'form-control',\n                'placeholder': 'Subject Name'\n            }),",
+        "detail": "school.forms",
+        "documentation": {}
+    },
+    {
+        "label": "ClassForm",
+        "kind": 6,
+        "importPath": "school.forms",
+        "description": "school.forms",
+        "peekOfCode": "class ClassForm(forms.ModelForm):\n    \"\"\"Form for class management\"\"\"\n    class Meta:\n        model = Class\n        fields = ['name', 'programme', 'level', 'class_teacher', 'capacity']\n        widgets = {\n            'name': forms.TextInput(attrs={\n                'class': 'form-control',\n                'placeholder': 'Class Section (e.g., A, B, C)'\n            }),",
+        "detail": "school.forms",
+        "documentation": {}
+    },
+    {
+        "label": "QuickSetupForm",
+        "kind": 6,
+        "importPath": "school.forms",
+        "description": "school.forms",
+        "peekOfCode": "class QuickSetupForm(forms.Form):\n    \"\"\"Form for quick school setup\"\"\"\n    # School basics\n    school_name = forms.CharField(\n        max_length=200,\n        widget=forms.TextInput(attrs={\n            'class': 'form-control',\n            'placeholder': 'T. I. Ahmadiyya SHS'\n        })\n    )",
+        "detail": "school.forms",
         "documentation": {}
     },
     {
@@ -560,7 +2031,7 @@
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class TimeStampedModel(models.Model):\n    \"\"\"Abstract model with created and modified timestamps\"\"\"\n    created_at = models.DateTimeField(auto_now_add=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    class Meta:\n        abstract = True\n# School Model\n# ============\nclass School(TimeStampedModel):\n    \"\"\"School information stored in database\"\"\"",
+        "peekOfCode": "class TimeStampedModel(models.Model):\n    \"\"\"Abstract model with created and modified timestamps\"\"\"\n    created_at = models.DateTimeField(auto_now_add=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    class Meta:\n        abstract = True\n# School Model\nclass School(TimeStampedModel):\n    \"\"\"School information stored in database\"\"\"\n    # Basic Information",
         "detail": "school.models",
         "documentation": {}
     },
@@ -569,34 +2040,25 @@
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class School(TimeStampedModel):\n    \"\"\"School information stored in database\"\"\"\n    # Basic Information\n    name = models.CharField(max_length=200)\n    # Used for ID generation\n    code = models.CharField(max_length=10, unique=True)\n    address = models.CharField(max_length=255, blank=True, null=True)\n    phone = models.CharField(max_length=15)\n    email = models.EmailField()\n    website = models.URLField(blank=True, null=True)",
+        "peekOfCode": "class School(TimeStampedModel):\n    \"\"\"School information stored in database\"\"\"\n    # Basic Information\n    name = models.CharField(max_length=200)\n    code = models.CharField(max_length=10, unique=True)\n    address = models.CharField(max_length=255, blank=True, null=True)\n    phone = models.CharField(max_length=15, validators=[PHONE_VALIDATOR])\n    email = models.EmailField()\n    website = models.URLField(blank=True, null=True)\n    # School Details",
         "detail": "school.models",
         "documentation": {}
     },
     {
-        "label": "User",
+        "label": "AcademicYear",
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class User(AbstractBaseUser, PermissionsMixin, TimeStampedModel):\n    \"\"\"Custom User model for Django authentication\"\"\"\n    # Core fields required by Django\n    username = models.CharField(max_length=150, unique=True)\n    email = models.EmailField(max_length=255, blank=True, null=True)\n    first_name = models.CharField(\n        max_length=150, blank=True)  # Django compatibility\n    last_name = models.CharField(\n        max_length=150, blank=True)   # Django compatibility\n    # Permission fields (from PermissionsMixin)",
+        "peekOfCode": "class AcademicYear(TimeStampedModel):\n    \"\"\"Academic year model\"\"\"\n    year = models.IntegerField(unique=True)\n    start_date = models.DateField()\n    end_date = models.DateField()\n    is_current = models.BooleanField(default=False)\n    class Meta:\n        ordering = ['-year']\n    def __str__(self):\n        return f\"{self.year} Academic Year\"",
         "detail": "school.models",
         "documentation": {}
     },
     {
-        "label": "IDGenerationMixin",
+        "label": "Term",
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class IDGenerationMixin:\n    \"\"\"Mixin for models that need auto-generated IDs using School model\"\"\"\n    ID_PREFIX = ''  # Default prefix, should be overridden in subclass\n    id_field = None  # Should be set in subclass\n    def generate_id(self):\n        \"\"\"Generate a unique ID with pattern: {ID_PREFIX}{school_code}{SEQ:03d}{Year}\"\"\"\n        # Get school code from database\n        school = School.get_current_school()\n        school_code = school.code\n        # Get year (2 digits)",
-        "detail": "school.models",
-        "documentation": {}
-    },
-    {
-        "label": "Person",
-        "kind": 6,
-        "importPath": "school.models",
-        "description": "school.models",
-        "peekOfCode": "class Person(IDGenerationMixin, TimeStampedModel):\n    \"\"\"Abstract base model for all person types (Student, Teacher, etc.)\"\"\"\n    GENDER_CHOICES = (('M', 'Male'), ('F', 'Female'))\n    user = models.OneToOneField(\n        settings.AUTH_USER_MODEL,  # Use settings instead of direct User reference\n        on_delete=models.SET_NULL,\n        # Creates student_profile, teacher_profile automatically\n        related_name=\"%(class)s_profile\",\n        blank=True, null=True\n    )",
+        "peekOfCode": "class Term(TimeStampedModel):\n    \"\"\"Academic term model\"\"\"\n    TERM_CHOICES = [\n        (1, 'First Term'),\n        (2, 'Second Term'),\n        (3, 'Third Term'),\n    ]\n    academic_year = models.ForeignKey(\n        AcademicYear, on_delete=models.CASCADE, related_name='terms')\n    term_number = models.IntegerField(choices=TERM_CHOICES)",
         "detail": "school.models",
         "documentation": {}
     },
@@ -605,7 +2067,16 @@
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class Programme(TimeStampedModel):\n    \"\"\"Academic programmes like Arts, Business, Science\"\"\"\n    name = models.CharField(max_length=100, unique=True)\n    code = models.CharField(max_length=5, unique=True,\n                            editable=False, blank=True)\n    description = models.TextField(blank=True)\n    class Meta:\n        verbose_name = 'Programme'\n        verbose_name_plural = 'Programmes'\n        ordering = ['name']",
+        "peekOfCode": "class Programme(TimeStampedModel):\n    \"\"\"Academic programmes like Arts, Business, Science\"\"\"\n    name = models.CharField(max_length=100, unique=True)\n    code = models.CharField(max_length=5, unique=True, blank=True)\n    description = models.TextField(blank=True)\n    class Meta:\n        verbose_name = 'Programme'\n        verbose_name_plural = 'Programmes'\n        ordering = ['name']\n    def save(self, *args, **kwargs):",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "House",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class House(TimeStampedModel):\n    \"\"\"Student houses for school organization\"\"\"\n    name = models.CharField(max_length=100, unique=True)\n    color = models.CharField(max_length=7, default=\"#1B5E20\")  # Hex color\n    description = models.TextField(blank=True)\n    house_master = models.ForeignKey(\n        'Teacher',\n        on_delete=models.SET_NULL,\n        null=True,\n        blank=True,",
         "detail": "school.models",
         "documentation": {}
     },
@@ -628,11 +2099,29 @@
         "documentation": {}
     },
     {
+        "label": "IDGenerationMixin",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class IDGenerationMixin:\n    \"\"\"Mixin for models that need auto-generated IDs using School model\"\"\"\n    ID_PREFIX = ''\n    id_field = None\n    def generate_id(self):\n        \"\"\"Generate a unique ID with pattern: {ID_PREFIX}{school_code}{SEQ:03d}{Year}\"\"\"\n        school = School.get_current_school()\n        school_code = school.code\n        year = str(getattr(self, 'year_admitted', timezone.now().year))[-2:]\n        prefix = self.ID_PREFIX",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Person",
+        "kind": 6,
+        "importPath": "school.models",
+        "description": "school.models",
+        "peekOfCode": "class Person(IDGenerationMixin, TimeStampedModel):\n    \"\"\"Abstract base model for all person types (Student, Teacher, etc.)\"\"\"\n    GENDER_CHOICES = (('M', 'Male'), ('F', 'Female'))\n    user = models.OneToOneField(\n        settings.AUTH_USER_MODEL,\n        on_delete=models.SET_NULL,\n        related_name=\"%(class)s_profile\",\n        blank=True, null=True\n    )\n    first_name = models.CharField(",
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
         "label": "Student",
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class Student(Person):\n    \"\"\"Student model - inherits from Person with IDGenerationMixin\"\"\"\n    # ID Generation configuration\n    ID_PREFIX = 'STU'  # Student prefix\n    id_field = 'student_id'\n    student_id = models.CharField(max_length=20, unique=True, blank=True)\n    # Academic Information\n    current_class = models.ForeignKey(\n        Class,\n        on_delete=models.SET_NULL,",
+        "peekOfCode": "class Student(Person):\n    \"\"\"Student model - inherits from Person with IDGenerationMixin\"\"\"\n    ID_PREFIX = 'STU'\n    id_field = 'student_id'\n    student_id = models.CharField(max_length=20, unique=True, blank=True)\n    current_class = models.ForeignKey(\n        Class,\n        on_delete=models.SET_NULL,\n        null=True,\n        blank=True,",
         "detail": "school.models",
         "documentation": {}
     },
@@ -641,35 +2130,26 @@
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class Teacher(Person):\n    \"\"\"Teacher model - inherits from Person with IDGenerationMixin\"\"\"\n    # ID Generation configuration\n    ID_PREFIX = 'TCH'  # Teacher prefix\n    id_field = 'teacher_id'\n    teacher_id = models.CharField(max_length=20, unique=True, blank=True)\n    # Professional Information\n    qualification = models.CharField(max_length=200)\n    specialization = models.CharField(max_length=200, blank=True, null=True)\n    years_of_experience = models.IntegerField(default=0)",
+        "peekOfCode": "class Teacher(Person):\n    \"\"\"Teacher model - inherits from Person with IDGenerationMixin\"\"\"\n    ID_PREFIX = 'TCH'\n    id_field = 'teacher_id'\n    teacher_id = models.CharField(max_length=20, unique=True, blank=True)\n    qualification = models.CharField(max_length=200)\n    specialization = models.CharField(max_length=200, blank=True, null=True)\n    years_of_experience = models.IntegerField(default=0)\n    date_of_employment = models.DateField()\n    subjects = models.ManyToManyField(Subject, blank=True)",
         "detail": "school.models",
         "documentation": {}
     },
     {
-        "label": "generate_random_password",
-        "kind": 2,
-        "importPath": "school.models",
-        "description": "school.models",
-        "peekOfCode": "def generate_random_password(length=8):\n    \"\"\"Generate a random password\"\"\"\n    characters = string.ascii_letters + string.digits\n    return ''.join(random.choice(characters) for _ in range(length))\ndef create_student_with_user(first_name, last_name, year_admitted, password=None, email=None, **student_data):\n    \"\"\"Create both User account AND Student profile\"\"\"\n    # Generate password if not provided\n    if not password:\n        password = generate_random_password()\n    # Create Student profile first (to generate ID)",
-        "detail": "school.models",
+        "label": "app_name",
+        "kind": 5,
+        "importPath": "school.urls",
+        "description": "school.urls",
+        "peekOfCode": "app_name = 'school'\nurlpatterns = [\n    # Configuration\n    path('configuration/', views.school_configuration_view, name='configuration'),\n    path('setup/', views.quick_setup_view, name='quick_setup'),\n    path('setup-dashboard/', views.setup_dashboard_view, name='setup_dashboard'),\n    # Academic Years\n    path('academic-years/', views.AcademicYearListView.as_view(), name='academic_years'),\n    path('academic-years/create/', views.AcademicYearCreateView.as_view(), name='academic_year_create'),\n    path('academic-years/<int:pk>/edit/', views.AcademicYearUpdateView.as_view(), name='academic_year_edit'),",
+        "detail": "school.urls",
         "documentation": {}
     },
     {
-        "label": "create_student_with_user",
-        "kind": 2,
-        "importPath": "school.models",
-        "description": "school.models",
-        "peekOfCode": "def create_student_with_user(first_name, last_name, year_admitted, password=None, email=None, **student_data):\n    \"\"\"Create both User account AND Student profile\"\"\"\n    # Generate password if not provided\n    if not password:\n        password = generate_random_password()\n    # Create Student profile first (to generate ID)\n    student = Student(\n        first_name=first_name,\n        last_name=last_name,\n        year_admitted=year_admitted,",
-        "detail": "school.models",
-        "documentation": {}
-    },
-    {
-        "label": "create_teacher_with_user",
-        "kind": 2,
-        "importPath": "school.models",
-        "description": "school.models",
-        "peekOfCode": "def create_teacher_with_user(first_name, last_name, date_of_employment, password=None, email=None, is_admin=False, **teacher_data):\n    \"\"\"Create both User account AND Teacher profile\"\"\"\n    # Generate password if not provided\n    if not password:\n        password = generate_random_password()\n    # Create Teacher profile first (to generate ID)\n    teacher = Teacher(\n        first_name=first_name,\n        last_name=last_name,\n        date_of_employment=date_of_employment,",
-        "detail": "school.models",
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "school.urls",
+        "description": "school.urls",
+        "peekOfCode": "urlpatterns = [\n    # Configuration\n    path('configuration/', views.school_configuration_view, name='configuration'),\n    path('setup/', views.quick_setup_view, name='quick_setup'),\n    path('setup-dashboard/', views.setup_dashboard_view, name='setup_dashboard'),\n    # Academic Years\n    path('academic-years/', views.AcademicYearListView.as_view(), name='academic_years'),\n    path('academic-years/create/', views.AcademicYearCreateView.as_view(), name='academic_year_create'),\n    path('academic-years/<int:pk>/edit/', views.AcademicYearUpdateView.as_view(), name='academic_year_edit'),\n    path('academic-years/<int:pk>/delete/', views.AcademicYearDeleteView.as_view(), name='academic_year_delete'),",
+        "detail": "school.urls",
         "documentation": {}
     },
     {
@@ -688,6 +2168,240 @@
         "description": "school.validators",
         "peekOfCode": "GHANA_CARD_VALIDATOR = RegexValidator(\n    regex=r'^GHA-[0-9]{9}-[0-9]$',\n    message=\"Ghana Card number must be in format: GHA-XXXXXXXXX-X\"\n)",
         "detail": "school.validators",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYearListView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class AcademicYearListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = AcademicYear\n    template_name = 'school/academic_years.html'\n    context_object_name = 'academic_years'\n    def test_func(self):\n        return is_admin_user(self.request.user)\nclass AcademicYearCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = AcademicYear\n    form_class = AcademicYearForm\n    template_name = 'school/academic_year_form.html'",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYearCreateView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class AcademicYearCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = AcademicYear\n    form_class = AcademicYearForm\n    template_name = 'school/academic_year_form.html'\n    success_url = reverse_lazy('school:academic_years')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Academic year created successfully.')\n        return super().form_valid(form)",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYearUpdateView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class AcademicYearUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = AcademicYear\n    form_class = AcademicYearForm\n    template_name = 'school/academic_year_form.html'\n    success_url = reverse_lazy('school:academic_years')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Academic year updated successfully.')\n        return super().form_valid(form)",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYearDeleteView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class AcademicYearDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = AcademicYear\n    template_name = 'school/academicyear_confirm_delete.html'\n    success_url = reverse_lazy('school:academic_years')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Academic year deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Programme Views",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "ProgrammeListView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class ProgrammeListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = Programme\n    template_name = 'school/programmes.html'\n    context_object_name = 'programmes'\n    def test_func(self):\n        return is_admin_user(self.request.user)\nclass ProgrammeCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programme_form.html'",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "ProgrammeCreateView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class ProgrammeCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programme_form.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Programme created successfully.')\n        return super().form_valid(form)",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "ProgrammeUpdateView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class ProgrammeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programme_form.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Programme updated successfully.')\n        return super().form_valid(form)",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "ProgrammeDeleteView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class ProgrammeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Programme\n    template_name = 'school/programme_confirm_delete.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Programme deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# House Views",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "HouseListView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class HouseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = House\n    template_name = 'school/houses.html'\n    context_object_name = 'houses'\n    def test_func(self):\n        return is_admin_user(self.request.user)\nclass HouseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/house_form.html'",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "HouseCreateView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class HouseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/house_form.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'House created successfully.')\n        return super().form_valid(form)",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "HouseUpdateView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class HouseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/house_form.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'House updated successfully.')\n        return super().form_valid(form)",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "HouseDetailView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class HouseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):\n    model = House\n    template_name = 'school/house_detail.html'\n    context_object_name = 'house'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        house = self.get_object()\n        context['students'] = house.students.filter(",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "HouseDeleteView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class HouseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = House\n    template_name = 'school/house_confirm_delete.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'House deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Subject Views",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "SubjectListView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class SubjectListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = Subject\n    template_name = 'school/subjects.html'\n    context_object_name = 'subjects'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        # Add subject counts by type\n        context['core_count'] = Subject.objects.filter(",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "SubjectCreateView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class SubjectCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Subject\n    form_class = SubjectForm\n    template_name = 'school/subject_form.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Subject created successfully.')\n        return super().form_valid(form)",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "SubjectUpdateView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class SubjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Subject\n    form_class = SubjectForm\n    template_name = 'school/subject_form.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Subject updated successfully.')\n        return super().form_valid(form)",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "SubjectDeleteView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class SubjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Subject\n    template_name = 'school/subject_confirm_delete.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Subject deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Class Views",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "ClassListView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class ClassListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = Class\n    template_name = 'school/classes.html'\n    context_object_name = 'classes'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        # Group classes by level\n        classes_by_level = {}",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "ClassCreateView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class ClassCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Class\n    form_class = ClassForm\n    template_name = 'school/class_form.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Class created successfully.')\n        return super().form_valid(form)",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "ClassUpdateView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class ClassUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Class\n    form_class = ClassForm\n    template_name = 'school/class_form.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Class updated successfully.')\n        return super().form_valid(form)",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "ClassDetailView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class ClassDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):\n    model = Class\n    template_name = 'school/class_detail.html'\n    context_object_name = 'class_obj'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        class_obj = self.get_object()\n        context['students'] = class_obj.students.filter(",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "ClassDeleteView",
+        "kind": 6,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "class ClassDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Class\n    template_name = 'school/class_confirm_delete.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Class deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n@login_required",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "is_admin_user",
+        "kind": 2,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "def is_admin_user(user):\n    \"\"\"Check if user is admin or superuser\"\"\"\n    return user.is_authenticated and (user.is_admin or user.is_superuser)\n@login_required\n@user_passes_test(is_admin_user)\ndef school_configuration_view(request):\n    \"\"\"School configuration view\"\"\"\n    school = School.get_current_school()\n    if request.method == 'POST':\n        form = SchoolConfigurationForm(",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "school_configuration_view",
+        "kind": 2,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "def school_configuration_view(request):\n    \"\"\"School configuration view\"\"\"\n    school = School.get_current_school()\n    if request.method == 'POST':\n        form = SchoolConfigurationForm(\n            request.POST, request.FILES, instance=school)\n        if form.is_valid():\n            form.save()\n            messages.success(\n                request, 'School configuration updated successfully.')",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "quick_setup_view",
+        "kind": 2,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "def quick_setup_view(request):\n    \"\"\"Quick setup view for new installations\"\"\"\n    if request.method == 'POST':\n        form = QuickSetupForm(request.POST)\n        if form.is_valid():\n            try:\n                with transaction.atomic():\n                    # Update school information\n                    school = School.get_current_school()\n                    school.name = form.cleaned_data['school_name']",
+        "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "setup_dashboard_view",
+        "kind": 2,
+        "importPath": "school.views",
+        "description": "school.views",
+        "peekOfCode": "def setup_dashboard_view(request):\n    \"\"\"Setup dashboard showing current status\"\"\"\n    school = School.get_current_school()\n    # Get counts\n    academic_years_count = AcademicYear.objects.count()\n    programmes_count = Programme.objects.count()\n    houses_count = House.objects.count()\n    subjects_count = Subject.objects.count()\n    classes_count = Class.objects.count()\n    students_count = Student.objects.filter(is_active=True).count()",
+        "detail": "school.views",
         "documentation": {}
     },
     {

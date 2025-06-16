@@ -1,0 +1,111 @@
+<!-- File: templates/school/subject_form.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Edit{% else %}Create{% endif %} Subject - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{% if object %}Edit{% else %}Create{% endif %} Subject</h1>
+        <p class="page-subtitle">{% if object %}Update subject information{% else %}Add a new subject{% endif %}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Subject Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.name.label }}</label>
+                        {{ form.name }}
+                        {% if form.name.help_text %}
+                            <div class="form-text">{{ form.name.help_text }}</div>
+                        {% endif %}
+                        {% if form.name.errors %}
+                            <div class="text-danger">
+                                {% for error in form.name.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.subject_type.label }}</label>
+                        {{ form.subject_type }}
+                        {% if form.subject_type.help_text %}
+                            <div class="form-text">{{ form.subject_type.help_text }}</div>
+                        {% endif %}
+                        {% if form.subject_type.errors %}
+                            <div class="text-danger">
+                                {% for error in form.subject_type.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if object %}
+                        <div class="mb-3">
+                            <label class="form-label">Subject Code</label>
+                            <input type="text" class="form-control" value="{{ object.code }}" readonly>
+                            <div class="form-text">This code is automatically generated and cannot be changed.</div>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'school:subjects' %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>
+                            {% if object %}Update{% else %}Create{% endif %} Subject
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Subject Types</h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-success">Core Subjects</h6>
+                <p class="small text-muted">Mandatory subjects all students must take</p>
+                <ul class="list-unstyled small">
+                    <li><i class="fas fa-check text-success me-2"></i>English Language</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Mathematics</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Integrated Science</li>
+                    <li><i class="fas fa-check text-success me-2"></i>Social Studies</li>
+                </ul>
+                
+                <h6 class="text-primary mt-3">Elective Subjects</h6>
+                <p class="small text-muted">Optional subjects students can choose</p>
+                <ul class="list-unstyled small">
+                    <li><i class="fas fa-check text-primary me-2"></i>Physics</li>
+                    <li><i class="fas fa-check text-primary me-2"></i>Chemistry</li>
+                    <li><i class="fas fa-check text-primary me-2"></i>Biology</li>
+                    <li><i class="fas fa-check text-primary me-2"></i>Literature</li>
+                </ul>
+                
+                <h6 class="text-info mt-3">Extracurricular</h6>
+                <p class="small text-muted">Additional activities and clubs</p>
+                <ul class="list-unstyled small">
+                    <li><i class="fas fa-check text-info me-2"></i>Music</li>
+                    <li><i class="fas fa-check text-info me-2"></i>Drama</li>
+                    <li><i class="fas fa-check text-info me-2"></i>Sports</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

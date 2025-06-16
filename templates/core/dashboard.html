@@ -1,0 +1,283 @@
+<!-- File: templates/core/dashboard.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Welcome back, {{ user.get_short_name|default:user.username }}! Here's what's happening at your school today.</p>
+    </div>
+    {% if user.is_admin or user.is_superuser %}
+        <div>
+            <a href="{% url 'school:setup_dashboard' %}" class="btn btn-outline-primary me-2">
+                <i class="fas fa-cogs me-2"></i>
+                School Setup
+            </a>
+            <button class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>
+                Add Student
+                <small class="ms-1">(Coming Soon)</small>
+            </button>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="stats-icon" style="background: linear-gradient(135deg, #2fb344, #20a138);">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <h3 class="stats-value">{{ total_students|default:0 }}</h3>
+            <p class="stats-label">Total Students</p>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="stats-icon" style="background: linear-gradient(135deg, #4299e1, #3182ce);">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <h3 class="stats-value">{{ total_teachers|default:0 }}</h3>
+            <p class="stats-label">Teachers</p>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="stats-icon" style="background: linear-gradient(135deg, #f76707, #e55a00);">
+                <i class="fas fa-door-open"></i>
+            </div>
+            <h3 class="stats-value">{{ total_classes|default:0 }}</h3>
+            <p class="stats-label">Classes</p>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="stats-card">
+            <div class="stats-icon" style="background: linear-gradient(135deg, #d63384, #b02a5b);">
+                <i class="fas fa-book"></i>
+            </div>
+            <h3 class="stats-value">{{ total_subjects|default:0 }}</h3>
+            <p class="stats-label">Subjects</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Students Table -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Recent Students</h5>
+                <div class="d-flex gap-2">
+                    <div class="search-form">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="form-control form-control-sm" placeholder="Search students...">
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-filter me-1"></i>Filter
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_students %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Class</th>
+                                    <th>Contact</th>
+                                    <th>Status</th>
+                                    <th width="1%">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in recent_students %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar me-3" style="background-color: #2fb344;">
+                                                {{ student.first_name|slice:":1" }}{{ student.last_name|slice:":1" }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold">{{ student.get_full_name }}</div>
+                                                <div class="text-muted" style="font-size: 0.75rem;">{{ student.student_id }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ student.current_class|default:"Not Assigned" }}</td>
+                                    <td>{{ student.get_contact_phone|default:"No Contact" }}</td>
+                                    <td>
+                                        {% if student.is_active %}
+                                            <span class="badge badge-success">Active</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" title="View">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-secondary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-user-graduate fa-3x mb-3 opacity-50"></i>
+                        <h5>No Students Yet</h5>
+                        <p>Start by adding students to your school.</p>
+                        {% if user.is_admin or user.is_superuser %}
+                            <button class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>
+                                Add First Student
+                            </button>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity & Quick Actions -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if user.is_admin or user.is_superuser %}
+                        <a href="{% url 'school:setup_dashboard' %}" class="btn btn-primary">
+                            <i class="fas fa-cogs me-2"></i>
+                            School Setup
+                        </a>
+                        <a href="{% url 'school:configuration' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-cog me-2"></i>
+                            School Settings
+                        </a>
+                        <button class="btn btn-outline-primary">
+                            <i class="fas fa-user-plus me-2"></i>
+                            Register Student
+                            <small class="text-muted ms-1">(Coming Soon)</small>
+                        </button>
+                        <button class="btn btn-outline-secondary">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>
+                            Add Teacher
+                            <small class="text-muted ms-1">(Coming Soon)</small>
+                        </button>
+                    {% else %}
+                        <button class="btn btn-primary">
+                            <i class="fas fa-calendar-check me-2"></i>
+                            Take Attendance
+                            <small class="text-muted ms-1">(Coming Soon)</small>
+                        </button>
+                        <button class="btn btn-outline-primary">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Enter Grades
+                            <small class="text-muted ms-1">(Coming Soon)</small>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_activity %}
+                    <div class="timeline">
+                        {% for activity in recent_activity %}
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="{{ activity.icon }} text-{{ activity.color }} me-2"></i>
+                                        <span class="fw-medium">{{ activity.message }}</span>
+                                    </div>
+                                    <div class="timeline-time">{{ activity.time|timesince }} ago</div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-clock fa-2x mb-3 opacity-50"></i>
+                        <p>No recent activity</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Academic Year Info -->
+{% if current_academic_year or current_term %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Academic Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% if current_academic_year %}
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Current Academic Year</h6>
+                        <p class="mb-0">{{ current_academic_year.year }}</p>
+                        <small class="text-muted">{{ current_academic_year.start_date }} - {{ current_academic_year.end_date }}</small>
+                    </div>
+                    {% endif %}
+                    {% if current_term %}
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Current Term</h6>
+                        <p class="mb-0">{{ current_term.get_term_number_display }}</p>
+                        <small class="text-muted">{{ current_term.start_date }} - {{ current_term.end_date }}</small>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if not current_academic_year and user.is_admin %}
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    No academic year is set as current. 
+                    <a href="{% url 'school:academic_years' %}" class="alert-link">Set up academic years</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search functionality (placeholder)
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('.search-form input');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') {
+                    // TODO: Implement search functionality
+                    console.log('Searching for:', this.value);
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

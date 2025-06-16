@@ -1,0 +1,103 @@
+<!-- File: templates/partials/sidebar.html -->
+<div class="sidebar" id="sidebar">
+    <nav class="sidebar-nav">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.view_name == 'core:dashboard' %}active{% endif %}" href="{% url 'core:dashboard' %}">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </a>
+            </li>
+            
+            {% if user.is_admin or user.is_superuser %}
+                <!-- Admin-only sections -->
+                <li class="nav-item">
+                    <a class="nav-link {% if 'school' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'school:setup_dashboard' %}">
+                        <i class="fas fa-cogs"></i>
+                        School Setup
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'school:programmes' %}active{% endif %}" href="{% url 'school:programmes' %}">
+                        <i class="fas fa-graduation-cap"></i>
+                        Programmes
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'school:classes' %}active{% endif %}" href="{% url 'school:classes' %}">
+                        <i class="fas fa-door-open"></i>
+                        Classes
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'school:subjects' %}active{% endif %}" href="{% url 'school:subjects' %}">
+                        <i class="fas fa-book"></i>
+                        Subjects
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'school:houses' %}active{% endif %}" href="{% url 'school:houses' %}">
+                        <i class="fas fa-home"></i>
+                        Houses
+                    </a>
+                </li>
+            {% endif %}
+            
+            {% if user.is_admin or user.is_superuser or user.is_teacher %}
+                <!-- Teacher and Admin sections -->
+                <li class="nav-item">
+                    <a class="nav-link" href="#students">
+                        <i class="fas fa-user-graduate"></i>
+                        Students
+                        <small class="text-muted ms-auto">Coming Soon</small>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="#teachers">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        Teachers
+                        <small class="text-muted ms-auto">Coming Soon</small>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="#attendance">
+                        <i class="fas fa-calendar-check"></i>
+                        Attendance
+                        <small class="text-muted ms-auto">Coming Soon</small>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="#grades">
+                        <i class="fas fa-chart-line"></i>
+                        Grades
+                        <small class="text-muted ms-auto">Coming Soon</small>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="#reports">
+                        <i class="fas fa-file-alt"></i>
+                        Reports
+                        <small class="text-muted ms-auto">Coming Soon</small>
+                    </a>
+                </li>
+            {% endif %}
+            
+            {% if user.is_admin or user.is_superuser %}
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'school:configuration' %}active{% endif %}" href="{% url 'school:configuration' %}">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>

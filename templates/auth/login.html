@@ -1,0 +1,176 @@
+<!-- File: templates/auth/login.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, var(--tblr-primary), var(--tblr-secondary));
+        min-height: 100vh;
+    }
+    
+    .container-fluid {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    
+    .login-container {
+        background: var(--tblr-card-bg);
+        border-radius: 1rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .login-header {
+        background: linear-gradient(135deg, var(--tblr-primary), var(--tblr-secondary));
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .login-logo {
+        width: 4rem;
+        height: 4rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .login-body {
+        padding: 2rem;
+    }
+    
+    .form-floating {
+        margin-bottom: 1rem;
+    }
+    
+    .form-floating .form-control {
+        border: 2px solid var(--tblr-border-color);
+        border-radius: 0.5rem;
+        height: 3.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-floating .form-control:focus {
+        border-color: var(--tblr-primary);
+        box-shadow: 0 0 0 0.2rem rgba(var(--tblr-primary-rgb), 0.25);
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, var(--tblr-primary), var(--tblr-secondary));
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        width: 100%;
+        height: 3rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(var(--tblr-primary-rgb), 0.3);
+    }
+    
+    .login-footer {
+        background: var(--tblr-light);
+        padding: 1rem 2rem;
+        text-align: center;
+        font-size: 0.875rem;
+        color: var(--tblr-body-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-header">
+        <div class="login-logo">
+            {% if school.logo %}
+                <img src="{{ school.logo.url }}" alt="{{ school.name }}" style="width: 3rem; height: 3rem; border-radius: 0.75rem;">
+            {% else %}
+                <i class="fas fa-graduation-cap"></i>
+            {% endif %}
+        </div>
+        <h4 class="mb-1">{{ school.name|default:"T. I. Ahmadiyya SHS" }}</h4>
+        <p class="mb-0 opacity-75">Student Management System</p>
+    </div>
+    
+    <div class="login-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-floating">
+                {{ form.username }}
+                <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                {% if form.username.errors %}
+                    <div class="text-danger small mt-1">
+                        {% for error in form.username.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-floating">
+                {{ form.password }}
+                <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                {% if form.password.errors %}
+                    <div class="text-danger small mt-1">
+                        {% for error in form.password.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <button type="submit" class="btn btn-primary btn-login">
+                <i class="fas fa-sign-in-alt me-2"></i>
+                Sign In
+            </button>
+        </form>
+    </div>
+    
+    <div class="login-footer">
+        <small>
+            {% if current_academic_year %}
+                {{ current_academic_year.year }} Academic Year
+                {% if current_term %}
+                    • {{ current_term.get_term_number_display }}
+                {% endif %}
+            {% endif %}
+        </small>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-focus on username field
+    document.addEventListener('DOMContentLoaded', function() {
+        const usernameField = document.querySelector('#id_username');
+        if (usernameField) {
+            usernameField.focus();
+        }
+    });
+</script>
+{% endblock %}

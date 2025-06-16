@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Subjects - {{ school.name|default:"T. I. Ahmadiyya SHS" }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title">Subjects</h1>
+        <p class="page-subtitle">Manage subjects taught in your school.</p>
+    </div>
+    <div>
+        <a href="{% url 'school:setup_dashboard' %}" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left me-2"></i>
+            Back to Setup
+        </a>
+        <a href="{% url 'school:subject_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>
+            Add Subject
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">All Subjects</h5>
+                <div class="d-flex gap-2">
+                    <select class="form-select form-select-sm" id="subjectFilter">
+                        <option value="">All Types</option>
+                        <option value="core">Core</option>
+                        <option value="elective">Elective</option>
+                        <option value="extracurricular">Extracurricular</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if subjects %}
+                    <div class="row">
+                        {% for subject in subjects %}
+                            <div class="col-lg-4 col-md-6 mb-3" data-subject-type="{{ subject.subject_type }}">
+                                <div class="card border">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h6 class="card-title mb-1">{{ subject.name }}</h6>
+                                                <span class="badge 
+                                                    {% if subject.subject_type == 'core' %}badge-success
+                                                    {% elif subject.subject_type == 'elective' %}badge-primary
+                                                    {% else %}badge-info{% endif %}">
+                                                    {{ subject.get_subject_type_display }}
+                                                </span>
+                                            </div>
+                                            <div class="dropdown">
+                                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                                                    <i class="fas fa-ellipsis-v"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a class="dropdown-item" href="{% url 'school:subject_edit' subject.pk %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="{% url 'school:subject_delete' subject.pk %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="text-center">
+                                            <div class="fw-bold text-muted">{{ subject.code }}</div>
+                                            <small class="text-muted">Subject Code</small>
+                                        </div>
+                                        
+                                        <hr class="my-2">
+                                        
+                                        <div class="row text-center">
+                                            <div class="col-6">
+                                                <div class="border-end">
+                                                    <div class="fw-bold">{{ subject.teacher_set.count }}</div>
+                                                    <small class="text-muted">Teachers</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="fw-bold">0</div>
+                                                <small class="text-muted">Classes</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                        <h5>No Subjects Yet</h5>
+                        <p class="text-muted">Add subjects that are taught in your school.</p>
+                        <a href="{% url 'school:subject_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>
+                            Add Subject
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if subjects %}
+    <!-- Subject Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ core_count }}</h3>
+                    <p class="mb-0">Core Subjects</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ elective_count }}</h3>
+                    <p class="mb-0">Elective Subjects</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ extracurricular_count }}</h3>
+                    <p class="mb-0">Extracurricular</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ subjects.count }}</h3>
+                    <p class="mb-0">Total Subjects</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const subjectFilter = document.getElementById('subjectFilter');
+        if (subjectFilter) {
+            subjectFilter.addEventListener('change', function() {
+                const filterValue = this.value;
+                const subjectCards = document.querySelectorAll('[data-subject-type]');
+                
+                subjectCards.forEach(card => {
+                    const cardType = card.getAttribute('data-subject-type');
+                    if (filterValue === '' || cardType === filterValue) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}
