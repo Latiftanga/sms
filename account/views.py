@@ -19,12 +19,12 @@ class CustomLoginView(LoginView):
         """Redirect based on user type"""
         user = self.request.user
         if user.is_superuser or user.is_admin:
-            return reverse_lazy('core:dashboard')
+            return reverse_lazy('admin:admin_dashboard')
         elif user.is_teacher:
-            return reverse_lazy('core:dashboard')
+            return reverse_lazy('teacher:dashboard')
         elif user.is_student:
-            return reverse_lazy('core:dashboard')
-        return reverse_lazy('core:dashboard')
+            return reverse_lazy('student:dashboard')
+        return reverse_lazy('student:dashboard')
 
     def form_valid(self, form):
         """Add success message on login"""

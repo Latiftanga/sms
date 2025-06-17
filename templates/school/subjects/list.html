@@ -11,11 +11,11 @@
         <p class="page-subtitle">Manage subjects taught in your school.</p>
     </div>
     <div>
-        <a href="{% url 'school:setup_dashboard' %}" class="btn btn-outline-secondary me-2">
+        <a href="{% url 'admin:setup_school' %}" class="btn btn-outline-secondary me-2">
             <i class="fas fa-arrow-left me-2"></i>
             Back to Setup
         </a>
-        <a href="{% url 'school:subject_create' %}" class="btn btn-primary">
+        <a href="{% url 'admin:subject_create' %}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>
             Add Subject
         </a>
@@ -58,8 +58,8 @@
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </button>
                                                 <ul class="dropdown-menu">
-                                                    <li><a class="dropdown-item" href="{% url 'school:subject_edit' subject.pk %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="{% url 'school:subject_delete' subject.pk %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                                    <li><a class="dropdown-item" href="{% url 'admin:subject_edit' subject.pk %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="{% url 'admin:subject_delete' subject.pk %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -93,7 +93,7 @@
                         <i class="fas fa-book fa-3x text-muted mb-3"></i>
                         <h5>No Subjects Yet</h5>
                         <p class="text-muted">Add subjects that are taught in your school.</p>
-                        <a href="{% url 'school:subject_create' %}" class="btn btn-primary">
+                        <a href="{% url 'admin:subject_create' %}" class="btn btn-primary">
                             <i class="fas fa-plus me-2"></i>
                             Add Subject
                         </a>

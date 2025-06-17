@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import MinLengthValidator
 from django.utils import timezone
 from django.core.exceptions import ValidationError
@@ -7,7 +6,6 @@ from django.conf import settings
 from .validators import PHONE_VALIDATOR, GHANA_CARD_VALIDATOR
 
 
-# TimeStampedModel
 class TimeStampedModel(models.Model):
     """Abstract model with created and modified timestamps"""
     created_at = models.DateTimeField(auto_now_add=True)
@@ -17,7 +15,6 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
-# School Model
 class School(TimeStampedModel):
     """School information stored in database"""
 
@@ -77,7 +74,6 @@ class School(TimeStampedModel):
             return now.year - 1
 
 
-# Academic Year Model
 class AcademicYear(TimeStampedModel):
     """Academic year model"""
     year = models.IntegerField(unique=True)
@@ -99,7 +95,6 @@ class AcademicYear(TimeStampedModel):
         super().save(*args, **kwargs)
 
 
-# Term Model
 class Term(TimeStampedModel):
     """Academic term model"""
     TERM_CHOICES = [
@@ -129,7 +124,6 @@ class Term(TimeStampedModel):
         super().save(*args, **kwargs)
 
 
-# Programme Model
 class Programme(TimeStampedModel):
     """Academic programmes like Arts, Business, Science"""
     name = models.CharField(max_length=100, unique=True)
@@ -159,7 +153,6 @@ class Programme(TimeStampedModel):
         return f"{self.name} ({self.code})"
 
 
-# House Model
 class House(TimeStampedModel):
     """Student houses for school organization"""
     name = models.CharField(max_length=100, unique=True)
@@ -180,7 +173,6 @@ class House(TimeStampedModel):
         return self.name
 
 
-# Subject Model
 class Subject(TimeStampedModel):
     """Subject taught in the school"""
     name = models.CharField(max_length=100, unique=True)
@@ -219,7 +211,6 @@ class Subject(TimeStampedModel):
         return f"{self.name} ({self.code})"
 
 
-# Class Model
 class Class(TimeStampedModel):
     """Enhanced Class/Form with Programme and Level structure"""
     LEVEL_CHOICES = [
@@ -280,7 +271,6 @@ class Class(TimeStampedModel):
         return self.get_student_count() >= self.capacity
 
 
-# ID Generation Mixin
 class IDGenerationMixin:
     """Mixin for models that need auto-generated IDs using School model"""
     ID_PREFIX = ''
@@ -323,7 +313,6 @@ class IDGenerationMixin:
         return f"{prefix}{school_code}{new_seq:03d}{year}"
 
 
-# Abstract Person Model
 class Person(IDGenerationMixin, TimeStampedModel):
     """Abstract base model for all person types (Student, Teacher, etc.)"""
 
@@ -372,7 +361,6 @@ class Person(IDGenerationMixin, TimeStampedModel):
         return self.get_full_name()
 
 
-# Student Model
 class Student(Person):
     """Student model - inherits from Person with IDGenerationMixin"""
 
@@ -416,7 +404,6 @@ class Student(Person):
         return f"{self.get_full_name()} ({self.student_id})"
 
 
-# Teacher Model
 class Teacher(Person):
     """Teacher model - inherits from Person with IDGenerationMixin"""
 

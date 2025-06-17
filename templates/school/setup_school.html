@@ -11,7 +11,7 @@
         <h1 class="page-title">School Setup Dashboard</h1>
         <p class="page-subtitle">Configure your school system step by step.</p>
     </div>
-    <a href="{% url 'core:dashboard' %}" class="btn btn-outline-primary">
+    <a href="{% url 'admin:admin_dashboard' %}" class="btn btn-outline-primary">
         <i class="fas fa-arrow-left me-2"></i>
         Back to Dashboard
     </a>
@@ -106,7 +106,7 @@
                     <small class="text-muted">School Code:</small><br>
                     <strong>{{ school.code }}</strong>
                 </div>
-                <a href="{% url 'school:configuration' %}" class="btn btn-primary">
+                <a href="{% url 'admin:configuration' %}" class="btn btn-primary">
                     <i class="fas fa-edit me-2"></i>
                     Configure School
                 </a>
@@ -142,7 +142,7 @@
                         </div>
                     {% endif %}
                 {% endif %}
-                <a href="{% url 'school:academic_years' %}" class="btn btn-primary">
+                <a href="{% url 'admin:academic_years' %}" class="btn btn-primary">
                     <i class="fas fa-calendar-plus me-2"></i>
                     Manage Academic Years
                 </a>
@@ -169,7 +169,7 @@
                         <small>No programmes created yet. Start by creating your first programme.</small>
                     </div>
                 {% endif %}
-                <a href="{% url 'school:programmes' %}" class="btn btn-primary">
+                <a href="{% url 'admin:programmes' %}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>
                     Manage Programmes
                 </a>
@@ -196,7 +196,7 @@
                         <small>No houses created yet. Houses help organize students into groups.</small>
                     </div>
                 {% endif %}
-                <a href="{% url 'school:houses' %}" class="btn btn-primary">
+                <a href="{% url 'admin:houses' %}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>
                     Manage Houses
                 </a>
@@ -223,7 +223,7 @@
                         <small>No subjects added yet. Add core and elective subjects.</small>
                     </div>
                 {% endif %}
-                <a href="{% url 'school:subjects' %}" class="btn btn-primary">
+                <a href="{% url 'admin:subjects' %}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>
                     Manage Subjects
                 </a>
@@ -250,7 +250,7 @@
                         <small>No classes created yet. You need programmes first, then create classes.</small>
                     </div>
                 {% endif %}
-                <a href="{% url 'school:classes' %}" class="btn btn-primary">
+                <a href="{% url 'admin:classes' %}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>
                     Manage Classes
                 </a>
@@ -269,7 +269,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <a href="{% url 'school:quick_setup' %}" class="btn btn-outline-primary w-100">
+                        <a href="{% url 'admin:quick_setup' %}" class="btn btn-outline-primary w-100">
                             <i class="fas fa-magic me-2"></i>
                             Quick Setup Wizard
                         </a>

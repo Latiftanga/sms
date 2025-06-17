@@ -11,11 +11,11 @@
         <p class="page-subtitle">Manage all classes in your school.</p>
     </div>
     <div>
-        <a href="{% url 'school:setup_dashboard' %}" class="btn btn-outline-secondary me-2">
+        <a href="{% url 'admin:setup_school' %}" class="btn btn-outline-secondary me-2">
             <i class="fas fa-arrow-left me-2"></i>
             Back to Setup
         </a>
-        <a href="{% url 'school:class_create' %}" class="btn btn-primary">
+        <a href="{% url 'admin:class_create' %}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>
             Add Class
         </a>
@@ -44,9 +44,9 @@
                                                         <i class="fas fa-ellipsis-v"></i>
                                                     </button>
                                                     <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="{% url 'school:class_edit' class.pk %}"><i class="fas fa-eye me-2"></i>View</a></li>
-                                                        <li><a class="dropdown-item" href="{% url 'school:class_edit' class.pk %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
-                                                        <li><a class="dropdown-item text-danger" href="{% url 'school:class_delete' class.pk %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                                        <li><a class="dropdown-item" href="{% url 'admin:class_edit' class.pk %}"><i class="fas fa-eye me-2"></i>View</a></li>
+                                                        <li><a class="dropdown-item" href="{% url 'admin:class_edit' class.pk %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                                        <li><a class="dropdown-item text-danger" href="{% url 'admin:class_delete' class.pk %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -117,7 +117,7 @@
                     <i class="fas fa-door-open fa-3x text-muted mb-3"></i>
                     <h5>No Classes Yet</h5>
                     <p class="text-muted">Create your first class to start organizing students.</p>
-                    <a href="{% url 'school:class_create' %}" class="btn btn-primary">
+                    <a href="{% url 'admin:class_create' %}" class="btn btn-primary">
                         <i class="fas fa-plus me-2"></i>
                         Create Class
                     </a>

@@ -11,11 +11,11 @@
         <p class="page-subtitle">Manage academic programmes offered by your school.</p>
     </div>
     <div>
-        <a href="{% url 'school:setup_dashboard' %}" class="btn btn-outline-secondary me-2">
+        <a href="{% url 'admin:setup_school' %}" class="btn btn-outline-secondary me-2">
             <i class="fas fa-arrow-left me-2"></i>
             Back to Setup
         </a>
-        <a href="{% url 'school:programme_create' %}" class="btn btn-primary">
+        <a href="{% url 'admin:programme_create' %}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>
             Add Programme
         </a>
@@ -45,8 +45,8 @@
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </button>
                                                 <ul class="dropdown-menu">
-                                                    <li><a class="dropdown-item" href="{% url 'school:programme_edit' programme.pk %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger" href="{% url 'school:programme_delete' programme.pk %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
+                                                    <li><a class="dropdown-item" href="{% url 'admin:programme_edit' programme.pk %}"><i class="fas fa-edit me-2"></i>Edit</a></li>
+                                                    <li><a class="dropdown-item text-danger" href="{% url 'admin:programme_delete' programme.pk %}"><i class="fas fa-trash me-2"></i>Delete</a></li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -85,7 +85,7 @@
                         <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
                         <h5>No Programmes Yet</h5>
                         <p class="text-muted">Create your first academic programme to get started.</p>
-                        <a href="{% url 'school:programme_create' %}" class="btn btn-primary">
+                        <a href="{% url 'admin:programme_create' %}" class="btn btn-primary">
                             <i class="fas fa-plus me-2"></i>
                             Create Programme
                         </a>

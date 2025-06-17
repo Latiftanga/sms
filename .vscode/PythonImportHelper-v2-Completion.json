@@ -129,7 +129,7 @@
         "documentation": {}
     },
     {
-        "label": "admin",
+        "label": "messages",
         "importPath": "django.contrib",
         "description": "django.contrib",
         "isExtraImport": true,
@@ -137,7 +137,7 @@
         "documentation": {}
     },
     {
-        "label": "admin",
+        "label": "messages",
         "importPath": "django.contrib",
         "description": "django.contrib",
         "isExtraImport": true,
@@ -302,22 +302,6 @@
         "description": "django.contrib.auth.base_user",
         "isExtraImport": true,
         "detail": "django.contrib.auth.base_user",
-        "documentation": {}
-    },
-    {
-        "label": "AbstractBaseUser",
-        "importPath": "django.contrib.auth.models",
-        "description": "django.contrib.auth.models",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.models",
-        "documentation": {}
-    },
-    {
-        "label": "PermissionsMixin",
-        "importPath": "django.contrib.auth.models",
-        "description": "django.contrib.auth.models",
-        "isExtraImport": true,
-        "detail": "django.contrib.auth.models",
         "documentation": {}
     },
     {
@@ -724,30 +708,6 @@
         "documentation": {}
     },
     {
-        "label": "TestCase",
-        "importPath": "django.test",
-        "description": "django.test",
-        "isExtraImport": true,
-        "detail": "django.test",
-        "documentation": {}
-    },
-    {
-        "label": "TestCase",
-        "importPath": "django.test",
-        "description": "django.test",
-        "isExtraImport": true,
-        "detail": "django.test",
-        "documentation": {}
-    },
-    {
-        "label": "TestCase",
-        "importPath": "django.test",
-        "description": "django.test",
-        "isExtraImport": true,
-        "detail": "django.test",
-        "documentation": {}
-    },
-    {
         "label": "path",
         "importPath": "django.urls",
         "description": "django.urls",
@@ -772,7 +732,7 @@
         "documentation": {}
     },
     {
-        "label": "path",
+        "label": "include",
         "importPath": "django.urls",
         "description": "django.urls",
         "isExtraImport": true,
@@ -780,7 +740,7 @@
         "documentation": {}
     },
     {
-        "label": "include",
+        "label": "path",
         "importPath": "django.urls",
         "description": "django.urls",
         "isExtraImport": true,
@@ -829,6 +789,14 @@
     },
     {
         "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
         "importPath": "django.shortcuts",
         "description": "django.shortcuts",
         "isExtraImport": true,
@@ -1005,6 +973,14 @@
         "documentation": {}
     },
     {
+        "label": "home_view",
+        "importPath": "core.views",
+        "description": "core.views",
+        "isExtraImport": true,
+        "detail": "core.views",
+        "documentation": {}
+    },
+    {
         "label": "get_wsgi_application",
         "importPath": "django.core.wsgi",
         "description": "django.core.wsgi",
@@ -1069,11 +1045,51 @@
         "documentation": {}
     },
     {
+        "label": "views",
+        "importPath": "core",
+        "description": "core",
+        "isExtraImport": true,
+        "detail": "core",
+        "documentation": {}
+    },
+    {
+        "label": "views",
+        "importPath": "core",
+        "description": "core",
+        "isExtraImport": true,
+        "detail": "core",
+        "documentation": {}
+    },
+    {
+        "label": "views",
+        "importPath": "school",
+        "description": "school",
+        "isExtraImport": true,
+        "detail": "school",
+        "documentation": {}
+    },
+    {
+        "label": "wraps",
+        "importPath": "functools",
+        "description": "functools",
+        "isExtraImport": true,
+        "detail": "functools",
+        "documentation": {}
+    },
+    {
         "label": "Count",
         "importPath": "django.db.models",
         "description": "django.db.models",
         "isExtraImport": true,
         "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "role_required",
+        "importPath": "core.permissions",
+        "description": "core.permissions",
+        "isExtraImport": true,
+        "detail": "core.permissions",
         "documentation": {}
     },
     {
@@ -1338,7 +1354,7 @@
         "kind": 6,
         "importPath": "account.views",
         "description": "account.views",
-        "peekOfCode": "class CustomLoginView(LoginView):\n    \"\"\"Custom login view with enhanced functionality\"\"\"\n    form_class = CustomLoginForm\n    template_name = 'auth/login.html'\n    redirect_authenticated_user = True\n    def get_success_url(self):\n        \"\"\"Redirect based on user type\"\"\"\n        user = self.request.user\n        if user.is_superuser or user.is_admin:\n            return reverse_lazy('core:dashboard')",
+        "peekOfCode": "class CustomLoginView(LoginView):\n    \"\"\"Custom login view with enhanced functionality\"\"\"\n    form_class = CustomLoginForm\n    template_name = 'auth/login.html'\n    redirect_authenticated_user = True\n    def get_success_url(self):\n        \"\"\"Redirect based on user type\"\"\"\n        user = self.request.user\n        if user.is_superuser or user.is_admin:\n            return reverse_lazy('admin:admin_dashboard')",
         "detail": "account.views",
         "documentation": {}
     },
@@ -1401,7 +1417,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\n# Quick-start development settings - unsuitable for production\n# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'django-insecure-gq$h$dr&__gg$j2$6hlinofq9(c=ydk&62a53jir879dm+kvx('\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = ['localhost', '127.0.0.1']\n# Application definition\nDJANGO_APPS = [",
+        "peekOfCode": "BASE_DIR = Path(__file__).resolve().parent.parent\n# SECURITY WARNING: keep the secret key used in production secret!\nSECRET_KEY = 'django-insecure-gq$h$dr&__gg$j2$6hlinofq9(c=ydk&62a53jir879dm+kvx('\n# SECURITY WARNING: don't run with debug turned on in production!\nDEBUG = True\nALLOWED_HOSTS = ['localhost', '127.0.0.1']\n# Application definition\nDJANGO_APPS = [\n    'django.contrib.admin',\n    'django.contrib.auth',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -1590,7 +1606,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "STATIC_ROOT = BASE_DIR / 'staticfiles'\n# Media files\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Default primary key field type\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'accounts:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'",
+        "peekOfCode": "STATIC_ROOT = BASE_DIR / 'staticfiles'\n# Media files\nMEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Default primary key field type\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'account:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'account:login'",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -1599,7 +1615,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "MEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Default primary key field type\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'accounts:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {",
+        "peekOfCode": "MEDIA_URL = '/media/'\nMEDIA_ROOT = BASE_DIR / 'media'\n# Default primary key field type\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'account:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'account:login'\n# Messages\nMESSAGE_TAGS = {",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -1608,7 +1624,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "MEDIA_ROOT = BASE_DIR / 'media'\n# Default primary key field type\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'accounts:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',",
+        "peekOfCode": "MEDIA_ROOT = BASE_DIR / 'media'\n# Default primary key field type\nDEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'account:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'account:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -1617,7 +1633,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'accounts:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',",
+        "peekOfCode": "DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'\n# Login URLs\nLOGIN_URL = 'account:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'account:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -1626,7 +1642,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "LOGIN_URL = 'accounts:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',\n    messages.WARNING: 'warning',\n    messages.ERROR: 'danger',",
+        "peekOfCode": "LOGIN_URL = 'account:login'\nLOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'account:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',\n    messages.WARNING: 'warning',\n    messages.ERROR: 'danger',",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -1635,7 +1651,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "LOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',\n    messages.WARNING: 'warning',\n    messages.ERROR: 'danger',\n}",
+        "peekOfCode": "LOGIN_REDIRECT_URL = 'core:dashboard'\nLOGOUT_REDIRECT_URL = 'account:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',\n    messages.WARNING: 'warning',\n    messages.ERROR: 'danger',\n}",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -1644,7 +1660,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "LOGOUT_REDIRECT_URL = 'accounts:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',\n    messages.WARNING: 'warning',\n    messages.ERROR: 'danger',\n}\n# School Configuration",
+        "peekOfCode": "LOGOUT_REDIRECT_URL = 'account:login'\n# Messages\nMESSAGE_TAGS = {\n    messages.DEBUG: 'debug',\n    messages.INFO: 'info',\n    messages.SUCCESS: 'success',\n    messages.WARNING: 'warning',\n    messages.ERROR: 'danger',\n}\n# School Configuration",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -1671,43 +1687,7 @@
         "kind": 5,
         "importPath": "app.urls",
         "description": "app.urls",
-        "peekOfCode": "urlpatterns = [\n    path('admin/', admin.site.urls),\n]\nfrom django.contrib import admin\nfrom django.urls import path, include\nfrom django.conf import settings\nfrom django.conf.urls.static import static\nurlpatterns = [\n    path('admin/', admin.site.urls),\n    path('', include('core.urls')),",
-        "detail": "app.urls",
-        "documentation": {}
-    },
-    {
-        "label": "urlpatterns",
-        "kind": 5,
-        "importPath": "app.urls",
-        "description": "app.urls",
-        "peekOfCode": "urlpatterns = [\n    path('admin/', admin.site.urls),\n    path('', include('core.urls')),\n    path('', include('account.urls')),\n    path('', include('school.urls')),\n]\n# Serve media files in development\nif settings.DEBUG:\n    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)\n    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])",
-        "detail": "app.urls",
-        "documentation": {}
-    },
-    {
-        "label": "admin.site.site_header",
-        "kind": 5,
-        "importPath": "app.urls",
-        "description": "app.urls",
-        "peekOfCode": "admin.site.site_header = \"T. I. Ahmadiyya SHS Admin\"\nadmin.site.site_title = \"TTEK SMS Admin\"\nadmin.site.index_title = \"School Management System\"",
-        "detail": "app.urls",
-        "documentation": {}
-    },
-    {
-        "label": "admin.site.site_title",
-        "kind": 5,
-        "importPath": "app.urls",
-        "description": "app.urls",
-        "peekOfCode": "admin.site.site_title = \"TTEK SMS Admin\"\nadmin.site.index_title = \"School Management System\"",
-        "detail": "app.urls",
-        "documentation": {}
-    },
-    {
-        "label": "admin.site.index_title",
-        "kind": 5,
-        "importPath": "app.urls",
-        "description": "app.urls",
-        "peekOfCode": "admin.site.index_title = \"School Management System\"",
+        "peekOfCode": "urlpatterns = [\n    path('admin/', include('core.urls.admin_urls')),\n    path('student/', include('core.urls.student_urls')),\n    path('teacher/', include('core.urls.teacher_urls')),\n    path('', include('account.urls')),\n    path('', home_view, name='home'),\n]\n# Serve media files in development\nif settings.DEBUG:\n    urlpatterns += static(",
         "detail": "app.urls",
         "documentation": {}
     },
@@ -1748,6 +1728,60 @@
         "documentation": {}
     },
     {
+        "label": "app_name",
+        "kind": 5,
+        "importPath": "core.urls.admin_urls",
+        "description": "core.urls.admin_urls",
+        "peekOfCode": "app_name = 'admin'\nurlpatterns = [\n    # Admin Dashboard\n    path('', views.admin_dashboard, name='admin_dashboard'),\n    path('configuration/', school_views.school_configuration_view, name='configuration'),\n    path('setup/', school_views.quick_setup_view, name='quick_setup'),\n    path('setup-school/', school_views.setup_school_view, name='setup_school'),\n     # Academic Years\n    path('academic-years/', school_views.AcademicYearListView.as_view(), name='academic_years'),\n    path('academic-years/create/', school_views.AcademicYearCreateView.as_view(), name='academic_year_create'),",
+        "detail": "core.urls.admin_urls",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "core.urls.admin_urls",
+        "description": "core.urls.admin_urls",
+        "peekOfCode": "urlpatterns = [\n    # Admin Dashboard\n    path('', views.admin_dashboard, name='admin_dashboard'),\n    path('configuration/', school_views.school_configuration_view, name='configuration'),\n    path('setup/', school_views.quick_setup_view, name='quick_setup'),\n    path('setup-school/', school_views.setup_school_view, name='setup_school'),\n     # Academic Years\n    path('academic-years/', school_views.AcademicYearListView.as_view(), name='academic_years'),\n    path('academic-years/create/', school_views.AcademicYearCreateView.as_view(), name='academic_year_create'),\n    path('academic-years/<int:pk>/edit/', school_views.AcademicYearUpdateView.as_view(), name='academic_year_edit'),",
+        "detail": "core.urls.admin_urls",
+        "documentation": {}
+    },
+    {
+        "label": "app_name",
+        "kind": 5,
+        "importPath": "core.urls.student_urls",
+        "description": "core.urls.student_urls",
+        "peekOfCode": "app_name = 'student'\nurlpatterns = [\n    path('', core_views.student_dashboard, name='student_dashboard'),\n]",
+        "detail": "core.urls.student_urls",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "core.urls.student_urls",
+        "description": "core.urls.student_urls",
+        "peekOfCode": "urlpatterns = [\n    path('', core_views.student_dashboard, name='student_dashboard'),\n]",
+        "detail": "core.urls.student_urls",
+        "documentation": {}
+    },
+    {
+        "label": "app_name",
+        "kind": 5,
+        "importPath": "core.urls.teacher_urls",
+        "description": "core.urls.teacher_urls",
+        "peekOfCode": "app_name = 'teacher'\nurlpatterns = [\n    path('', core_views.teacher_dashboard, name='teacher_dashboard'),\n]",
+        "detail": "core.urls.teacher_urls",
+        "documentation": {}
+    },
+    {
+        "label": "urlpatterns",
+        "kind": 5,
+        "importPath": "core.urls.teacher_urls",
+        "description": "core.urls.teacher_urls",
+        "peekOfCode": "urlpatterns = [\n    path('', core_views.teacher_dashboard, name='teacher_dashboard'),\n]",
+        "detail": "core.urls.teacher_urls",
+        "documentation": {}
+    },
+    {
         "label": "CoreConfig",
         "kind": 6,
         "importPath": "core.apps",
@@ -1766,48 +1800,30 @@
         "documentation": {}
     },
     {
-        "label": "app_name",
-        "kind": 5,
-        "importPath": "core.urls",
-        "description": "core.urls",
-        "peekOfCode": "app_name = 'core'\nurlpatterns = [\n    path('', views.home_view, name='home'),\n    path('dashboard/', views.dashboard_view, name='dashboard'),\n    path('profile/', views.profile_view, name='profile'),\n]",
-        "detail": "core.urls",
-        "documentation": {}
-    },
-    {
-        "label": "urlpatterns",
-        "kind": 5,
-        "importPath": "core.urls",
-        "description": "core.urls",
-        "peekOfCode": "urlpatterns = [\n    path('', views.home_view, name='home'),\n    path('dashboard/', views.dashboard_view, name='dashboard'),\n    path('profile/', views.profile_view, name='profile'),\n]",
-        "detail": "core.urls",
-        "documentation": {}
-    },
-    {
         "label": "AdminRequiredMixin",
         "kind": 6,
-        "importPath": "core.views",
-        "description": "core.views",
-        "peekOfCode": "class AdminRequiredMixin:\n    \"\"\"Mixin for views that require admin access\"\"\"\n    def dispatch(self, request, *args, **kwargs):\n        if not (request.user.is_authenticated and \n                (request.user.is_admin or request.user.is_superuser)):\n            from django.contrib.auth.views import redirect_to_login\n            return redirect_to_login(request.get_full_path())\n        return super().dispatch(request, *args, **kwargs)\nclass TeacherRequiredMixin:\n    \"\"\"Mixin for views that require teacher access\"\"\"",
-        "detail": "core.views",
+        "importPath": "core.mixins",
+        "description": "core.mixins",
+        "peekOfCode": "class AdminRequiredMixin:\n    \"\"\"Mixin for views that require admin access\"\"\"\n    def dispatch(self, request, *args, **kwargs):\n        if not (request.user.is_authenticated and\n                (request.user.is_admin or request.user.is_superuser)):\n            from django.contrib.auth.views import redirect_to_login\n            return redirect_to_login(request.get_full_path())\n        return super().dispatch(request, *args, **kwargs)\nclass TeacherRequiredMixin:\n    \"\"\"Mixin for views that require teacher access\"\"\"",
+        "detail": "core.mixins",
         "documentation": {}
     },
     {
         "label": "TeacherRequiredMixin",
         "kind": 6,
-        "importPath": "core.views",
-        "description": "core.views",
-        "peekOfCode": "class TeacherRequiredMixin:\n    \"\"\"Mixin for views that require teacher access\"\"\"\n    def dispatch(self, request, *args, **kwargs):\n        if not (request.user.is_authenticated and \n                (request.user.is_teacher or request.user.is_admin or \n                 request.user.is_superuser)):\n            from django.contrib.auth.views import redirect_to_login\n            return redirect_to_login(request.get_full_path())\n        return super().dispatch(request, *args, **kwargs)",
-        "detail": "core.views",
+        "importPath": "core.mixins",
+        "description": "core.mixins",
+        "peekOfCode": "class TeacherRequiredMixin:\n    \"\"\"Mixin for views that require teacher access\"\"\"\n    def dispatch(self, request, *args, **kwargs):\n        if not (request.user.is_authenticated and\n                (request.user.is_teacher or request.user.is_admin or\n                 request.user.is_superuser)):\n            from django.contrib.auth.views import redirect_to_login\n            return redirect_to_login(request.get_full_path())\n        return super().dispatch(request, *args, **kwargs)",
+        "detail": "core.mixins",
         "documentation": {}
     },
     {
-        "label": "dashboard_view",
+        "label": "role_required",
         "kind": 2,
-        "importPath": "core.views",
-        "description": "core.views",
-        "peekOfCode": "def dashboard_view(request):\n    \"\"\"Main dashboard view\"\"\"\n    user = request.user\n    school = School.get_current_school()\n    # Get basic counts\n    total_students = Student.objects.filter(is_active=True).count()\n    total_teachers = Teacher.objects.filter(is_active=True).count()\n    total_classes = Class.objects.count()\n    total_subjects = Subject.objects.count()\n    # Get current academic info",
-        "detail": "core.views",
+        "importPath": "core.permissions",
+        "description": "core.permissions",
+        "peekOfCode": "def role_required(allowed_roles):\n    \"\"\"Decorator to check if user has required role\"\"\"\n    def decorator(view_func):\n        @wraps(view_func)\n        def wrapper(request, *args, **kwargs):\n            if not request.user.is_authenticated:\n                return redirect('accounts:login')\n            user = request.user\n            user_roles = []\n            if user.is_superuser or user.is_admin:",
+        "detail": "core.permissions",
         "documentation": {}
     },
     {
@@ -1815,7 +1831,34 @@
         "kind": 2,
         "importPath": "core.views",
         "description": "core.views",
-        "peekOfCode": "def home_view(request):\n    \"\"\"Home page view - redirects to dashboard if logged in\"\"\"\n    if request.user.is_authenticated:\n        return redirect('core:dashboard')\n    return redirect('account:login')\n@login_required\ndef profile_view(request):\n    \"\"\"User profile view\"\"\"\n    user = request.user\n    profile = user.get_profile()",
+        "peekOfCode": "def home_view(request):\n    \"\"\"Home page view - redirects to dashboard if logged in\"\"\"\n    if not request.user.is_authenticated:\n        redirect_url = 'account:login'\n        return redirect(redirect_url)\n    user = request.user\n    if user.is_superuser or user.is_admin:\n        return redirect('admin:admin_dashboard')\n    elif user.is_teacher:\n        return redirect('teacher:teacher_dashboard')",
+        "detail": "core.views",
+        "documentation": {}
+    },
+    {
+        "label": "admin_dashboard",
+        "kind": 2,
+        "importPath": "core.views",
+        "description": "core.views",
+        "peekOfCode": "def admin_dashboard(request):\n    \"\"\"Main dashboard view\"\"\"\n    user = request.user\n    school = School.get_current_school()\n    # Get basic counts\n    total_students = Student.objects.filter(is_active=True).count()\n    total_teachers = Teacher.objects.filter(is_active=True).count()\n    total_classes = Class.objects.count()\n    total_subjects = Subject.objects.count()\n    # Get current academic info",
+        "detail": "core.views",
+        "documentation": {}
+    },
+    {
+        "label": "teacher_dashboard",
+        "kind": 2,
+        "importPath": "core.views",
+        "description": "core.views",
+        "peekOfCode": "def teacher_dashboard(request):\n    \"\"\"Teacher dashboard\"\"\"\n    user = request.user\n    school = School.get_current_school()\n    current_academic_year = AcademicYear.objects.filter(\n        is_current=True).first()\n    current_term = Term.objects.filter(is_current=True).first()\n    # Get teacher profile\n    teacher_profile = None\n    if hasattr(user, 'teacher_profile'):",
+        "detail": "core.views",
+        "documentation": {}
+    },
+    {
+        "label": "student_dashboard",
+        "kind": 2,
+        "importPath": "core.views",
+        "description": "core.views",
+        "peekOfCode": "def student_dashboard(request):\n    \"\"\"Student dashboard\"\"\"\n    user = request.user\n    school = School.get_current_school()\n    current_academic_year = AcademicYear.objects.filter(\n        is_current=True).first()\n    current_term = Term.objects.filter(is_current=True).first()\n    # Get student profile\n    student_profile = None\n    if hasattr(user, 'student_profile'):",
         "detail": "core.views",
         "documentation": {}
     },
@@ -2031,7 +2074,7 @@
         "kind": 6,
         "importPath": "school.models",
         "description": "school.models",
-        "peekOfCode": "class TimeStampedModel(models.Model):\n    \"\"\"Abstract model with created and modified timestamps\"\"\"\n    created_at = models.DateTimeField(auto_now_add=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    class Meta:\n        abstract = True\n# School Model\nclass School(TimeStampedModel):\n    \"\"\"School information stored in database\"\"\"\n    # Basic Information",
+        "peekOfCode": "class TimeStampedModel(models.Model):\n    \"\"\"Abstract model with created and modified timestamps\"\"\"\n    created_at = models.DateTimeField(auto_now_add=True)\n    updated_at = models.DateTimeField(auto_now=True)\n    class Meta:\n        abstract = True\nclass School(TimeStampedModel):\n    \"\"\"School information stored in database\"\"\"\n    # Basic Information\n    name = models.CharField(max_length=200)",
         "detail": "school.models",
         "documentation": {}
     },
@@ -2135,24 +2178,6 @@
         "documentation": {}
     },
     {
-        "label": "app_name",
-        "kind": 5,
-        "importPath": "school.urls",
-        "description": "school.urls",
-        "peekOfCode": "app_name = 'school'\nurlpatterns = [\n    # Configuration\n    path('configuration/', views.school_configuration_view, name='configuration'),\n    path('setup/', views.quick_setup_view, name='quick_setup'),\n    path('setup-dashboard/', views.setup_dashboard_view, name='setup_dashboard'),\n    # Academic Years\n    path('academic-years/', views.AcademicYearListView.as_view(), name='academic_years'),\n    path('academic-years/create/', views.AcademicYearCreateView.as_view(), name='academic_year_create'),\n    path('academic-years/<int:pk>/edit/', views.AcademicYearUpdateView.as_view(), name='academic_year_edit'),",
-        "detail": "school.urls",
-        "documentation": {}
-    },
-    {
-        "label": "urlpatterns",
-        "kind": 5,
-        "importPath": "school.urls",
-        "description": "school.urls",
-        "peekOfCode": "urlpatterns = [\n    # Configuration\n    path('configuration/', views.school_configuration_view, name='configuration'),\n    path('setup/', views.quick_setup_view, name='quick_setup'),\n    path('setup-dashboard/', views.setup_dashboard_view, name='setup_dashboard'),\n    # Academic Years\n    path('academic-years/', views.AcademicYearListView.as_view(), name='academic_years'),\n    path('academic-years/create/', views.AcademicYearCreateView.as_view(), name='academic_year_create'),\n    path('academic-years/<int:pk>/edit/', views.AcademicYearUpdateView.as_view(), name='academic_year_edit'),\n    path('academic-years/<int:pk>/delete/', views.AcademicYearDeleteView.as_view(), name='academic_year_delete'),",
-        "detail": "school.urls",
-        "documentation": {}
-    },
-    {
         "label": "PHONE_VALIDATOR",
         "kind": 5,
         "importPath": "school.validators",
@@ -2175,7 +2200,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class AcademicYearListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = AcademicYear\n    template_name = 'school/academic_years.html'\n    context_object_name = 'academic_years'\n    def test_func(self):\n        return is_admin_user(self.request.user)\nclass AcademicYearCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = AcademicYear\n    form_class = AcademicYearForm\n    template_name = 'school/academic_year_form.html'",
+        "peekOfCode": "class AcademicYearListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = AcademicYear\n    template_name = 'school/years/list.html'\n    context_object_name = 'academic_years'\n    def test_func(self):\n        return is_admin_user(self.request.user)\nclass AcademicYearCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = AcademicYear\n    form_class = AcademicYearForm\n    template_name = 'school/years/form.html'",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2184,7 +2209,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class AcademicYearCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = AcademicYear\n    form_class = AcademicYearForm\n    template_name = 'school/academic_year_form.html'\n    success_url = reverse_lazy('school:academic_years')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Academic year created successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class AcademicYearCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = AcademicYear\n    form_class = AcademicYearForm\n    template_name = 'school/years/form.html'\n    success_url = reverse_lazy('admin:academic_years')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Academic year created successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2193,7 +2218,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class AcademicYearUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = AcademicYear\n    form_class = AcademicYearForm\n    template_name = 'school/academic_year_form.html'\n    success_url = reverse_lazy('school:academic_years')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Academic year updated successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class AcademicYearUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = AcademicYear\n    form_class = AcademicYearForm\n    template_name = 'schools/academic/year/form.html'\n    success_url = reverse_lazy('admin:academic_years')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Academic year updated successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2202,7 +2227,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class AcademicYearDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = AcademicYear\n    template_name = 'school/academicyear_confirm_delete.html'\n    success_url = reverse_lazy('school:academic_years')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Academic year deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Programme Views",
+        "peekOfCode": "class AcademicYearDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = AcademicYear\n    template_name = 'school/years/confirm_delete.html'\n    success_url = reverse_lazy('admin:academic_years')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Academic year deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Programme Views",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2211,7 +2236,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ProgrammeListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = Programme\n    template_name = 'school/programmes.html'\n    context_object_name = 'programmes'\n    def test_func(self):\n        return is_admin_user(self.request.user)\nclass ProgrammeCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programme_form.html'",
+        "peekOfCode": "class ProgrammeListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = Programme\n    template_name = 'school/programmes/list.html'\n    context_object_name = 'programmes'\n    def test_func(self):\n        return is_admin_user(self.request.user)\nclass ProgrammeCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programmes/form.html'",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2220,7 +2245,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ProgrammeCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programme_form.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Programme created successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class ProgrammeCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programmes/form.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Programme created successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2229,7 +2254,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ProgrammeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programme_form.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Programme updated successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class ProgrammeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programmes/form.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Programme updated successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2238,7 +2263,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ProgrammeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Programme\n    template_name = 'school/programme_confirm_delete.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Programme deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# House Views",
+        "peekOfCode": "class ProgrammeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Programme\n    template_name = 'school/programmes/confirm_delete.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Programme deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# House Views",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2247,7 +2272,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class HouseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = House\n    template_name = 'school/houses.html'\n    context_object_name = 'houses'\n    def test_func(self):\n        return is_admin_user(self.request.user)\nclass HouseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/house_form.html'",
+        "peekOfCode": "class HouseListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = House\n    template_name = 'school/houses/list.html'\n    context_object_name = 'houses'\n    def test_func(self):\n        return is_admin_user(self.request.user)\nclass HouseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/houses/form.html'",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2256,7 +2281,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class HouseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/house_form.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'House created successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class HouseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/houses/form.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'House created successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2265,7 +2290,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class HouseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/house_form.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'House updated successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class HouseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/houses/form.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'House updated successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2274,7 +2299,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class HouseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):\n    model = House\n    template_name = 'school/house_detail.html'\n    context_object_name = 'house'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        house = self.get_object()\n        context['students'] = house.students.filter(",
+        "peekOfCode": "class HouseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):\n    model = House\n    template_name = 'school/houses/detail.html'\n    context_object_name = 'house'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        house = self.get_object()\n        context['students'] = house.students.filter(",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2283,7 +2308,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class HouseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = House\n    template_name = 'school/house_confirm_delete.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'House deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Subject Views",
+        "peekOfCode": "class HouseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = House\n    template_name = 'school/houses/confirm_delete.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'House deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Subject Views",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2292,7 +2317,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class SubjectListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = Subject\n    template_name = 'school/subjects.html'\n    context_object_name = 'subjects'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        # Add subject counts by type\n        context['core_count'] = Subject.objects.filter(",
+        "peekOfCode": "class SubjectListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = Subject\n    template_name = 'school/subjects/list.html'\n    context_object_name = 'subjects'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        # Add subject counts by type\n        context['core_count'] = Subject.objects.filter(",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2301,7 +2326,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class SubjectCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Subject\n    form_class = SubjectForm\n    template_name = 'school/subject_form.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Subject created successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class SubjectCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Subject\n    form_class = SubjectForm\n    template_name = 'school/subjects/form.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Subject created successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2310,7 +2335,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class SubjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Subject\n    form_class = SubjectForm\n    template_name = 'school/subject_form.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Subject updated successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class SubjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Subject\n    form_class = SubjectForm\n    template_name = 'school/subjects/form.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Subject updated successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2319,7 +2344,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class SubjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Subject\n    template_name = 'school/subject_confirm_delete.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Subject deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Class Views",
+        "peekOfCode": "class SubjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Subject\n    template_name = 'school/subjects/confirm_delete.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Subject deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Class Views",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2328,7 +2353,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ClassListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = Class\n    template_name = 'school/classes.html'\n    context_object_name = 'classes'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        # Group classes by level\n        classes_by_level = {}",
+        "peekOfCode": "class ClassListView(LoginRequiredMixin, UserPassesTestMixin, ListView):\n    model = Class\n    template_name = 'school/classes/list.html'\n    context_object_name = 'classes'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        # Group classes by level\n        classes_by_level = {}",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2337,7 +2362,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ClassCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Class\n    form_class = ClassForm\n    template_name = 'school/class_form.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Class created successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class ClassCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Class\n    form_class = ClassForm\n    template_name = 'school/classes/form.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Class created successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2346,7 +2371,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ClassUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Class\n    form_class = ClassForm\n    template_name = 'school/class_form.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Class updated successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class ClassUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Class\n    form_class = ClassForm\n    template_name = 'school/classes/form.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Class updated successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2355,7 +2380,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ClassDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):\n    model = Class\n    template_name = 'school/class_detail.html'\n    context_object_name = 'class_obj'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        class_obj = self.get_object()\n        context['students'] = class_obj.students.filter(",
+        "peekOfCode": "class ClassDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):\n    model = Class\n    template_name = 'school/classes/detail.html'\n    context_object_name = 'class_obj'\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def get_context_data(self, **kwargs):\n        context = super().get_context_data(**kwargs)\n        class_obj = self.get_object()\n        context['students'] = class_obj.students.filter(",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2364,7 +2389,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ClassDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Class\n    template_name = 'school/class_confirm_delete.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Class deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n@login_required",
+        "peekOfCode": "class ClassDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Class\n    template_name = 'school/classes/confirm_delete.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Class deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n@login_required",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2396,11 +2421,11 @@
         "documentation": {}
     },
     {
-        "label": "setup_dashboard_view",
+        "label": "setup_school_view",
         "kind": 2,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "def setup_dashboard_view(request):\n    \"\"\"Setup dashboard showing current status\"\"\"\n    school = School.get_current_school()\n    # Get counts\n    academic_years_count = AcademicYear.objects.count()\n    programmes_count = Programme.objects.count()\n    houses_count = House.objects.count()\n    subjects_count = Subject.objects.count()\n    classes_count = Class.objects.count()\n    students_count = Student.objects.filter(is_active=True).count()",
+        "peekOfCode": "def setup_school_view(request):\n    \"\"\"Setup dashboard showing current status\"\"\"\n    school = School.get_current_school()\n    # Get counts\n    academic_years_count = AcademicYear.objects.count()\n    programmes_count = Programme.objects.count()\n    houses_count = House.objects.count()\n    subjects_count = Subject.objects.count()\n    classes_count = Class.objects.count()\n    students_count = Student.objects.filter(is_active=True).count()",
         "detail": "school.views",
         "documentation": {}
     },

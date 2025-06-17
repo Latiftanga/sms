@@ -4,7 +4,7 @@
             <i class="fas fa-bars"></i>
         </button>
         
-        <a class="navbar-brand" href="{% url 'core:dashboard' %}">
+        <a class="navbar-brand" href="{% url 'admin:admin_dashboard' %}">
             <div class="navbar-brand-image">
                 {% if school.logo %}
                     <img src="{{ school.logo.url }}" alt="{{ school.name }}" style="width: 2rem; height: 2rem; border-radius: 0.375rem;">
@@ -40,7 +40,7 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="{% url 'account:profile' %}"><i class="fas fa-user me-2"></i>Profile</a></li>
                     {% if user.is_admin or user.is_superuser %}
-                        <li><a class="dropdown-item" href="{% url 'school:configuration' %}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'admin:configuration' %}"><i class="fas fa-cog me-2"></i>Settings</a></li>
                     {% endif %}
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="{% url 'account:logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>

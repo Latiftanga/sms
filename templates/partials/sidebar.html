@@ -3,7 +3,7 @@
     <nav class="sidebar-nav">
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.view_name == 'core:dashboard' %}active{% endif %}" href="{% url 'core:dashboard' %}">
+                <a class="nav-link {% if request.resolver_match.view_name == 'admin:admin_dashboard' %}active{% endif %}" href="{% url 'admin:admin_dashboard' %}">
                     <i class="fas fa-home"></i>
                     Dashboard
                 </a>
@@ -12,35 +12,35 @@
             {% if user.is_admin or user.is_superuser %}
                 <!-- Admin-only sections -->
                 <li class="nav-item">
-                    <a class="nav-link {% if 'school' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'school:setup_dashboard' %}">
+                    <a class="nav-link {% if 'admin' in request.resolver_match.namespace %}active{% endif %}" href="{% url 'admin:setup_school' %}">
                         <i class="fas fa-cogs"></i>
                         School Setup
                     </a>
                 </li>
                 
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.view_name == 'school:programmes' %}active{% endif %}" href="{% url 'school:programmes' %}">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'admin:programmes' %}active{% endif %}" href="{% url 'admin:programmes' %}">
                         <i class="fas fa-graduation-cap"></i>
                         Programmes
                     </a>
                 </li>
                 
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.view_name == 'school:classes' %}active{% endif %}" href="{% url 'school:classes' %}">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'admin:classes' %}active{% endif %}" href="{% url 'admin:classes' %}">
                         <i class="fas fa-door-open"></i>
                         Classes
                     </a>
                 </li>
                 
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.view_name == 'school:subjects' %}active{% endif %}" href="{% url 'school:subjects' %}">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'admin:subjects' %}active{% endif %}" href="{% url 'admin:subjects' %}">
                         <i class="fas fa-book"></i>
                         Subjects
                     </a>
                 </li>
                 
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.view_name == 'school:houses' %}active{% endif %}" href="{% url 'school:houses' %}">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'admin:houses' %}active{% endif %}" href="{% url 'admin:houses' %}">
                         <i class="fas fa-home"></i>
                         Houses
                     </a>
@@ -92,7 +92,7 @@
             
             {% if user.is_admin or user.is_superuser %}
                 <li class="nav-item">
-                    <a class="nav-link {% if request.resolver_match.view_name == 'school:configuration' %}active{% endif %}" href="{% url 'school:configuration' %}">
+                    <a class="nav-link {% if request.resolver_match.view_name == 'admin:configuration' %}active{% endif %}" href="{% url 'admin:configuration' %}">
                         <i class="fas fa-cog"></i>
                         Settings
                     </a>
