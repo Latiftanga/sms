@@ -28,6 +28,7 @@ LOCAL_APPS = [
     'account.apps.AccountConfig',
     'school.apps.SchoolConfig',
     'core.apps.CoreConfig',
+    'student.apps.StudentConfig',
 ]
 
 THIRD_PARTY_APPS = [
@@ -58,6 +59,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.student_stats',
+                'core.context_processors.school_theme',
             ],
         },
     },
@@ -150,3 +153,8 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+
+STUDENT_PAGINATION = 20
+STUDENT_MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB
+STUDENT_ALLOWED_EXTENSIONS = ['.csv']

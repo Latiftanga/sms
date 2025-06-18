@@ -1,0 +1,80 @@
+<!-- File: templates/student/tags/student_search_form.html -->
+<form method="get" class="student-search-form">
+    <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label">Search Students</label>
+            <div class="search-form" style="position: relative;">
+                <i class="fas fa-search search-icon" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 0.875rem;"></i>
+                <input type="text" name="search" class="form-control" 
+                       style="padding-left: 2.5rem;"
+                       placeholder="Search by name, ID, or email..." 
+                       value="{{ request.GET.search }}"
+                       id="studentSearchInput">
+            </div>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Class</label>
+            <select name="class" class="form-control" id="classFilter">
+                <option value="">All Classes</option>
+                {% for class in classes %}
+                <option value="{{ class.id }}" {% if request.GET.class == class.id|stringformat:"s" %}selected{% endif %}>
+                    {{ class }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">House</label>
+            <select name="house" class="form-control" id="houseFilter">
+                <option value="">All Houses</option>
+                {% for house in houses %}
+                <option value="{{ house.id }}" {% if request.GET.house == house.id|stringformat:"s" %}selected{% endif %}>
+                    {{ house.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Programme</label>
+            <select name="programme" class="form-control" id="programmeFilter">
+                <option value="">All Programmes</option>
+                {% for programme in programmes %}
+                <option value="{{ programme.id }}" {% if request.GET.programme == programme.id|stringformat:"s" %}selected{% endif %}>
+                    {{ programme.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-search me-2"></i>Filter
+            </button>
+        </div>
+    </div>
+</form>
+
+<script>
+// Auto-submit search form
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('studentSearchInput');
+    const filters = document.querySelectorAll('#classFilter, #houseFilter, #programmeFilter');
+    
+    // Debounced search
+    let searchTimeout;
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                this.form.submit();
+            }, 500);
+        });
+    }
+    
+    // Auto-submit on filter change
+    filters.forEach(filter => {
+        filter.addEventListener('change', function() {
+            this.form.submit();
+        });
+    });
+});
+</script>

@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - T. I. Ahmadiyya SHS</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container-fluid d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+        <div class="text-center">
+            <div class="display-1 text-danger mb-3">500</div>
+            <h1 class="h2 mb-3">Server Error</h1>
+            <p class="text-muted mb-4">Something went wrong on our end. We're working to fix it.</p>
+            <div class="d-flex gap-2 justify-content-center">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-home me-2"></i>
+                    Go to Home
+                </a>
+                <button onclick="location.reload()" class="btn btn-outline-secondary">
+                    <i class="fas fa-refresh me-2"></i>
+                    Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

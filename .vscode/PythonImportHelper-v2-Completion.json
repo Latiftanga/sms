@@ -49,15 +49,7 @@
         "documentation": {}
     },
     {
-        "label": "models",
-        "importPath": "django.db",
-        "description": "django.db",
-        "isExtraImport": true,
-        "detail": "django.db",
-        "documentation": {}
-    },
-    {
-        "label": "migrations",
+        "label": "transaction",
         "importPath": "django.db",
         "description": "django.db",
         "isExtraImport": true,
@@ -89,7 +81,39 @@
         "documentation": {}
     },
     {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
         "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "transaction",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "transaction",
         "importPath": "django.db",
         "description": "django.db",
         "isExtraImport": true,
@@ -161,6 +185,14 @@
         "documentation": {}
     },
     {
+        "label": "messages",
+        "importPath": "django.contrib",
+        "description": "django.contrib",
+        "isExtraImport": true,
+        "detail": "django.contrib",
+        "documentation": {}
+    },
+    {
         "label": "UserAdmin",
         "importPath": "django.contrib.auth.admin",
         "description": "django.contrib.auth.admin",
@@ -193,6 +225,14 @@
         "documentation": {}
     },
     {
+        "label": "create_student_with_user",
+        "importPath": "account.models",
+        "description": "account.models",
+        "isExtraImport": true,
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
         "label": "User",
         "importPath": "account.models",
         "description": "account.models",
@@ -202,6 +242,30 @@
     },
     {
         "label": "User",
+        "importPath": "account.models",
+        "description": "account.models",
+        "isExtraImport": true,
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "importPath": "account.models",
+        "description": "account.models",
+        "isExtraImport": true,
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "importPath": "account.models",
+        "description": "account.models",
+        "isExtraImport": true,
+        "detail": "account.models",
+        "documentation": {}
+    },
+    {
+        "label": "create_student_with_user",
         "importPath": "account.models",
         "description": "account.models",
         "isExtraImport": true,
@@ -238,6 +302,62 @@
         "description": "django.apps",
         "isExtraImport": true,
         "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "AppConfig",
+        "importPath": "django.apps",
+        "description": "django.apps",
+        "isExtraImport": true,
+        "detail": "django.apps",
+        "documentation": {}
+    },
+    {
+        "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "template",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "template",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "template",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "template",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
+        "documentation": {}
+    },
+    {
+        "label": "forms",
+        "importPath": "django",
+        "description": "django",
+        "isExtraImport": true,
+        "detail": "django",
         "documentation": {}
     },
     {
@@ -297,6 +417,22 @@
         "documentation": {}
     },
     {
+        "label": "get_user_model",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
+        "label": "get_user_model",
+        "importPath": "django.contrib.auth",
+        "description": "django.contrib.auth",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth",
+        "documentation": {}
+    },
+    {
         "label": "BaseUserManager",
         "importPath": "django.contrib.auth.base_user",
         "description": "django.contrib.auth.base_user",
@@ -318,6 +454,46 @@
         "description": "django.contrib.auth.models",
         "isExtraImport": true,
         "detail": "django.contrib.auth.models",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
+        "documentation": {}
+    },
+    {
+        "label": "timezone",
+        "importPath": "django.utils",
+        "description": "django.utils",
+        "isExtraImport": true,
+        "detail": "django.utils",
         "documentation": {}
     },
     {
@@ -468,6 +644,54 @@
         "documentation": {}
     },
     {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Class",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Class",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "House",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
         "label": "School",
         "importPath": "school.models",
         "description": "school.models",
@@ -541,6 +765,38 @@
     },
     {
         "label": "Subject",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Class",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "House",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Programme",
         "importPath": "school.models",
         "description": "school.models",
         "isExtraImport": true,
@@ -565,6 +821,14 @@
     },
     {
         "label": "Term",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
         "importPath": "school.models",
         "description": "school.models",
         "isExtraImport": true,
@@ -701,6 +965,166 @@
     },
     {
         "label": "School",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Class",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "House",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Programme",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Class",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "House",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Programme",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "School",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Class",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "House",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Programme",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Student",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Class",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "House",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Programme",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "AcademicYear",
+        "importPath": "school.models",
+        "description": "school.models",
+        "isExtraImport": true,
+        "detail": "school.models",
+        "documentation": {}
+    },
+    {
+        "label": "Term",
         "importPath": "school.models",
         "description": "school.models",
         "isExtraImport": true,
@@ -740,7 +1164,7 @@
         "documentation": {}
     },
     {
-        "label": "path",
+        "label": "reverse",
         "importPath": "django.urls",
         "description": "django.urls",
         "isExtraImport": true,
@@ -765,6 +1189,14 @@
     },
     {
         "label": "path",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "reverse",
         "importPath": "django.urls",
         "description": "django.urls",
         "isExtraImport": true,
@@ -773,6 +1205,30 @@
     },
     {
         "label": "reverse_lazy",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "reverse",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "reverse_lazy",
+        "importPath": "django.urls",
+        "description": "django.urls",
+        "isExtraImport": true,
+        "detail": "django.urls",
+        "documentation": {}
+    },
+    {
+        "label": "reverse",
         "importPath": "django.urls",
         "description": "django.urls",
         "isExtraImport": true,
@@ -844,6 +1300,46 @@
         "documentation": {}
     },
     {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "render",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "get_object_or_404",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "redirect",
+        "importPath": "django.shortcuts",
+        "description": "django.shortcuts",
+        "isExtraImport": true,
+        "detail": "django.shortcuts",
+        "documentation": {}
+    },
+    {
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
         "label": "login_required",
         "importPath": "django.contrib.auth.decorators",
         "description": "django.contrib.auth.decorators",
@@ -876,7 +1372,23 @@
         "documentation": {}
     },
     {
+        "label": "login_required",
+        "importPath": "django.contrib.auth.decorators",
+        "description": "django.contrib.auth.decorators",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.decorators",
+        "documentation": {}
+    },
+    {
         "label": "csrf_protect",
+        "importPath": "django.views.decorators.csrf",
+        "description": "django.views.decorators.csrf",
+        "isExtraImport": true,
+        "detail": "django.views.decorators.csrf",
+        "documentation": {}
+    },
+    {
+        "label": "csrf_exempt",
         "importPath": "django.views.decorators.csrf",
         "description": "django.views.decorators.csrf",
         "isExtraImport": true,
@@ -965,6 +1477,22 @@
         "documentation": {}
     },
     {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
+        "documentation": {}
+    },
+    {
         "label": "static",
         "importPath": "django.conf.urls.static",
         "description": "django.conf.urls.static",
@@ -1021,6 +1549,14 @@
         "documentation": {}
     },
     {
+        "label": "BaseCommand",
+        "importPath": "django.core.management.base",
+        "description": "django.core.management.base",
+        "isExtraImport": true,
+        "detail": "django.core.management.base",
+        "documentation": {}
+    },
+    {
         "label": "date",
         "importPath": "datetime",
         "description": "datetime",
@@ -1034,6 +1570,176 @@
         "description": "datetime",
         "isExtraImport": true,
         "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "date",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "date",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "export_students_to_csv",
+        "importPath": "student.utils",
+        "description": "student.utils",
+        "isExtraImport": true,
+        "detail": "student.utils",
+        "documentation": {}
+    },
+    {
+        "label": "promote_students",
+        "importPath": "student.utils",
+        "description": "student.utils",
+        "isExtraImport": true,
+        "detail": "student.utils",
+        "documentation": {}
+    },
+    {
+        "label": "Faker",
+        "importPath": "faker",
+        "description": "faker",
+        "isExtraImport": true,
+        "detail": "faker",
+        "documentation": {}
+    },
+    {
+        "label": "mark_safe",
+        "importPath": "django.utils.safestring",
+        "description": "django.utils.safestring",
+        "isExtraImport": true,
+        "detail": "django.utils.safestring",
+        "documentation": {}
+    },
+    {
+        "label": "mark_safe",
+        "importPath": "django.utils.safestring",
+        "description": "django.utils.safestring",
+        "isExtraImport": true,
+        "detail": "django.utils.safestring",
+        "documentation": {}
+    },
+    {
+        "label": "mark_safe",
+        "importPath": "django.utils.safestring",
+        "description": "django.utils.safestring",
+        "isExtraImport": true,
+        "detail": "django.utils.safestring",
+        "documentation": {}
+    },
+    {
+        "label": "format_html",
+        "importPath": "django.utils.html",
+        "description": "django.utils.html",
+        "isExtraImport": true,
+        "detail": "django.utils.html",
+        "documentation": {}
+    },
+    {
+        "label": "format_html",
+        "importPath": "django.utils.html",
+        "description": "django.utils.html",
+        "isExtraImport": true,
+        "detail": "django.utils.html",
+        "documentation": {}
+    },
+    {
+        "label": "format_html",
+        "importPath": "django.utils.html",
+        "description": "django.utils.html",
+        "isExtraImport": true,
+        "detail": "django.utils.html",
+        "documentation": {}
+    },
+    {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Q",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Q",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "Count",
+        "importPath": "django.db.models",
+        "description": "django.db.models",
+        "isExtraImport": true,
+        "detail": "django.db.models",
+        "documentation": {}
+    },
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
+        "label": "hashlib",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "hashlib",
+        "description": "hashlib",
+        "detail": "hashlib",
         "documentation": {}
     },
     {
@@ -1069,6 +1775,14 @@
         "documentation": {}
     },
     {
+        "label": "views",
+        "importPath": "student",
+        "description": "student",
+        "isExtraImport": true,
+        "detail": "student",
+        "documentation": {}
+    },
+    {
         "label": "wraps",
         "importPath": "functools",
         "description": "functools",
@@ -1077,11 +1791,117 @@
         "documentation": {}
     },
     {
-        "label": "Count",
-        "importPath": "django.db.models",
-        "description": "django.db.models",
+        "label": "wraps",
+        "importPath": "functools",
+        "description": "functools",
         "isExtraImport": true,
-        "detail": "django.db.models",
+        "detail": "functools",
+        "documentation": {}
+    },
+    {
+        "label": "PermissionDenied",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
+        "isExtraImport": true,
+        "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "PermissionDenied",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
+        "isExtraImport": true,
+        "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "ValidationError",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
+        "isExtraImport": true,
+        "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "ValidationError",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
+        "isExtraImport": true,
+        "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "ValidationError",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
+        "isExtraImport": true,
+        "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "ValidationError",
+        "importPath": "django.core.exceptions",
+        "description": "django.core.exceptions",
+        "isExtraImport": true,
+        "detail": "django.core.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "UserPassesTestMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "LoginRequiredMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "UserPassesTestMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "LoginRequiredMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "UserPassesTestMixin",
+        "importPath": "django.contrib.auth.mixins",
+        "description": "django.contrib.auth.mixins",
+        "isExtraImport": true,
+        "detail": "django.contrib.auth.mixins",
+        "documentation": {}
+    },
+    {
+        "label": "colorsys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "colorsys",
+        "description": "colorsys",
+        "detail": "colorsys",
+        "documentation": {}
+    },
+    {
+        "label": "re",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "re",
+        "description": "re",
+        "detail": "re",
         "documentation": {}
     },
     {
@@ -1152,22 +1972,6 @@
         "documentation": {}
     },
     {
-        "label": "ValidationError",
-        "importPath": "django.core.exceptions",
-        "description": "django.core.exceptions",
-        "isExtraImport": true,
-        "detail": "django.core.exceptions",
-        "documentation": {}
-    },
-    {
-        "label": "ValidationError",
-        "importPath": "django.core.exceptions",
-        "description": "django.core.exceptions",
-        "isExtraImport": true,
-        "detail": "django.core.exceptions",
-        "documentation": {}
-    },
-    {
         "label": "ListView",
         "importPath": "django.views.generic",
         "description": "django.views.generic",
@@ -1208,19 +2012,149 @@
         "documentation": {}
     },
     {
-        "label": "LoginRequiredMixin",
-        "importPath": "django.contrib.auth.mixins",
-        "description": "django.contrib.auth.mixins",
+        "label": "ListView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
         "isExtraImport": true,
-        "detail": "django.contrib.auth.mixins",
+        "detail": "django.views.generic",
         "documentation": {}
     },
     {
-        "label": "UserPassesTestMixin",
-        "importPath": "django.contrib.auth.mixins",
-        "description": "django.contrib.auth.mixins",
+        "label": "DetailView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
         "isExtraImport": true,
-        "detail": "django.contrib.auth.mixins",
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "CreateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "UpdateView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "DeleteView",
+        "importPath": "django.views.generic",
+        "description": "django.views.generic",
+        "isExtraImport": true,
+        "detail": "django.views.generic",
+        "documentation": {}
+    },
+    {
+        "label": "csv",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "csv",
+        "description": "csv",
+        "detail": "csv",
+        "documentation": {}
+    },
+    {
+        "label": "io",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "io",
+        "description": "io",
+        "detail": "io",
+        "documentation": {}
+    },
+    {
+        "label": "post_save",
+        "importPath": "django.db.models.signals",
+        "description": "django.db.models.signals",
+        "isExtraImport": true,
+        "detail": "django.db.models.signals",
+        "documentation": {}
+    },
+    {
+        "label": "pre_delete",
+        "importPath": "django.db.models.signals",
+        "description": "django.db.models.signals",
+        "isExtraImport": true,
+        "detail": "django.db.models.signals",
+        "documentation": {}
+    },
+    {
+        "label": "receiver",
+        "importPath": "django.dispatch",
+        "description": "django.dispatch",
+        "isExtraImport": true,
+        "detail": "django.dispatch",
+        "documentation": {}
+    },
+    {
+        "label": "TestCase",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "Client",
+        "importPath": "django.test",
+        "description": "django.test",
+        "isExtraImport": true,
+        "detail": "django.test",
+        "documentation": {}
+    },
+    {
+        "label": "SimpleUploadedFile",
+        "importPath": "django.core.files.uploadedfile",
+        "description": "django.core.files.uploadedfile",
+        "isExtraImport": true,
+        "detail": "django.core.files.uploadedfile",
+        "documentation": {}
+    },
+    {
+        "label": "FormView",
+        "importPath": "django.views.generic.edit",
+        "description": "django.views.generic.edit",
+        "isExtraImport": true,
+        "detail": "django.views.generic.edit",
+        "documentation": {}
+    },
+    {
+        "label": "JsonResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "HttpResponse",
+        "importPath": "django.http",
+        "description": "django.http",
+        "isExtraImport": true,
+        "detail": "django.http",
+        "documentation": {}
+    },
+    {
+        "label": "Paginator",
+        "importPath": "django.core.paginator",
+        "description": "django.core.paginator",
+        "isExtraImport": true,
+        "detail": "django.core.paginator",
+        "documentation": {}
+    },
+    {
+        "label": "method_decorator",
+        "importPath": "django.utils.decorators",
+        "description": "django.utils.decorators",
+        "isExtraImport": true,
+        "detail": "django.utils.decorators",
         "documentation": {}
     },
     {
@@ -1462,7 +2396,7 @@
         "kind": 5,
         "importPath": "app.settings",
         "description": "app.settings",
-        "peekOfCode": "LOCAL_APPS = [\n    'account.apps.AccountConfig',\n    'school.apps.SchoolConfig',\n    'core.apps.CoreConfig',\n]\nTHIRD_PARTY_APPS = [\n    # Add third party apps here if needed\n]\nINSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS\nMIDDLEWARE = [",
+        "peekOfCode": "LOCAL_APPS = [\n    'account.apps.AccountConfig',\n    'school.apps.SchoolConfig',\n    'core.apps.CoreConfig',\n    'student.apps.StudentConfig',\n]\nTHIRD_PARTY_APPS = [\n    # Add third party apps here if needed\n]\nINSTALLED_APPS = DJANGO_APPS + LOCAL_APPS + THIRD_PARTY_APPS",
         "detail": "app.settings",
         "documentation": {}
     },
@@ -1683,6 +2617,33 @@
         "documentation": {}
     },
     {
+        "label": "STUDENT_PAGINATION",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "STUDENT_PAGINATION = 20\nSTUDENT_MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB\nSTUDENT_ALLOWED_EXTENSIONS = ['.csv']",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "STUDENT_MAX_UPLOAD_SIZE",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "STUDENT_MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB\nSTUDENT_ALLOWED_EXTENSIONS = ['.csv']",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
+        "label": "STUDENT_ALLOWED_EXTENSIONS",
+        "kind": 5,
+        "importPath": "app.settings",
+        "description": "app.settings",
+        "peekOfCode": "STUDENT_ALLOWED_EXTENSIONS = ['.csv']",
+        "detail": "app.settings",
+        "documentation": {}
+    },
+    {
         "label": "urlpatterns",
         "kind": 5,
         "importPath": "app.urls",
@@ -1712,6 +2673,42 @@
     {
         "label": "Command",
         "kind": 6,
+        "importPath": "core.management.commands.create_sample_students",
+        "description": "core.management.commands.create_sample_students",
+        "peekOfCode": "class Command(BaseCommand):\n    help = 'Create sample students for testing purposes'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--count',\n            type=int,\n            default=50,\n            help='Number of students to create (default: 50)'\n        )\n        parser.add_argument(",
+        "detail": "core.management.commands.create_sample_students",
+        "documentation": {}
+    },
+    {
+        "label": "Command",
+        "kind": 6,
+        "importPath": "core.management.commands.create_sample_students",
+        "description": "core.management.commands.create_sample_students",
+        "peekOfCode": "class Command(BaseCommand):\n    help = 'Promote students from one class to another'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--from-class',\n            type=str,\n            required=True,\n            help='Source class name or ID'\n        )\n        parser.add_argument(",
+        "detail": "core.management.commands.create_sample_students",
+        "documentation": {}
+    },
+    {
+        "label": "Command",
+        "kind": 6,
+        "importPath": "core.management.commands.create_sample_students",
+        "description": "core.management.commands.create_sample_students",
+        "peekOfCode": "class Command(BaseCommand):\n    help = 'Export students to CSV file'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--output',\n            type=str,\n            default=None,\n            help='Output file path (default: students_export_YYYYMMDD.csv)'\n        )\n        parser.add_argument(",
+        "detail": "core.management.commands.create_sample_students",
+        "documentation": {}
+    },
+    {
+        "label": "Command",
+        "kind": 6,
+        "importPath": "core.management.commands.create_sample_students",
+        "description": "core.management.commands.create_sample_students",
+        "peekOfCode": "class Command(BaseCommand):\n    help = 'Fix missing user accounts for students'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--dry-run',\n            action='store_true',\n            help='Show what would be fixed without making changes'\n        )\n        parser.add_argument(\n            '--create-missing',",
+        "detail": "core.management.commands.create_sample_students",
+        "documentation": {}
+    },
+    {
+        "label": "Command",
+        "kind": 6,
         "importPath": "core.management.commands.create_superuser",
         "description": "core.management.commands.create_superuser",
         "peekOfCode": "class Command(BaseCommand):\n    help = 'Create a superuser account'\n    def add_arguments(self, parser):\n        parser.add_argument('--username', required=True,\n                            help='Username for superuser')\n        parser.add_argument('--email', help='Email for superuser')\n        parser.add_argument('--password', help='Password for superuser')\n    def handle(self, *args, **options):\n        username = options['username']\n        email = options.get('email', '')",
@@ -1725,6 +2722,456 @@
         "description": "core.management.commands.setup_school",
         "peekOfCode": "class Command(BaseCommand):\n    help = 'Set up initial school data'\n    def add_arguments(self, parser):\n        parser.add_argument(\n            '--school-name',\n            default='T. I. Ahmadiyya SHS',\n            help='School name',\n        )\n        parser.add_argument(\n            '--school-code',",
         "detail": "core.management.commands.setup_school",
+        "documentation": {}
+    },
+    {
+        "label": "school_theme_css",
+        "kind": 2,
+        "importPath": "core.templatetags.school_theme",
+        "description": "core.templatetags.school_theme",
+        "peekOfCode": "def school_theme_css():\n    \"\"\"Include school theme CSS variables\"\"\"\n    return {}\n@register.simple_tag\ndef school_gradient(direction=\"135deg\"):\n    \"\"\"Generate school gradient\"\"\"\n    return mark_safe(\n        f\"linear-gradient({direction}, var(--school-primary), var(--school-secondary))\"\n    )\n@register.simple_tag",
+        "detail": "core.templatetags.school_theme",
+        "documentation": {}
+    },
+    {
+        "label": "school_gradient",
+        "kind": 2,
+        "importPath": "core.templatetags.school_theme",
+        "description": "core.templatetags.school_theme",
+        "peekOfCode": "def school_gradient(direction=\"135deg\"):\n    \"\"\"Generate school gradient\"\"\"\n    return mark_safe(\n        f\"linear-gradient({direction}, var(--school-primary), var(--school-secondary))\"\n    )\n@register.simple_tag\ndef school_color_rgb(color_name):\n    \"\"\"Get school color as RGB values\"\"\"\n    color_map = {\n        'primary': 'var(--school-primary-rgb)',",
+        "detail": "core.templatetags.school_theme",
+        "documentation": {}
+    },
+    {
+        "label": "school_color_rgb",
+        "kind": 2,
+        "importPath": "core.templatetags.school_theme",
+        "description": "core.templatetags.school_theme",
+        "peekOfCode": "def school_color_rgb(color_name):\n    \"\"\"Get school color as RGB values\"\"\"\n    color_map = {\n        'primary': 'var(--school-primary-rgb)',\n        'secondary': 'var(--school-secondary-rgb)',\n    }\n    return mark_safe(color_map.get(color_name, 'var(--school-primary-rgb)'))\n@register.filter\ndef with_school_color(element_class, color_type=\"primary\"):\n    \"\"\"Add school color to CSS class\"\"\"",
+        "detail": "core.templatetags.school_theme",
+        "documentation": {}
+    },
+    {
+        "label": "with_school_color",
+        "kind": 2,
+        "importPath": "core.templatetags.school_theme",
+        "description": "core.templatetags.school_theme",
+        "peekOfCode": "def with_school_color(element_class, color_type=\"primary\"):\n    \"\"\"Add school color to CSS class\"\"\"\n    if color_type == \"primary\":\n        return mark_safe(f\"{element_class} school-primary-bg\")\n    elif color_type == \"secondary\":\n        return mark_safe(f\"{element_class} school-secondary-bg\")\n    return element_class",
+        "detail": "core.templatetags.school_theme",
+        "documentation": {}
+    },
+    {
+        "label": "register",
+        "kind": 5,
+        "importPath": "core.templatetags.school_theme",
+        "description": "core.templatetags.school_theme",
+        "peekOfCode": "register = template.Library()\n@register.inclusion_tag('school/theme_colors.html')\ndef school_theme_css():\n    \"\"\"Include school theme CSS variables\"\"\"\n    return {}\n@register.simple_tag\ndef school_gradient(direction=\"135deg\"):\n    \"\"\"Generate school gradient\"\"\"\n    return mark_safe(\n        f\"linear-gradient({direction}, var(--school-primary), var(--school-secondary))\"",
+        "detail": "core.templatetags.school_theme",
+        "documentation": {}
+    },
+    {
+        "label": "student_avatar_initials",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_avatar_initials(student):\n    \"\"\"Get student initials for avatar display\"\"\"\n    try:\n        if hasattr(student, 'first_name') and hasattr(student, 'last_name'):\n            first_initial = student.first_name[0].upper(\n            ) if student.first_name else ''\n            last_initial = student.last_name[0].upper(\n            ) if student.last_name else ''\n            return f\"{first_initial}{last_initial}\"\n    except (AttributeError, IndexError):",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_status_badge",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_status_badge(is_active):\n    \"\"\"Render student status as a colored badge\"\"\"\n    if is_active:\n        return format_html('<span class=\"badge badge-success\"><i class=\"fas fa-check me-1\"></i>Active</span>')\n    else:\n        return format_html('<span class=\"badge bg-danger\"><i class=\"fas fa-times me-1\"></i>Inactive</span>')\n@register.filter\ndef student_class_display(student):\n    \"\"\"Display student's class with programme information\"\"\"\n    try:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_class_display",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_class_display(student):\n    \"\"\"Display student's class with programme information\"\"\"\n    try:\n        if not hasattr(student, 'current_class') or not student.current_class:\n            return format_html('<span class=\"text-muted\">No Class Assigned</span>')\n        class_name = str(student.current_class)\n        if hasattr(student.current_class, 'programme') and student.current_class.programme:\n            return format_html(\n                '<span class=\"badge bg-primary\">{}</span><br><small class=\"text-muted\">{}</small>',\n                class_name, student.current_class.programme.name",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "contact_display",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def contact_display(student):\n    \"\"\"Display primary contact for student (email or phone)\"\"\"\n    try:\n        if hasattr(student, 'email') and student.email:\n            return format_html('<a href=\"mailto:{}\" class=\"text-decoration-none\"><i class=\"fas fa-envelope me-1\"></i>{}</a>',\n                               student.email, student.email)\n        elif hasattr(student, 'phone') and student.phone:\n            return format_html('<a href=\"tel:{}\" class=\"text-decoration-none\"><i class=\"fas fa-phone me-1\"></i>{}</a>',\n                               student.phone, student.phone)\n        elif hasattr(student, 'guardian_phone') and student.guardian_phone:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "age_from_birthdate",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def age_from_birthdate(birth_date):\n    \"\"\"Calculate age from birth date\"\"\"\n    try:\n        if not birth_date:\n            return \"Unknown\"\n        today = date.today()\n        age = today.year - birth_date.year - \\\n            ((today.month, today.day) < (birth_date.month, birth_date.day))\n        return f\"{age} years\"\n    except (AttributeError, TypeError, ValueError):",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "guardian_contact_display",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def guardian_contact_display(student):\n    \"\"\"Display guardian contact with relationship\"\"\"\n    try:\n        if not hasattr(student, 'guardian_name') or not student.guardian_name:\n            return format_html('<span class=\"text-muted\">Not provided</span>')\n        contact_parts = [student.guardian_name]\n        if hasattr(student, 'relationship_to_guardian') and student.relationship_to_guardian:\n            contact_parts.append(f\"({student.relationship_to_guardian})\")\n        contact_html = ' '.join(contact_parts)\n        if hasattr(student, 'guardian_phone') and student.guardian_phone:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "house_color_badge",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def house_color_badge(house):\n    \"\"\"Display house name with its color\"\"\"\n    try:\n        if not house:\n            return format_html('<span class=\"text-muted\">No House</span>')\n        color = getattr(house, 'color', '#6c757d')\n        return format_html(\n            '<span class=\"badge\" style=\"background-color: {}; color: white;\"><i class=\"fas fa-home me-1\"></i>{}</span>',\n            color, house.name\n        )",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_avatar_color",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_avatar_color(student):\n    \"\"\"Generate consistent color for student avatar based on name\"\"\"\n    try:\n        if not student:\n            return \"#6c757d\"\n        # Generate color based on student name hash\n        name = f\"{getattr(student, 'first_name', '')}{getattr(student, 'last_name', '')}\"\n        if not name:\n            return \"#6c757d\"\n        colors = [",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "format_phone_number",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def format_phone_number(phone):\n    \"\"\"Format phone number for display\"\"\"\n    try:\n        if not phone:\n            return \"\"\n        # Remove any non-digit characters\n        digits = ''.join(filter(str.isdigit, str(phone)))\n        # Format Ghana phone numbers\n        if len(digits) == 10 and digits.startswith('0'):\n            return f\"{digits[:4]}-{digits[4:7]}-{digits[7:]}\"",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "days_since_created",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def days_since_created(student):\n    \"\"\"Calculate days since student was created\"\"\"\n    try:\n        if not hasattr(student, 'created_at') or not student.created_at:\n            return \"Unknown\"\n        delta = timezone.now() - student.created_at\n        days = delta.days\n        if days == 0:\n            return \"Today\"\n        elif days == 1:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_progress_percentage",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_progress_percentage(student):\n    \"\"\"Calculate completion percentage of student profile\"\"\"\n    try:\n        if not student:\n            return 0\n        fields_to_check = [\n            'first_name', 'last_name', 'email', 'phone', 'address',\n            'current_class', 'house', 'guardian_name', 'guardian_phone',\n            'date_of_birth', 'ghana_card_number'\n        ]",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_age_group",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_age_group(student):\n    \"\"\"Categorize student by age group\"\"\"\n    try:\n        if not hasattr(student, 'date_of_birth') or not student.date_of_birth:\n            return \"Unknown\"\n        today = date.today()\n        age = today.year - student.date_of_birth.year\n        if age <= 15:\n            return \"Junior (≤15)\"\n        elif age <= 17:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_academic_year",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_academic_year(student):\n    \"\"\"Get student's current academic year\"\"\"\n    try:\n        if not hasattr(student, 'year_admitted') or not student.year_admitted:\n            return \"Unknown\"\n        current_year = timezone.now().year\n        years_in_school = current_year - student.year_admitted\n        if years_in_school < 0:\n            return \"Future Student\"\n        elif years_in_school == 0:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "can_edit_student",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def can_edit_student(user, student):\n    \"\"\"Check if user can edit the student\"\"\"\n    try:\n        if not user or not user.is_authenticated:\n            return False\n        if user.is_admin or user.is_superuser:\n            return True\n        if user.is_teacher:\n            return True\n        # Students can only edit their own profile (limited fields)",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "can_delete_student",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def can_delete_student(user, student):\n    \"\"\"Check if user can delete/deactivate the student\"\"\"\n    try:\n        if not user or not user.is_authenticated:\n            return False\n        return user.is_admin or user.is_superuser\n    except (AttributeError, TypeError):\n        return False\n@register.filter\ndef student_full_contact(student):",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_full_contact",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_full_contact(student):\n    \"\"\"Get full contact information formatted\"\"\"\n    try:\n        contacts = []\n        if hasattr(student, 'email') and student.email:\n            contacts.append(\n                f'<i class=\"fas fa-envelope me-1\"></i>{student.email}')\n        if hasattr(student, 'phone') and student.phone:\n            contacts.append(\n                f'<i class=\"fas fa-phone me-1\"></i>{student.phone}')",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_detail_url",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_detail_url(student):\n    \"\"\"Generate student detail URL\"\"\"\n    try:\n        return reverse('student:student_detail', kwargs={'pk': student.pk})\n    except (AttributeError, TypeError):\n        return '#'\n@register.simple_tag\ndef student_edit_url(student):\n    \"\"\"Generate student edit URL\"\"\"\n    try:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_edit_url",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_edit_url(student):\n    \"\"\"Generate student edit URL\"\"\"\n    try:\n        return reverse('student:student_edit', kwargs={'pk': student.pk})\n    except (AttributeError, TypeError):\n        return '#'\n@register.simple_tag\ndef student_delete_url(student):\n    \"\"\"Generate student delete URL\"\"\"\n    try:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_delete_url",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_delete_url(student):\n    \"\"\"Generate student delete URL\"\"\"\n    try:\n        return reverse('student:student_delete', kwargs={'pk': student.pk})\n    except (AttributeError, TypeError):\n        return '#'\n@register.simple_tag\ndef student_count_by_class(class_obj):\n    \"\"\"Get student count for a specific class\"\"\"\n    try:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_count_by_class",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_count_by_class(class_obj):\n    \"\"\"Get student count for a specific class\"\"\"\n    try:\n        if not class_obj:\n            return 0\n        return Student.objects.filter(current_class=class_obj, is_active=True).count()\n    except (AttributeError, TypeError):\n        return 0\n@register.simple_tag\ndef student_count_by_house(house_obj):",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_count_by_house",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_count_by_house(house_obj):\n    \"\"\"Get student count for a specific house\"\"\"\n    try:\n        if not house_obj:\n            return 0\n        return Student.objects.filter(house=house_obj, is_active=True).count()\n    except (AttributeError, TypeError):\n        return 0\n@register.simple_tag\ndef get_recent_students(limit=5):",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "get_recent_students",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def get_recent_students(limit=5):\n    \"\"\"Get recently added students\"\"\"\n    try:\n        return Student.objects.filter(is_active=True).select_related(\n            'current_class', 'house', 'current_class__programme'\n        ).order_by('-created_at')[:limit]\n    except (AttributeError, TypeError):\n        return Student.objects.none()\n@register.simple_tag\ndef get_students_without_class():",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "get_students_without_class",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def get_students_without_class():\n    \"\"\"Get count of students without assigned class\"\"\"\n    try:\n        return Student.objects.filter(is_active=True, current_class__isnull=True).count()\n    except (AttributeError, TypeError):\n        return 0\n@register.simple_tag\ndef get_students_without_house():\n    \"\"\"Get count of students without assigned house\"\"\"\n    try:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "get_students_without_house",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def get_students_without_house():\n    \"\"\"Get count of students without assigned house\"\"\"\n    try:\n        return Student.objects.filter(is_active=True, house__isnull=True).count()\n    except (AttributeError, TypeError):\n        return 0\n@register.simple_tag\ndef students_by_gender_chart_data():\n    \"\"\"Generate chart data for students by gender\"\"\"\n    try:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "students_by_gender_chart_data",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def students_by_gender_chart_data():\n    \"\"\"Generate chart data for students by gender\"\"\"\n    try:\n        male_count = Student.objects.filter(is_active=True, gender='M').count()\n        female_count = Student.objects.filter(\n            is_active=True, gender='F').count()\n        return mark_safe(json.dumps({\n            'labels': ['Male', 'Female'],\n            'data': [male_count, female_count],\n            'backgroundColor': ['#36A2EB', '#FF6384']",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "students_by_level_chart_data",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def students_by_level_chart_data():\n    \"\"\"Generate chart data for students by level\"\"\"\n    try:\n        levels_data = Student.objects.filter(is_active=True).values(\n            'current_class__level'\n        ).annotate(count=Count('id')).order_by('current_class__level')\n        labels = []\n        data = []\n        for item in levels_data:\n            if item['current_class__level']:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "students_by_house_chart_data",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def students_by_house_chart_data():\n    \"\"\"Generate chart data for students by house\"\"\"\n    try:\n        houses_data = Student.objects.filter(is_active=True).values(\n            'house__name'\n        ).annotate(count=Count('id')).order_by('house__name')\n        labels = []\n        data = []\n        for item in houses_data:\n            labels.append(item['house__name'] or 'No House')",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_bulk_action_url",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_bulk_action_url(action):\n    \"\"\"Generate URL for bulk student actions\"\"\"\n    urls = {\n        'export': 'student:bulk_export',\n        'promote': 'student:promotion',\n        'deactivate': 'student:bulk_deactivate',\n    }\n    try:\n        url_name = urls.get(action)\n        if url_name:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "total_students_count",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def total_students_count():\n    \"\"\"Get total active students count\"\"\"\n    try:\n        return Student.objects.filter(is_active=True).count()\n    except:\n        return 0\n@register.simple_tag\ndef inactive_students_count():\n    \"\"\"Get total inactive students count\"\"\"\n    try:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "inactive_students_count",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def inactive_students_count():\n    \"\"\"Get total inactive students count\"\"\"\n    try:\n        return Student.objects.filter(is_active=False).count()\n    except:\n        return 0\n@register.simple_tag\ndef students_by_programme_data():\n    \"\"\"Get students grouped by programme\"\"\"\n    try:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "students_by_programme_data",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def students_by_programme_data():\n    \"\"\"Get students grouped by programme\"\"\"\n    try:\n        return Student.objects.filter(is_active=True).values(\n            'current_class__programme__name'\n        ).annotate(count=Count('id')).order_by('current_class__programme__name')\n    except:\n        return []\n@register.simple_tag\ndef students_admitted_this_year():",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "students_admitted_this_year",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def students_admitted_this_year():\n    \"\"\"Get count of students admitted this academic year\"\"\"\n    try:\n        current_year = timezone.now().year\n        return Student.objects.filter(\n            is_active=True,\n            year_admitted=current_year\n        ).count()\n    except:\n        return 0",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_card",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_card(student, show_actions=True, card_class=\"\"):\n    \"\"\"Render a reusable student card component\"\"\"\n    return {\n        'student': student,\n        'show_actions': show_actions,\n        'card_class': card_class\n    }\n@register.inclusion_tag('student/tags/student_table_row.html')\ndef student_table_row(student, show_checkbox=True):\n    \"\"\"Render a student table row component\"\"\"",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_table_row",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_table_row(student, show_checkbox=True):\n    \"\"\"Render a student table row component\"\"\"\n    return {\n        'student': student,\n        'show_checkbox': show_checkbox\n    }\n@register.inclusion_tag('student/tags/student_stats_widget.html')\ndef student_stats_widget():\n    \"\"\"Render student statistics widget\"\"\"\n    try:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_stats_widget",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_stats_widget():\n    \"\"\"Render student statistics widget\"\"\"\n    try:\n        total_students = Student.objects.filter(is_active=True).count()\n        male_students = Student.objects.filter(\n            is_active=True, gender='M').count()\n        female_students = Student.objects.filter(\n            is_active=True, gender='F').count()\n        houses_count = House.objects.count()\n        classes_count = Class.objects.count()",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_search_form",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_search_form(request, classes=None, houses=None, programmes=None):\n    \"\"\"Render student search form component\"\"\"\n    try:\n        if not classes:\n            classes = Class.objects.all().order_by('level', 'name')\n        if not houses:\n            houses = House.objects.all().order_by('name')\n        if not programmes:\n            programmes = Programme.objects.all().order_by('name')\n        return {",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_bulk_actions",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_bulk_actions():\n    \"\"\"Render bulk actions toolbar\"\"\"\n    return {}\n@register.inclusion_tag('student/tags/student_filter_sidebar.html')\ndef student_filter_sidebar(request):\n    \"\"\"Render student filter sidebar\"\"\"\n    try:\n        classes = Class.objects.all().order_by('level', 'name')\n        houses = House.objects.all().order_by('name')\n        programmes = Programme.objects.all().order_by('name')",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "student_filter_sidebar",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def student_filter_sidebar(request):\n    \"\"\"Render student filter sidebar\"\"\"\n    try:\n        classes = Class.objects.all().order_by('level', 'name')\n        houses = House.objects.all().order_by('name')\n        programmes = Programme.objects.all().order_by('name')\n        years = Student.objects.values_list(\n            'year_admitted', flat=True\n        ).distinct().order_by('-year_admitted')\n        return {",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "query_string",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def query_string(context, **kwargs):\n    \"\"\"Generate query string for pagination while preserving filters\"\"\"\n    try:\n        request = context.get('request')\n        if not request:\n            return \"\"\n        query_dict = request.GET.copy()\n        for key, value in kwargs.items():\n            if value is None:\n                query_dict.pop(key, None)",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "current_url_with_params",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def current_url_with_params(context, **kwargs):\n    \"\"\"Get current URL with additional parameters\"\"\"\n    try:\n        request = context.get('request')\n        if not request:\n            return \"\"\n        query_dict = request.GET.copy()\n        query_dict.update(kwargs)\n        return f\"{request.path}?{query_dict.urlencode()}\" if query_dict else request.path\n    except:",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "get_student_statistics",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def get_student_statistics():\n    \"\"\"Get comprehensive student statistics\"\"\"\n    try:\n        return {\n            'total_active': Student.objects.filter(is_active=True).count(),\n            'total_inactive': Student.objects.filter(is_active=False).count(),\n            'male_count': Student.objects.filter(is_active=True, gender='M').count(),\n            'female_count': Student.objects.filter(is_active=True, gender='F').count(),\n            'without_class': Student.objects.filter(is_active=True, current_class__isnull=True).count(),\n            'without_house': Student.objects.filter(is_active=True, house__isnull=True).count(),",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "get_class_distribution",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def get_class_distribution():\n    \"\"\"Get student distribution across classes\"\"\"\n    try:\n        return Student.objects.filter(is_active=True).values(\n            'current_class__name',\n            'current_class__level',\n            'current_class__programme__name'\n        ).annotate(\n            student_count=Count('id')\n        ).order_by('current_class__level', 'current_class__name')",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "safe_getattr",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def safe_getattr(obj, attr, default=None):\n    \"\"\"Safely get attribute from object\"\"\"\n    try:\n        return getattr(obj, attr, default)\n    except (AttributeError, TypeError):\n        return default\ndef safe_format_html(template, *args, **kwargs):\n    \"\"\"Safely format HTML\"\"\"\n    try:\n        return format_html(template, *args, **kwargs)",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "safe_format_html",
+        "kind": 2,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "def safe_format_html(template, *args, **kwargs):\n    \"\"\"Safely format HTML\"\"\"\n    try:\n        return format_html(template, *args, **kwargs)\n    except:\n        return mark_safe('<span class=\"text-muted\">Error</span>')",
+        "detail": "core.templatetags.student_extras",
+        "documentation": {}
+    },
+    {
+        "label": "register",
+        "kind": 5,
+        "importPath": "core.templatetags.student_extras",
+        "description": "core.templatetags.student_extras",
+        "peekOfCode": "register = template.Library()\n# =============================================================================\n# FILTERS\n# =============================================================================\n@register.filter\ndef student_avatar_initials(student):\n    \"\"\"Get student initials for avatar display\"\"\"\n    try:\n        if hasattr(student, 'first_name') and hasattr(student, 'last_name'):\n            first_initial = student.first_name[0].upper(",
+        "detail": "core.templatetags.student_extras",
         "documentation": {}
     },
     {
@@ -1793,10 +3240,118 @@
     {
         "label": "school_context",
         "kind": 2,
-        "importPath": "core.context_preprocessors",
-        "description": "core.context_preprocessors",
+        "importPath": "core.context_processors",
+        "description": "core.context_processors",
         "peekOfCode": "def school_context(request):\n    \"\"\"Add school context to all templates\"\"\"\n    try:\n        school = School.get_current_school()\n        current_academic_year = AcademicYear.objects.filter(\n            is_current=True).first()\n        current_term = Term.objects.filter(is_current=True).first()\n        return {\n            'school': school,\n            'current_academic_year': current_academic_year,",
-        "detail": "core.context_preprocessors",
+        "detail": "core.context_processors",
+        "documentation": {}
+    },
+    {
+        "label": "student_stats",
+        "kind": 2,
+        "importPath": "core.context_processors",
+        "description": "core.context_processors",
+        "peekOfCode": "def student_stats(request):\n    \"\"\"Add basic student statistics to template context\"\"\"\n    if request.user.is_authenticated and (request.user.is_admin or request.user.is_teacher):\n        return {\n            'total_students_count': Student.objects.filter(is_active=True).count(),\n            'inactive_students_count': Student.objects.filter(is_active=False).count(),\n        }\n    return {}\n@register.filter\ndef student_avatar_initials(student):",
+        "detail": "core.context_processors",
+        "documentation": {}
+    },
+    {
+        "label": "student_avatar_initials",
+        "kind": 2,
+        "importPath": "core.context_processors",
+        "description": "core.context_processors",
+        "peekOfCode": "def student_avatar_initials(student):\n    \"\"\"Get student initials for avatar\"\"\"\n    if hasattr(student, 'first_name') and hasattr(student, 'last_name'):\n        return f\"{student.first_name[0].upper()}{student.last_name[0].upper()}\"\n    return \"ST\"\n@register.filter\ndef student_status_badge(is_active):\n    \"\"\"Render student status as a badge\"\"\"\n    if is_active:\n        return format_html('<span class=\"badge badge-success\">Active</span>')",
+        "detail": "core.context_processors",
+        "documentation": {}
+    },
+    {
+        "label": "student_status_badge",
+        "kind": 2,
+        "importPath": "core.context_processors",
+        "description": "core.context_processors",
+        "peekOfCode": "def student_status_badge(is_active):\n    \"\"\"Render student status as a badge\"\"\"\n    if is_active:\n        return format_html('<span class=\"badge badge-success\">Active</span>')\n    else:\n        return format_html('<span class=\"badge bg-danger\">Inactive</span>')\n@register.filter\ndef student_class_display(student):\n    \"\"\"Display student's class with programme if available\"\"\"\n    if not student.current_class:",
+        "detail": "core.context_processors",
+        "documentation": {}
+    },
+    {
+        "label": "student_class_display",
+        "kind": 2,
+        "importPath": "core.context_processors",
+        "description": "core.context_processors",
+        "peekOfCode": "def student_class_display(student):\n    \"\"\"Display student's class with programme if available\"\"\"\n    if not student.current_class:\n        return \"No Class\"\n    class_name = str(student.current_class)\n    if student.current_class.programme:\n        return f\"{class_name} ({student.current_class.programme.code})\"\n    return class_name\n@register.simple_tag\ndef student_detail_url(student):",
+        "detail": "core.context_processors",
+        "documentation": {}
+    },
+    {
+        "label": "student_detail_url",
+        "kind": 2,
+        "importPath": "core.context_processors",
+        "description": "core.context_processors",
+        "peekOfCode": "def student_detail_url(student):\n    \"\"\"Generate student detail URL\"\"\"\n    return reverse('student:student_detail', kwargs={'pk': student.pk})\n@register.inclusion_tag('student/tags/student_card.html')\ndef student_card(student, show_actions=True):\n    \"\"\"Render a student card component\"\"\"\n    return {\n        'student': student,\n        'show_actions': show_actions\n    }",
+        "detail": "core.context_processors",
+        "documentation": {}
+    },
+    {
+        "label": "student_card",
+        "kind": 2,
+        "importPath": "core.context_processors",
+        "description": "core.context_processors",
+        "peekOfCode": "def student_card(student, show_actions=True):\n    \"\"\"Render a student card component\"\"\"\n    return {\n        'student': student,\n        'show_actions': show_actions\n    }\n@register.filter\ndef contact_display(student):\n    \"\"\"Display primary contact for student\"\"\"\n    if student.email:",
+        "detail": "core.context_processors",
+        "documentation": {}
+    },
+    {
+        "label": "contact_display",
+        "kind": 2,
+        "importPath": "core.context_processors",
+        "description": "core.context_processors",
+        "peekOfCode": "def contact_display(student):\n    \"\"\"Display primary contact for student\"\"\"\n    if student.email:\n        return student.email\n    elif student.phone:\n        return student.phone\n    elif student.guardian_phone:\n        return student.guardian_phone\n    return \"No contact\"\ndef school_theme(request):",
+        "detail": "core.context_processors",
+        "documentation": {}
+    },
+    {
+        "label": "school_theme",
+        "kind": 2,
+        "importPath": "core.context_processors",
+        "description": "core.context_processors",
+        "peekOfCode": "def school_theme(request):\n    \"\"\"Add school configuration and theme colors to all templates\"\"\"\n    try:\n        school = School.get_current_school()\n        # Generate color variations from primary and secondary colors\n        theme_colors = generate_theme_colors(school.primary_color, school.secondary_color)\n        return {\n            'school': school,\n            'theme_colors': theme_colors,\n            'school_primary_color': school.primary_color,",
+        "detail": "core.context_processors",
+        "documentation": {}
+    },
+    {
+        "label": "generate_theme_colors",
+        "kind": 2,
+        "importPath": "core.context_processors",
+        "description": "core.context_processors",
+        "peekOfCode": "def generate_theme_colors(primary_color, secondary_color):\n    \"\"\"Generate a complete color theme from primary and secondary colors\"\"\"\n    from .utils import ColorThemeGenerator\n    generator = ColorThemeGenerator(primary_color, secondary_color)\n    return {\n        'primary': primary_color,\n        'primary_light': generator.lighten_color(primary_color, 0.1),\n        'primary_dark': generator.darken_color(primary_color, 0.1),\n        'primary_rgb': generator.hex_to_rgb(primary_color),\n        'secondary': secondary_color,",
+        "detail": "core.context_processors",
+        "documentation": {}
+    },
+    {
+        "label": "register",
+        "kind": 5,
+        "importPath": "core.context_processors",
+        "description": "core.context_processors",
+        "peekOfCode": "register = template.Library()\ndef school_context(request):\n    \"\"\"Add school context to all templates\"\"\"\n    try:\n        school = School.get_current_school()\n        current_academic_year = AcademicYear.objects.filter(\n            is_current=True).first()\n        current_term = Term.objects.filter(is_current=True).first()\n        return {\n            'school': school,",
+        "detail": "core.context_processors",
+        "documentation": {}
+    },
+    {
+        "label": "admin_or_teacher_required",
+        "kind": 2,
+        "importPath": "core.decorators",
+        "description": "core.decorators",
+        "peekOfCode": "def admin_or_teacher_required(view_func):\n    \"\"\"Decorator to require admin or teacher permissions\"\"\"\n    @wraps(view_func)\n    @login_required\n    def _wrapped_view(request, *args, **kwargs):\n        if not (request.user.is_admin or request.user.is_teacher):\n            raise PermissionDenied(\n                \"You must be an admin or teacher to access this page.\")\n        return view_func(request, *args, **kwargs)\n    return _wrapped_view",
+        "detail": "core.decorators",
+        "documentation": {}
+    },
+    {
+        "label": "admin_required",
+        "kind": 2,
+        "importPath": "core.decorators",
+        "description": "core.decorators",
+        "peekOfCode": "def admin_required(view_func):\n    \"\"\"Decorator to require admin permissions only\"\"\"\n    @wraps(view_func)\n    @login_required\n    def _wrapped_view(request, *args, **kwargs):\n        if not request.user.is_admin:\n            raise PermissionDenied(\"You must be an admin to access this page.\")\n        return view_func(request, *args, **kwargs)\n    return _wrapped_view",
+        "detail": "core.decorators",
         "documentation": {}
     },
     {
@@ -1818,12 +3373,48 @@
         "documentation": {}
     },
     {
+        "label": "StudentAccessMixin",
+        "kind": 6,
+        "importPath": "core.permissions",
+        "description": "core.permissions",
+        "peekOfCode": "class StudentAccessMixin(UserPassesTestMixin):\n    \"\"\"Base mixin for student-related views requiring authentication\"\"\"\n    def test_func(self):\n        return self.request.user.is_authenticated\n    def handle_no_permission(self):\n        raise PermissionDenied(\"You must be logged in to access this page.\")\nclass AdminOrTeacherRequiredMixin(UserPassesTestMixin):\n    \"\"\"Mixin requiring admin or teacher permissions\"\"\"\n    def test_func(self):\n        user = self.request.user",
+        "detail": "core.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "AdminOrTeacherRequiredMixin",
+        "kind": 6,
+        "importPath": "core.permissions",
+        "description": "core.permissions",
+        "peekOfCode": "class AdminOrTeacherRequiredMixin(UserPassesTestMixin):\n    \"\"\"Mixin requiring admin or teacher permissions\"\"\"\n    def test_func(self):\n        user = self.request.user\n        return user.is_authenticated and (user.is_admin or user.is_teacher)\n    def handle_no_permission(self):\n        raise PermissionDenied(\n            \"You must be an admin or teacher to access this page.\")\nclass AdminRequiredMixin(UserPassesTestMixin):\n    \"\"\"Mixin requiring admin permissions only\"\"\"",
+        "detail": "core.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "AdminRequiredMixin",
+        "kind": 6,
+        "importPath": "core.permissions",
+        "description": "core.permissions",
+        "peekOfCode": "class AdminRequiredMixin(UserPassesTestMixin):\n    \"\"\"Mixin requiring admin permissions only\"\"\"\n    def test_func(self):\n        user = self.request.user\n        return user.is_authenticated and user.is_admin\n    def handle_no_permission(self):\n        raise PermissionDenied(\"You must be an admin to access this page.\")",
+        "detail": "core.permissions",
+        "documentation": {}
+    },
+    {
         "label": "role_required",
         "kind": 2,
         "importPath": "core.permissions",
         "description": "core.permissions",
         "peekOfCode": "def role_required(allowed_roles):\n    \"\"\"Decorator to check if user has required role\"\"\"\n    def decorator(view_func):\n        @wraps(view_func)\n        def wrapper(request, *args, **kwargs):\n            if not request.user.is_authenticated:\n                return redirect('accounts:login')\n            user = request.user\n            user_roles = []\n            if user.is_superuser or user.is_admin:",
         "detail": "core.permissions",
+        "documentation": {}
+    },
+    {
+        "label": "ColorThemeGenerator",
+        "kind": 6,
+        "importPath": "core.utils",
+        "description": "core.utils",
+        "peekOfCode": "class ColorThemeGenerator:\n    \"\"\"Generate complete color themes from primary colors\"\"\"\n    def __init__(self, primary_color, secondary_color):\n        self.primary = primary_color\n        self.secondary = secondary_color\n    def hex_to_rgb(self, hex_color):\n        \"\"\"Convert hex color to RGB values\"\"\"\n        hex_color = hex_color.lstrip('#')\n        if len(hex_color) == 3:\n            hex_color = ''.join([c*2 for c in hex_color])",
+        "detail": "core.utils",
         "documentation": {}
     },
     {
@@ -1899,11 +3490,65 @@
         "documentation": {}
     },
     {
+        "label": "school_theme_css",
+        "kind": 2,
+        "importPath": "school.templatetags.school_theme",
+        "description": "school.templatetags.school_theme",
+        "peekOfCode": "def school_theme_css():\n    \"\"\"Include school theme CSS variables\"\"\"\n    return {}\n@register.simple_tag\ndef school_gradient(direction=\"135deg\"):\n    \"\"\"Generate school gradient\"\"\"\n    return mark_safe(f\"linear-gradient({direction}, var(--school-primary), var(--school-secondary))\")\n@register.simple_tag\ndef school_color_rgb(color_name):\n    \"\"\"Get school color as RGB values\"\"\"",
+        "detail": "school.templatetags.school_theme",
+        "documentation": {}
+    },
+    {
+        "label": "school_gradient",
+        "kind": 2,
+        "importPath": "school.templatetags.school_theme",
+        "description": "school.templatetags.school_theme",
+        "peekOfCode": "def school_gradient(direction=\"135deg\"):\n    \"\"\"Generate school gradient\"\"\"\n    return mark_safe(f\"linear-gradient({direction}, var(--school-primary), var(--school-secondary))\")\n@register.simple_tag\ndef school_color_rgb(color_name):\n    \"\"\"Get school color as RGB values\"\"\"\n    color_map = {\n        'primary': 'var(--school-primary-rgb)',\n        'secondary': 'var(--school-secondary-rgb)',\n    }",
+        "detail": "school.templatetags.school_theme",
+        "documentation": {}
+    },
+    {
+        "label": "school_color_rgb",
+        "kind": 2,
+        "importPath": "school.templatetags.school_theme",
+        "description": "school.templatetags.school_theme",
+        "peekOfCode": "def school_color_rgb(color_name):\n    \"\"\"Get school color as RGB values\"\"\"\n    color_map = {\n        'primary': 'var(--school-primary-rgb)',\n        'secondary': 'var(--school-secondary-rgb)',\n    }\n    return mark_safe(color_map.get(color_name, 'var(--school-primary-rgb)'))\n@register.filter\ndef with_school_color(element_class, color_type=\"primary\"):\n    \"\"\"Add school color to CSS class\"\"\"",
+        "detail": "school.templatetags.school_theme",
+        "documentation": {}
+    },
+    {
+        "label": "with_school_color",
+        "kind": 2,
+        "importPath": "school.templatetags.school_theme",
+        "description": "school.templatetags.school_theme",
+        "peekOfCode": "def with_school_color(element_class, color_type=\"primary\"):\n    \"\"\"Add school color to CSS class\"\"\"\n    if color_type == \"primary\":\n        return mark_safe(f\"{element_class} school-primary-bg\")\n    elif color_type == \"secondary\":\n        return mark_safe(f\"{element_class} school-secondary-bg\")\n    return element_class",
+        "detail": "school.templatetags.school_theme",
+        "documentation": {}
+    },
+    {
+        "label": "register",
+        "kind": 5,
+        "importPath": "school.templatetags.school_theme",
+        "description": "school.templatetags.school_theme",
+        "peekOfCode": "register = template.Library()\n@register.inclusion_tag('school/theme_colors.html')\ndef school_theme_css():\n    \"\"\"Include school theme CSS variables\"\"\"\n    return {}\n@register.simple_tag\ndef school_gradient(direction=\"135deg\"):\n    \"\"\"Generate school gradient\"\"\"\n    return mark_safe(f\"linear-gradient({direction}, var(--school-primary), var(--school-secondary))\")\n@register.simple_tag",
+        "detail": "school.templatetags.school_theme",
+        "documentation": {}
+    },
+    {
+        "label": "SchoolAdminForm",
+        "kind": 6,
+        "importPath": "school.admin",
+        "description": "school.admin",
+        "peekOfCode": "class SchoolAdminForm(forms.ModelForm):\n    \"\"\"Custom form for School admin with color picker\"\"\"\n    class Meta:\n        model = School\n        fields = '__all__'\n        widgets = {\n            'primary_color': forms.TextInput(attrs={\n                'type': 'color',\n                'style': 'width: 50px; height: 40px; border: none; cursor: pointer;'\n            }),",
+        "detail": "school.admin",
+        "documentation": {}
+    },
+    {
         "label": "SchoolAdmin",
         "kind": 6,
         "importPath": "school.admin",
         "description": "school.admin",
-        "peekOfCode": "class SchoolAdmin(admin.ModelAdmin):\n    list_display = ('name', 'code', 'phone', 'email', 'established_year')\n    search_fields = ('name', 'code', 'email')\n    fieldsets = (\n        ('Basic Information', {\n            'fields': ('name', 'code', 'address', 'phone', 'email', 'website')\n        }),\n        ('School Details', {\n            'fields': ('motto', 'established_year', 'logo')\n        }),",
+        "peekOfCode": "class SchoolAdmin(admin.ModelAdmin):\n    form = SchoolAdminForm\n    fieldsets = (\n        ('Basic Information', {\n            'fields': ('name', 'code', 'address', 'phone', 'email', 'website')\n        }),\n        ('School Details', {\n            'fields': ('motto', 'established_year', 'logo')\n        }),\n        ('Academic Settings', {",
         "detail": "school.admin",
         "documentation": {}
     },
@@ -2218,7 +3863,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class AcademicYearUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = AcademicYear\n    form_class = AcademicYearForm\n    template_name = 'schools/academic/year/form.html'\n    success_url = reverse_lazy('admin:academic_years')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Academic year updated successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class AcademicYearUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = AcademicYear\n    form_class = AcademicYearForm\n    template_name = 'school/years/form.html'\n    success_url = reverse_lazy('admin:academic_years')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Academic year updated successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2245,7 +3890,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ProgrammeCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programmes/form.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Programme created successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class ProgrammeCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programmes/form.html'\n    success_url = reverse_lazy('admin:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Programme created successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2254,7 +3899,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ProgrammeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programmes/form.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Programme updated successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class ProgrammeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Programme\n    form_class = ProgrammeForm\n    template_name = 'school/programmes/form.html'\n    success_url = reverse_lazy('admin:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Programme updated successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2263,7 +3908,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ProgrammeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Programme\n    template_name = 'school/programmes/confirm_delete.html'\n    success_url = reverse_lazy('school:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Programme deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# House Views",
+        "peekOfCode": "class ProgrammeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Programme\n    template_name = 'school/programmes/confirm_delete.html'\n    success_url = reverse_lazy('admin:programmes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Programme deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# House Views",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2281,7 +3926,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class HouseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/houses/form.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'House created successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class HouseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/houses/form.html'\n    success_url = reverse_lazy('admin:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'House created successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2290,7 +3935,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class HouseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/houses/form.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'House updated successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class HouseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = House\n    form_class = HouseForm\n    template_name = 'school/houses/form.html'\n    success_url = reverse_lazy('admin:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'House updated successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2308,7 +3953,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class HouseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = House\n    template_name = 'school/houses/confirm_delete.html'\n    success_url = reverse_lazy('school:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'House deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Subject Views",
+        "peekOfCode": "class HouseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = House\n    template_name = 'school/houses/confirm_delete.html'\n    success_url = reverse_lazy('admin:houses')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'House deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Subject Views",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2326,7 +3971,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class SubjectCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Subject\n    form_class = SubjectForm\n    template_name = 'school/subjects/form.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Subject created successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class SubjectCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Subject\n    form_class = SubjectForm\n    template_name = 'school/subjects/form.html'\n    success_url = reverse_lazy('admin:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Subject created successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2335,7 +3980,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class SubjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Subject\n    form_class = SubjectForm\n    template_name = 'school/subjects/form.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Subject updated successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class SubjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Subject\n    form_class = SubjectForm\n    template_name = 'school/subjects/form.html'\n    success_url = reverse_lazy('admin:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Subject updated successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2344,7 +3989,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class SubjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Subject\n    template_name = 'school/subjects/confirm_delete.html'\n    success_url = reverse_lazy('school:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Subject deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Class Views",
+        "peekOfCode": "class SubjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Subject\n    template_name = 'school/subjects/confirm_delete.html'\n    success_url = reverse_lazy('admin:subjects')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Subject deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n# Class Views",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2362,7 +4007,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ClassCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Class\n    form_class = ClassForm\n    template_name = 'school/classes/form.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Class created successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class ClassCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):\n    model = Class\n    form_class = ClassForm\n    template_name = 'school/classes/form.html'\n    success_url = reverse_lazy('admin:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Class created successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2371,7 +4016,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ClassUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Class\n    form_class = ClassForm\n    template_name = 'school/classes/form.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Class updated successfully.')\n        return super().form_valid(form)",
+        "peekOfCode": "class ClassUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):\n    model = Class\n    form_class = ClassForm\n    template_name = 'school/classes/form.html'\n    success_url = reverse_lazy('admin:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def form_valid(self, form):\n        messages.success(self.request, 'Class updated successfully.')\n        return super().form_valid(form)",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2389,7 +4034,7 @@
         "kind": 6,
         "importPath": "school.views",
         "description": "school.views",
-        "peekOfCode": "class ClassDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Class\n    template_name = 'school/classes/confirm_delete.html'\n    success_url = reverse_lazy('school:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Class deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n@login_required",
+        "peekOfCode": "class ClassDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):\n    model = Class\n    template_name = 'school/classes/confirm_delete.html'\n    success_url = reverse_lazy('admin:classes')\n    def test_func(self):\n        return is_admin_user(self.request.user)\n    def delete(self, request, *args, **kwargs):\n        messages.success(request, 'Class deleted successfully.')\n        return super().delete(request, *args, **kwargs)\n@login_required",
         "detail": "school.views",
         "documentation": {}
     },
@@ -2427,6 +4072,573 @@
         "description": "school.views",
         "peekOfCode": "def setup_school_view(request):\n    \"\"\"Setup dashboard showing current status\"\"\"\n    school = School.get_current_school()\n    # Get counts\n    academic_years_count = AcademicYear.objects.count()\n    programmes_count = Programme.objects.count()\n    houses_count = House.objects.count()\n    subjects_count = Subject.objects.count()\n    classes_count = Class.objects.count()\n    students_count = Student.objects.filter(is_active=True).count()",
         "detail": "school.views",
+        "documentation": {}
+    },
+    {
+        "label": "StudentConfig",
+        "kind": 6,
+        "importPath": "student.apps",
+        "description": "student.apps",
+        "peekOfCode": "class StudentConfig(AppConfig):\n    name = 'student'\n    verbose_name = 'Student Management'\n    def ready(self):\n        \"\"\"Import signals when the app is ready\"\"\"\n        try:\n            import student.signals\n        except ImportError:\n            pass",
+        "detail": "student.apps",
+        "documentation": {}
+    },
+    {
+        "label": "STUDENT_STATUS_ACTIVE",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "STUDENT_STATUS_ACTIVE = 'active'\nSTUDENT_STATUS_INACTIVE = 'inactive'\nSTUDENT_STATUS_GRADUATED = 'graduated'\nSTUDENT_STATUS_TRANSFERRED = 'transferred'\nSTUDENT_STATUS_CHOICES = [\n    (STUDENT_STATUS_ACTIVE, 'Active'),\n    (STUDENT_STATUS_INACTIVE, 'Inactive'),\n    (STUDENT_STATUS_GRADUATED, 'Graduated'),\n    (STUDENT_STATUS_TRANSFERRED, 'Transferred'),\n]",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "STUDENT_STATUS_INACTIVE",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "STUDENT_STATUS_INACTIVE = 'inactive'\nSTUDENT_STATUS_GRADUATED = 'graduated'\nSTUDENT_STATUS_TRANSFERRED = 'transferred'\nSTUDENT_STATUS_CHOICES = [\n    (STUDENT_STATUS_ACTIVE, 'Active'),\n    (STUDENT_STATUS_INACTIVE, 'Inactive'),\n    (STUDENT_STATUS_GRADUATED, 'Graduated'),\n    (STUDENT_STATUS_TRANSFERRED, 'Transferred'),\n]\n# CSV upload settings",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "STUDENT_STATUS_GRADUATED",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "STUDENT_STATUS_GRADUATED = 'graduated'\nSTUDENT_STATUS_TRANSFERRED = 'transferred'\nSTUDENT_STATUS_CHOICES = [\n    (STUDENT_STATUS_ACTIVE, 'Active'),\n    (STUDENT_STATUS_INACTIVE, 'Inactive'),\n    (STUDENT_STATUS_GRADUATED, 'Graduated'),\n    (STUDENT_STATUS_TRANSFERRED, 'Transferred'),\n]\n# CSV upload settings\nMAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "STUDENT_STATUS_TRANSFERRED",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "STUDENT_STATUS_TRANSFERRED = 'transferred'\nSTUDENT_STATUS_CHOICES = [\n    (STUDENT_STATUS_ACTIVE, 'Active'),\n    (STUDENT_STATUS_INACTIVE, 'Inactive'),\n    (STUDENT_STATUS_GRADUATED, 'Graduated'),\n    (STUDENT_STATUS_TRANSFERRED, 'Transferred'),\n]\n# CSV upload settings\nMAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB\nMAX_STUDENTS_PER_UPLOAD = 1000",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "STUDENT_STATUS_CHOICES",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "STUDENT_STATUS_CHOICES = [\n    (STUDENT_STATUS_ACTIVE, 'Active'),\n    (STUDENT_STATUS_INACTIVE, 'Inactive'),\n    (STUDENT_STATUS_GRADUATED, 'Graduated'),\n    (STUDENT_STATUS_TRANSFERRED, 'Transferred'),\n]\n# CSV upload settings\nMAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB\nMAX_STUDENTS_PER_UPLOAD = 1000\nALLOWED_FILE_EXTENSIONS = ['.csv']",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "MAX_UPLOAD_SIZE",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB\nMAX_STUDENTS_PER_UPLOAD = 1000\nALLOWED_FILE_EXTENSIONS = ['.csv']\n# Pagination settings\nSTUDENTS_PER_PAGE = 20\nMAX_STUDENTS_PER_PAGE = 100\n# Student ID generation settings\nSTUDENT_ID_PREFIX = 'STU'\nSTUDENT_ID_LENGTH = 15\n# Export settings",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "MAX_STUDENTS_PER_UPLOAD",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "MAX_STUDENTS_PER_UPLOAD = 1000\nALLOWED_FILE_EXTENSIONS = ['.csv']\n# Pagination settings\nSTUDENTS_PER_PAGE = 20\nMAX_STUDENTS_PER_PAGE = 100\n# Student ID generation settings\nSTUDENT_ID_PREFIX = 'STU'\nSTUDENT_ID_LENGTH = 15\n# Export settings\nEXPORT_FORMATS = ['csv', 'xlsx', 'pdf']",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "ALLOWED_FILE_EXTENSIONS",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "ALLOWED_FILE_EXTENSIONS = ['.csv']\n# Pagination settings\nSTUDENTS_PER_PAGE = 20\nMAX_STUDENTS_PER_PAGE = 100\n# Student ID generation settings\nSTUDENT_ID_PREFIX = 'STU'\nSTUDENT_ID_LENGTH = 15\n# Export settings\nEXPORT_FORMATS = ['csv', 'xlsx', 'pdf']\nMAX_EXPORT_RECORDS = 5000",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "STUDENTS_PER_PAGE",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "STUDENTS_PER_PAGE = 20\nMAX_STUDENTS_PER_PAGE = 100\n# Student ID generation settings\nSTUDENT_ID_PREFIX = 'STU'\nSTUDENT_ID_LENGTH = 15\n# Export settings\nEXPORT_FORMATS = ['csv', 'xlsx', 'pdf']\nMAX_EXPORT_RECORDS = 5000\n# Search settings\nMIN_SEARCH_LENGTH = 2",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "MAX_STUDENTS_PER_PAGE",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "MAX_STUDENTS_PER_PAGE = 100\n# Student ID generation settings\nSTUDENT_ID_PREFIX = 'STU'\nSTUDENT_ID_LENGTH = 15\n# Export settings\nEXPORT_FORMATS = ['csv', 'xlsx', 'pdf']\nMAX_EXPORT_RECORDS = 5000\n# Search settings\nMIN_SEARCH_LENGTH = 2\nSEARCH_FIELDS = [",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "STUDENT_ID_PREFIX",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "STUDENT_ID_PREFIX = 'STU'\nSTUDENT_ID_LENGTH = 15\n# Export settings\nEXPORT_FORMATS = ['csv', 'xlsx', 'pdf']\nMAX_EXPORT_RECORDS = 5000\n# Search settings\nMIN_SEARCH_LENGTH = 2\nSEARCH_FIELDS = [\n    'first_name', 'last_name', 'student_id', 'email',\n    'phone', 'guardian_name', 'guardian_phone'",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "STUDENT_ID_LENGTH",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "STUDENT_ID_LENGTH = 15\n# Export settings\nEXPORT_FORMATS = ['csv', 'xlsx', 'pdf']\nMAX_EXPORT_RECORDS = 5000\n# Search settings\nMIN_SEARCH_LENGTH = 2\nSEARCH_FIELDS = [\n    'first_name', 'last_name', 'student_id', 'email',\n    'phone', 'guardian_name', 'guardian_phone'\n]",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "EXPORT_FORMATS",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "EXPORT_FORMATS = ['csv', 'xlsx', 'pdf']\nMAX_EXPORT_RECORDS = 5000\n# Search settings\nMIN_SEARCH_LENGTH = 2\nSEARCH_FIELDS = [\n    'first_name', 'last_name', 'student_id', 'email',\n    'phone', 'guardian_name', 'guardian_phone'\n]\n# Validation settings\nMIN_AGE = 10",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "MAX_EXPORT_RECORDS",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "MAX_EXPORT_RECORDS = 5000\n# Search settings\nMIN_SEARCH_LENGTH = 2\nSEARCH_FIELDS = [\n    'first_name', 'last_name', 'student_id', 'email',\n    'phone', 'guardian_name', 'guardian_phone'\n]\n# Validation settings\nMIN_AGE = 10\nMAX_AGE = 25",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "MIN_SEARCH_LENGTH",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "MIN_SEARCH_LENGTH = 2\nSEARCH_FIELDS = [\n    'first_name', 'last_name', 'student_id', 'email',\n    'phone', 'guardian_name', 'guardian_phone'\n]\n# Validation settings\nMIN_AGE = 10\nMAX_AGE = 25\nMIN_YEAR_ADMITTED = 2000\n# File paths",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "SEARCH_FIELDS",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "SEARCH_FIELDS = [\n    'first_name', 'last_name', 'student_id', 'email',\n    'phone', 'guardian_name', 'guardian_phone'\n]\n# Validation settings\nMIN_AGE = 10\nMAX_AGE = 25\nMIN_YEAR_ADMITTED = 2000\n# File paths\nSTUDENT_PHOTO_UPLOAD_PATH = 'students/photos/'",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "MIN_AGE",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "MIN_AGE = 10\nMAX_AGE = 25\nMIN_YEAR_ADMITTED = 2000\n# File paths\nSTUDENT_PHOTO_UPLOAD_PATH = 'students/photos/'\nBULK_UPLOAD_TEMP_PATH = 'temp/uploads/'",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "MAX_AGE",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "MAX_AGE = 25\nMIN_YEAR_ADMITTED = 2000\n# File paths\nSTUDENT_PHOTO_UPLOAD_PATH = 'students/photos/'\nBULK_UPLOAD_TEMP_PATH = 'temp/uploads/'",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "MIN_YEAR_ADMITTED",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "MIN_YEAR_ADMITTED = 2000\n# File paths\nSTUDENT_PHOTO_UPLOAD_PATH = 'students/photos/'\nBULK_UPLOAD_TEMP_PATH = 'temp/uploads/'",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "STUDENT_PHOTO_UPLOAD_PATH",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "STUDENT_PHOTO_UPLOAD_PATH = 'students/photos/'\nBULK_UPLOAD_TEMP_PATH = 'temp/uploads/'",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "BULK_UPLOAD_TEMP_PATH",
+        "kind": 5,
+        "importPath": "student.constants",
+        "description": "student.constants",
+        "peekOfCode": "BULK_UPLOAD_TEMP_PATH = 'temp/uploads/'",
+        "detail": "student.constants",
+        "documentation": {}
+    },
+    {
+        "label": "StudentManagementError",
+        "kind": 6,
+        "importPath": "student.exceptions",
+        "description": "student.exceptions",
+        "peekOfCode": "class StudentManagementError(Exception):\n    \"\"\"Base exception for student management errors\"\"\"\n    pass\nclass StudentValidationError(StudentManagementError):\n    \"\"\"Raised when student data validation fails\"\"\"\n    pass\nclass BulkUploadError(StudentManagementError):\n    \"\"\"Raised when bulk upload operations fail\"\"\"\n    pass\nclass StudentNotFoundError(StudentManagementError):",
+        "detail": "student.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "StudentValidationError",
+        "kind": 6,
+        "importPath": "student.exceptions",
+        "description": "student.exceptions",
+        "peekOfCode": "class StudentValidationError(StudentManagementError):\n    \"\"\"Raised when student data validation fails\"\"\"\n    pass\nclass BulkUploadError(StudentManagementError):\n    \"\"\"Raised when bulk upload operations fail\"\"\"\n    pass\nclass StudentNotFoundError(StudentManagementError):\n    \"\"\"Raised when a student cannot be found\"\"\"\n    pass\nclass PromotionError(StudentManagementError):",
+        "detail": "student.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "BulkUploadError",
+        "kind": 6,
+        "importPath": "student.exceptions",
+        "description": "student.exceptions",
+        "peekOfCode": "class BulkUploadError(StudentManagementError):\n    \"\"\"Raised when bulk upload operations fail\"\"\"\n    pass\nclass StudentNotFoundError(StudentManagementError):\n    \"\"\"Raised when a student cannot be found\"\"\"\n    pass\nclass PromotionError(StudentManagementError):\n    \"\"\"Raised when student promotion fails\"\"\"\n    pass\nclass InvalidCSVError(BulkUploadError):",
+        "detail": "student.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "StudentNotFoundError",
+        "kind": 6,
+        "importPath": "student.exceptions",
+        "description": "student.exceptions",
+        "peekOfCode": "class StudentNotFoundError(StudentManagementError):\n    \"\"\"Raised when a student cannot be found\"\"\"\n    pass\nclass PromotionError(StudentManagementError):\n    \"\"\"Raised when student promotion fails\"\"\"\n    pass\nclass InvalidCSVError(BulkUploadError):\n    \"\"\"Raised when CSV file format is invalid\"\"\"\n    pass\nclass DuplicateStudentError(StudentValidationError):",
+        "detail": "student.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "PromotionError",
+        "kind": 6,
+        "importPath": "student.exceptions",
+        "description": "student.exceptions",
+        "peekOfCode": "class PromotionError(StudentManagementError):\n    \"\"\"Raised when student promotion fails\"\"\"\n    pass\nclass InvalidCSVError(BulkUploadError):\n    \"\"\"Raised when CSV file format is invalid\"\"\"\n    pass\nclass DuplicateStudentError(StudentValidationError):\n    \"\"\"Raised when attempting to create duplicate student\"\"\"\n    pass",
+        "detail": "student.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "InvalidCSVError",
+        "kind": 6,
+        "importPath": "student.exceptions",
+        "description": "student.exceptions",
+        "peekOfCode": "class InvalidCSVError(BulkUploadError):\n    \"\"\"Raised when CSV file format is invalid\"\"\"\n    pass\nclass DuplicateStudentError(StudentValidationError):\n    \"\"\"Raised when attempting to create duplicate student\"\"\"\n    pass",
+        "detail": "student.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "DuplicateStudentError",
+        "kind": 6,
+        "importPath": "student.exceptions",
+        "description": "student.exceptions",
+        "peekOfCode": "class DuplicateStudentError(StudentValidationError):\n    \"\"\"Raised when attempting to create duplicate student\"\"\"\n    pass",
+        "detail": "student.exceptions",
+        "documentation": {}
+    },
+    {
+        "label": "StudentForm",
+        "kind": 6,
+        "importPath": "student.forms",
+        "description": "student.forms",
+        "peekOfCode": "class StudentForm(forms.ModelForm):\n    \"\"\"Form for creating and updating student records\"\"\"\n    class Meta:\n        model = Student\n        fields = [\n            'first_name', 'middle_name', 'last_name', 'gender', 'date_of_birth',\n            'email', 'phone', 'address', 'ghana_card_number', 'year_admitted',\n            'current_class', 'house', 'guardian_name', 'guardian_phone',\n            'guardian_email', 'relationship_to_guardian'\n        ]",
+        "detail": "student.forms",
+        "documentation": {}
+    },
+    {
+        "label": "BulkUploadForm",
+        "kind": 6,
+        "importPath": "student.forms",
+        "description": "student.forms",
+        "peekOfCode": "class BulkUploadForm(forms.Form):\n    \"\"\"Form for bulk uploading students from CSV\"\"\"\n    csv_file = forms.FileField(\n        label=\"CSV File\",\n        help_text=\"Upload a CSV file with student data. Download template for format.\",\n        widget=forms.FileInput(attrs={\n            'class': 'form-control',\n            'accept': '.csv'\n        })\n    )",
+        "detail": "student.forms",
+        "documentation": {}
+    },
+    {
+        "label": "PromotionForm",
+        "kind": 6,
+        "importPath": "student.forms",
+        "description": "student.forms",
+        "peekOfCode": "class PromotionForm(forms.Form):\n    \"\"\"Form for promoting students to next class/level\"\"\"\n    from_class = forms.ModelChoiceField(\n        queryset=Class.objects.all().order_by('level', 'programme__code', 'name'),\n        widget=forms.Select(attrs={\n            'class': 'form-select',\n            'id': 'id_from_class'\n        }),\n        help_text=\"Select the class to promote students from\"\n    )",
+        "detail": "student.forms",
+        "documentation": {}
+    },
+    {
+        "label": "StudentSearchForm",
+        "kind": 6,
+        "importPath": "student.forms",
+        "description": "student.forms",
+        "peekOfCode": "class StudentSearchForm(forms.Form):\n    \"\"\"Form for searching and filtering students\"\"\"\n    search = forms.CharField(\n        required=False,\n        widget=forms.TextInput(attrs={\n            'class': 'form-control',\n            'placeholder': 'Search by name, student ID, or email...'\n        })\n    )\n    class_filter = forms.ModelChoiceField(",
+        "detail": "student.forms",
+        "documentation": {}
+    },
+    {
+        "label": "StudentProfileForm",
+        "kind": 6,
+        "importPath": "student.forms",
+        "description": "student.forms",
+        "peekOfCode": "class StudentProfileForm(forms.ModelForm):\n    \"\"\"Form for students to update their own profile (limited fields)\"\"\"\n    class Meta:\n        model = Student\n        fields = ['email', 'phone', 'address']\n        widgets = {\n            'email': forms.EmailInput(attrs={\n                'class': 'form-control',\n                'placeholder': 'your.email@example.com'\n            }),",
+        "detail": "student.forms",
+        "documentation": {}
+    },
+    {
+        "label": "student_post_save",
+        "kind": 2,
+        "importPath": "student.signals",
+        "description": "student.signals",
+        "peekOfCode": "def student_post_save(sender, instance, created, **kwargs):\n    \"\"\"Handle post-save operations for Student model\"\"\"\n    if created and not instance.user:\n        # Auto-create user account for new students\n        try:\n            from account.models import create_student_with_user\n            create_student_with_user(\n                first_name=instance.first_name,\n                last_name=instance.last_name,\n                year_admitted=instance.year_admitted,",
+        "detail": "student.signals",
+        "documentation": {}
+    },
+    {
+        "label": "student_pre_delete",
+        "kind": 2,
+        "importPath": "student.signals",
+        "description": "student.signals",
+        "peekOfCode": "def student_pre_delete(sender, instance, **kwargs):\n    \"\"\"Handle pre-delete operations for Student model\"\"\"\n    # Deactivate associated user account instead of deleting\n    if instance.user:\n        instance.user.is_active = False\n        instance.user.save()",
+        "detail": "student.signals",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 5,
+        "importPath": "student.signals",
+        "description": "student.signals",
+        "peekOfCode": "User = get_user_model()\n@receiver(post_save, sender=Student)\ndef student_post_save(sender, instance, created, **kwargs):\n    \"\"\"Handle post-save operations for Student model\"\"\"\n    if created and not instance.user:\n        # Auto-create user account for new students\n        try:\n            from account.models import create_student_with_user\n            create_student_with_user(\n                first_name=instance.first_name,",
+        "detail": "student.signals",
+        "documentation": {}
+    },
+    {
+        "label": "StudentModelTest",
+        "kind": 6,
+        "importPath": "student.tests",
+        "description": "student.tests",
+        "peekOfCode": "class StudentModelTest(TestCase):\n    \"\"\"Test cases for Student model\"\"\"\n    def setUp(self):\n        \"\"\"Set up test data\"\"\"\n        # Create school\n        self.school = School.objects.create(\n            name='Test School',\n            code='TEST',\n            phone='0244123456',\n            email='test@school.com'",
+        "detail": "student.tests",
+        "documentation": {}
+    },
+    {
+        "label": "StudentFormTest",
+        "kind": 6,
+        "importPath": "student.tests",
+        "description": "student.tests",
+        "peekOfCode": "class StudentFormTest(TestCase):\n    \"\"\"Test cases for StudentForm\"\"\"\n    def setUp(self):\n        \"\"\"Set up test data\"\"\"\n        self.programme = Programme.objects.create(name='Science', code='SCI')\n        self.house = House.objects.create(name='Blue House')\n        self.test_class = Class.objects.create(\n            name='A',\n            programme=self.programme,\n            level=1",
+        "detail": "student.tests",
+        "documentation": {}
+    },
+    {
+        "label": "StudentViewTest",
+        "kind": 6,
+        "importPath": "student.tests",
+        "description": "student.tests",
+        "peekOfCode": "class StudentViewTest(TestCase):\n    \"\"\"Test cases for Student views\"\"\"\n    def setUp(self):\n        \"\"\"Set up test data\"\"\"\n        # Create user and login\n        self.user = User.objects.create_user(\n            username='admin',\n            password='testpass123',\n            is_admin=True\n        )",
+        "detail": "student.tests",
+        "documentation": {}
+    },
+    {
+        "label": "BulkUploadTest",
+        "kind": 6,
+        "importPath": "student.tests",
+        "description": "student.tests",
+        "peekOfCode": "class BulkUploadTest(TestCase):\n    \"\"\"Test cases for bulk upload functionality\"\"\"\n    def setUp(self):\n        \"\"\"Set up test data\"\"\"\n        self.programme = Programme.objects.create(name='Science', code='SCI')\n        self.house = House.objects.create(name='Blue House')\n        self.test_class = Class.objects.create(\n            name='A',\n            programme=self.programme,\n            level=1",
+        "detail": "student.tests",
+        "documentation": {}
+    },
+    {
+        "label": "PromotionTest",
+        "kind": 6,
+        "importPath": "student.tests",
+        "description": "student.tests",
+        "peekOfCode": "class PromotionTest(TestCase):\n    \"\"\"Test cases for student promotion functionality\"\"\"\n    def setUp(self):\n        \"\"\"Set up test data\"\"\"\n        self.programme = Programme.objects.create(name='Science', code='SCI')\n        self.house = House.objects.create(name='Blue House')\n        # Create classes\n        self.class_1a = Class.objects.create(\n            name='A',\n            programme=self.programme,",
+        "detail": "student.tests",
+        "documentation": {}
+    },
+    {
+        "label": "StudentUtilsTest",
+        "kind": 6,
+        "importPath": "student.tests",
+        "description": "student.tests",
+        "peekOfCode": "class StudentUtilsTest(TestCase):\n    \"\"\"Test cases for student utility functions\"\"\"\n    def setUp(self):\n        \"\"\"Set up test data\"\"\"\n        self.programme = Programme.objects.create(name='Science', code='SCI')\n        self.house = House.objects.create(name='Blue House')\n        self.test_class = Class.objects.create(\n            name='A',\n            programme=self.programme,\n            level=1",
+        "detail": "student.tests",
+        "documentation": {}
+    },
+    {
+        "label": "User",
+        "kind": 5,
+        "importPath": "student.tests",
+        "description": "student.tests",
+        "peekOfCode": "User = get_user_model()\nclass StudentModelTest(TestCase):\n    \"\"\"Test cases for Student model\"\"\"\n    def setUp(self):\n        \"\"\"Set up test data\"\"\"\n        # Create school\n        self.school = School.objects.create(\n            name='Test School',\n            code='TEST',\n            phone='0244123456',",
+        "detail": "student.tests",
+        "documentation": {}
+    },
+    {
+        "label": "process_bulk_student_upload",
+        "kind": 2,
+        "importPath": "student.utils",
+        "description": "student.utils",
+        "peekOfCode": "def process_bulk_student_upload(csv_file, default_class=None, default_house=None):\n    \"\"\"\n    Process bulk student upload from CSV file\n    Args:\n        csv_file: Uploaded CSV file\n        default_class: Default class for students without class specified\n        default_house: Default house for students without house specified\n    Returns:\n        dict: Results with success_count, error_count, and errors list\n    \"\"\"",
+        "detail": "student.utils",
+        "documentation": {}
+    },
+    {
+        "label": "promote_students",
+        "kind": 2,
+        "importPath": "student.utils",
+        "description": "student.utils",
+        "peekOfCode": "def promote_students(students_queryset, to_class):\n    \"\"\"\n    Promote selected students to a new class\n    Args:\n        students_queryset: QuerySet of students to promote\n        to_class: Class object to promote students to\n    Returns:\n        dict: Results with success_count and errors\n    \"\"\"\n    results = {",
+        "detail": "student.utils",
+        "documentation": {}
+    },
+    {
+        "label": "demote_students",
+        "kind": 2,
+        "importPath": "student.utils",
+        "description": "student.utils",
+        "peekOfCode": "def demote_students(students_queryset, to_class):\n    \"\"\"\n    Demote selected students to a different class (typically lower level)\n    Args:\n        students_queryset: QuerySet of students to demote\n        to_class: Class object to demote students to\n    Returns:\n        dict: Results with success_count and errors\n    \"\"\"\n    results = {",
+        "detail": "student.utils",
+        "documentation": {}
+    },
+    {
+        "label": "generate_student_report",
+        "kind": 2,
+        "importPath": "student.utils",
+        "description": "student.utils",
+        "peekOfCode": "def generate_student_report(filters=None):\n    \"\"\"\n    Generate comprehensive student report based on filters\n    Args:\n        filters: Dictionary of filters to apply\n    Returns:\n        dict: Report data\n    \"\"\"\n    queryset = Student.objects.filter(is_active=True).select_related(\n        'current_class', 'house', 'current_class__programme'",
+        "detail": "student.utils",
+        "documentation": {}
+    },
+    {
+        "label": "validate_student_data",
+        "kind": 2,
+        "importPath": "student.utils",
+        "description": "student.utils",
+        "peekOfCode": "def validate_student_data(data):\n    \"\"\"\n    Validate student data for bulk operations\n    Args:\n        data: Dictionary of student data\n    Returns:\n        dict: Validation results with is_valid and errors\n    \"\"\"\n    errors = []\n    # Required fields",
+        "detail": "student.utils",
+        "documentation": {}
+    },
+    {
+        "label": "export_students_to_csv",
+        "kind": 2,
+        "importPath": "student.utils",
+        "description": "student.utils",
+        "peekOfCode": "def export_students_to_csv(students_queryset):\n    \"\"\"\n    Export students to CSV format\n    Args:\n        students_queryset: QuerySet of students to export\n    Returns:\n        str: CSV content\n    \"\"\"\n    output = io.StringIO()\n    writer = csv.writer(output)",
+        "detail": "student.utils",
+        "documentation": {}
+    },
+    {
+        "label": "IsAdminOrTeacherMixin",
+        "kind": 6,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "class IsAdminOrTeacherMixin(UserPassesTestMixin):\n    \"\"\"Mixin to ensure only admin or teacher users can access views\"\"\"\n    def test_func(self):\n        return self.request.user.is_authenticated and (\n            self.request.user.is_admin or self.request.user.is_teacher\n            or self.request.user.is_superuser\n        )\nclass StudentListView(LoginRequiredMixin, IsAdminOrTeacherMixin, ListView):\n    \"\"\"List all students with filtering and search capabilities\"\"\"\n    model = Student",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "StudentListView",
+        "kind": 6,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "class StudentListView(LoginRequiredMixin, IsAdminOrTeacherMixin, ListView):\n    \"\"\"List all students with filtering and search capabilities\"\"\"\n    model = Student\n    template_name = 'student/student_list.html'\n    context_object_name = 'students'\n    paginate_by = 20\n    def get_queryset(self):\n        queryset = Student.objects.select_related(\n            'current_class', 'house', 'current_class__programme'\n        ).filter(is_active=True)",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "StudentDetailView",
+        "kind": 6,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "class StudentDetailView(LoginRequiredMixin, IsAdminOrTeacherMixin, DetailView):\n    \"\"\"Detailed view of a single student\"\"\"\n    model = Student\n    template_name = 'student/student_detail.html'\n    context_object_name = 'student'\n    def get_queryset(self):\n        return Student.objects.select_related(\n            'current_class', 'house', 'current_class__programme', 'user'\n        )\nclass StudentCreateView(LoginRequiredMixin, IsAdminOrTeacherMixin, CreateView):",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "StudentCreateView",
+        "kind": 6,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "class StudentCreateView(LoginRequiredMixin, IsAdminOrTeacherMixin, CreateView):\n    \"\"\"Create a new student\"\"\"\n    model = Student\n    form_class = StudentForm\n    template_name = 'student/student_form.html'\n    success_url = reverse_lazy('student:student_list')\n    def form_valid(self, form):\n        \"\"\"Create user account along with student profile\"\"\"\n        try:\n            with transaction.atomic():",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "StudentUpdateView",
+        "kind": 6,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "class StudentUpdateView(LoginRequiredMixin, IsAdminOrTeacherMixin, UpdateView):\n    \"\"\"Update student information\"\"\"\n    model = Student\n    form_class = StudentForm\n    template_name = 'student/student_form.html'\n    def get_success_url(self):\n        return reverse('student:student_detail', kwargs={'pk': self.object.pk})\n    def form_valid(self, form):\n        messages.success(\n            self.request, 'Student information updated successfully!')",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "StudentDeleteView",
+        "kind": 6,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "class StudentDeleteView(LoginRequiredMixin, IsAdminOrTeacherMixin, DeleteView):\n    \"\"\"Soft delete a student (set is_active=False)\"\"\"\n    model = Student\n    template_name = 'student/student_confirm_delete.html'\n    success_url = reverse_lazy('student:student_list')\n    def delete(self, request, *args, **kwargs):\n        \"\"\"Soft delete - set is_active to False instead of actual deletion\"\"\"\n        self.object = self.get_object()\n        self.object.is_active = False\n        self.object.save()",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "BulkUploadView",
+        "kind": 6,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "class BulkUploadView(LoginRequiredMixin, IsAdminOrTeacherMixin, FormView):\n    \"\"\"Bulk upload students from CSV file\"\"\"\n    form_class = BulkUploadForm\n    template_name = 'student/bulk_upload.html'\n    success_url = reverse_lazy('student:student_list')\n    def form_valid(self, form):\n        csv_file = form.cleaned_data['csv_file']\n        default_class = form.cleaned_data.get('default_class')\n        default_house = form.cleaned_data.get('default_house')\n        try:",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "PromotionView",
+        "kind": 6,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "class PromotionView(LoginRequiredMixin, IsAdminOrTeacherMixin, FormView):\n    \"\"\"Promote students to the next class/level\"\"\"\n    form_class = PromotionForm\n    template_name = 'student/promotion.html'\n    success_url = reverse_lazy('student:student_list')\n    def form_valid(self, form):\n        from_class = form.cleaned_data['from_class']\n        to_class = form.cleaned_data['to_class']\n        selected_students = form.cleaned_data['students']\n        try:",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "InactiveStudentsView",
+        "kind": 6,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "class InactiveStudentsView(LoginRequiredMixin, IsAdminOrTeacherMixin, ListView):\n    \"\"\"List inactive/deactivated students\"\"\"\n    model = Student\n    template_name = 'student/inactive_students.html'\n    context_object_name = 'students'\n    paginate_by = 20\n    def get_queryset(self):\n        return Student.objects.filter(is_active=False).order_by('-updated_at')\n@login_required\ndef reactivate_student(request, pk):",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "download_template",
+        "kind": 2,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "def download_template(request):\n    \"\"\"Download CSV template for bulk upload\"\"\"\n    response = HttpResponse(content_type='text/csv')\n    response['Content-Disposition'] = 'attachment; filename=\"student_upload_template.csv\"'\n    writer = csv.writer(response)\n    writer.writerow([\n        'first_name', 'middle_name', 'last_name', 'gender', 'date_of_birth',\n        'email', 'phone', 'address', 'ghana_card_number', 'year_admitted',\n        'class_name', 'house_name', 'guardian_name', 'guardian_phone',\n        'guardian_email', 'relationship_to_guardian'",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "ajax_get_students_by_class",
+        "kind": 2,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "def ajax_get_students_by_class(request):\n    \"\"\"AJAX endpoint to get students by class for promotion/demotion\"\"\"\n    class_id = request.GET.get('class_id')\n    if class_id:\n        students = Student.objects.filter(\n            current_class_id=class_id, is_active=True\n        ).values('id', 'first_name', 'last_name', 'student_id')\n        return JsonResponse({\n            'students': list(students)\n        })",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "student_statistics",
+        "kind": 2,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "def student_statistics(request):\n    \"\"\"Display student statistics dashboard\"\"\"\n    context = {\n        'total_students': Student.objects.filter(is_active=True).count(),\n        'students_by_level': Student.objects.filter(is_active=True).values(\n            'current_class__level'\n        ).annotate(count=Count('id')).order_by('current_class__level'),\n        'students_by_gender': Student.objects.filter(is_active=True).values(\n            'gender'\n        ).annotate(count=Count('id')),",
+        "detail": "student.views",
+        "documentation": {}
+    },
+    {
+        "label": "reactivate_student",
+        "kind": 2,
+        "importPath": "student.views",
+        "description": "student.views",
+        "peekOfCode": "def reactivate_student(request, pk):\n    \"\"\"Reactivate a deactivated student\"\"\"\n    if not (request.user.is_admin or request.user.is_superuser):\n        messages.error(\n            request, 'You do not have permission to reactivate students.')\n        return redirect('student:student_list')\n    student = get_object_or_404(Student, pk=pk)\n    student.is_active = True\n    student.save()\n    # Reactivate user account if exists",
+        "detail": "student.views",
         "documentation": {}
     },
     {

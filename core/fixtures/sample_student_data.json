@@ -1,0 +1,65 @@
+[
+    {
+        "model": "school.programme",
+        "pk": 1,
+        "fields": {
+            "name": "Science",
+            "code": "SCI",
+            "description": "Science Programme for students interested in scientific subjects"
+        }
+    },
+    {
+        "model": "school.programme", 
+        "pk": 2,
+        "fields": {
+            "name": "Business",
+            "code": "BUS",
+            "description": "Business Programme for students interested in commerce and business"
+        }
+    },
+    {
+        "model": "school.programme",
+        "pk": 3,
+        "fields": {
+            "name": "Arts",
+            "code": "ART", 
+            "description": "Arts Programme for students interested in humanities and arts"
+        }
+    },
+    {
+        "model": "school.house",
+        "pk": 1,
+        "fields": {
+            "name": "Blue House",
+            "color": "#007bff",
+            "description": "Blue House - Unity and Excellence"
+        }
+    },
+    {
+        "model": "school.house",
+        "pk": 2,
+        "fields": {
+            "name": "Red House",
+            "color": "#dc3545",
+            "description": "Red House - Courage and Determination"
+        }
+    },
+    {
+        "model": "school.house",
+        "pk": 3,
+        "fields": {
+            "name": "Green House",
+            "color": "#28a745",
+            "description": "Green House - Growth and Innovation"
+        }
+    },
+    {
+        "model": "school.house",
+        "pk": 4,
+        "fields": {
+            "name": "Yellow House",
+            "color": "#ffc107",
+            "description": "Yellow House - Wisdom and Knowledge"
+        }
+    }
+]

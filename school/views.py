@@ -163,7 +163,7 @@ class AcademicYearCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView
 class AcademicYearUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = AcademicYear
     form_class = AcademicYearForm
-    template_name = 'schools/academic/year/form.html'
+    template_name = 'school/years/form.html'
     success_url = reverse_lazy('admin:academic_years')
 
     def test_func(self):
@@ -201,7 +201,7 @@ class ProgrammeCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Programme
     form_class = ProgrammeForm
     template_name = 'school/programmes/form.html'
-    success_url = reverse_lazy('school:programmes')
+    success_url = reverse_lazy('admin:programmes')
 
     def test_func(self):
         return is_admin_user(self.request.user)
@@ -215,7 +215,7 @@ class ProgrammeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Programme
     form_class = ProgrammeForm
     template_name = 'school/programmes/form.html'
-    success_url = reverse_lazy('school:programmes')
+    success_url = reverse_lazy('admin:programmes')
 
     def test_func(self):
         return is_admin_user(self.request.user)
@@ -228,7 +228,7 @@ class ProgrammeUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 class ProgrammeDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Programme
     template_name = 'school/programmes/confirm_delete.html'
-    success_url = reverse_lazy('school:programmes')
+    success_url = reverse_lazy('admin:programmes')
 
     def test_func(self):
         return is_admin_user(self.request.user)
@@ -252,7 +252,7 @@ class HouseCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = House
     form_class = HouseForm
     template_name = 'school/houses/form.html'
-    success_url = reverse_lazy('school:houses')
+    success_url = reverse_lazy('admin:houses')
 
     def test_func(self):
         return is_admin_user(self.request.user)
@@ -266,7 +266,7 @@ class HouseUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = House
     form_class = HouseForm
     template_name = 'school/houses/form.html'
-    success_url = reverse_lazy('school:houses')
+    success_url = reverse_lazy('admin:houses')
 
     def test_func(self):
         return is_admin_user(self.request.user)
@@ -306,7 +306,7 @@ class HouseDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 class HouseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = House
     template_name = 'school/houses/confirm_delete.html'
-    success_url = reverse_lazy('school:houses')
+    success_url = reverse_lazy('admin:houses')
 
     def test_func(self):
         return is_admin_user(self.request.user)
@@ -341,7 +341,7 @@ class SubjectCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Subject
     form_class = SubjectForm
     template_name = 'school/subjects/form.html'
-    success_url = reverse_lazy('school:subjects')
+    success_url = reverse_lazy('admin:subjects')
 
     def test_func(self):
         return is_admin_user(self.request.user)
@@ -355,7 +355,7 @@ class SubjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Subject
     form_class = SubjectForm
     template_name = 'school/subjects/form.html'
-    success_url = reverse_lazy('school:subjects')
+    success_url = reverse_lazy('admin:subjects')
 
     def test_func(self):
         return is_admin_user(self.request.user)
@@ -368,7 +368,7 @@ class SubjectUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 class SubjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Subject
     template_name = 'school/subjects/confirm_delete.html'
-    success_url = reverse_lazy('school:subjects')
+    success_url = reverse_lazy('admin:subjects')
 
     def test_func(self):
         return is_admin_user(self.request.user)
@@ -404,7 +404,7 @@ class ClassCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Class
     form_class = ClassForm
     template_name = 'school/classes/form.html'
-    success_url = reverse_lazy('school:classes')
+    success_url = reverse_lazy('admin:classes')
 
     def test_func(self):
         return is_admin_user(self.request.user)
@@ -418,7 +418,7 @@ class ClassUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Class
     form_class = ClassForm
     template_name = 'school/classes/form.html'
-    success_url = reverse_lazy('school:classes')
+    success_url = reverse_lazy('admin:classes')
 
     def test_func(self):
         return is_admin_user(self.request.user)
@@ -450,7 +450,7 @@ class ClassDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 class ClassDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Class
     template_name = 'school/classes/confirm_delete.html'
-    success_url = reverse_lazy('school:classes')
+    success_url = reverse_lazy('admin:classes')
 
     def test_func(self):
         return is_admin_user(self.request.user)

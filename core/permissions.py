@@ -1,6 +1,9 @@
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.contrib import messages
 from functools import wraps
+
 
 def role_required(allowed_roles):
     """Decorator to check if user has required role"""
@@ -29,3 +32,36 @@ def role_required(allowed_roles):
 
         return wrapper
     return decorator
+
+
+class StudentAccessMixin(UserPassesTestMixin):
+    """Base mixin for student-related views requiring authentication"""
+
+    def test_func(self):
+        return self.request.user.is_authenticated
+
+    def handle_no_permission(self):
+        raise PermissionDenied("You must be logged in to access this page.")
+
+
+class AdminOrTeacherRequiredMixin(UserPassesTestMixin):
+    """Mixin requiring admin or teacher permissions"""
+
+    def test_func(self):
+        user = self.request.user
+        return user.is_authenticated and (user.is_admin or user.is_teacher)
+
+    def handle_no_permission(self):
+        raise PermissionDenied(
+            "You must be an admin or teacher to access this page.")
+
+
+class AdminRequiredMixin(UserPassesTestMixin):
+    """Mixin requiring admin permissions only"""
+
+    def test_func(self):
+        user = self.request.user
+        return user.is_authenticated and user.is_admin
+
+    def handle_no_permission(self):
+        raise PermissionDenied("You must be an admin to access this page.")

@@ -2,6 +2,7 @@
 from django.urls import path
 from core import views
 from school import views as school_views
+from student import views as student_views
 
 app_name = 'admin'
 
@@ -43,5 +44,18 @@ urlpatterns = [
     path('classes/create/', school_views.ClassCreateView.as_view(), name='class_create'),
     path('classes/<int:pk>/edit/', school_views.ClassUpdateView.as_view(), name='class_edit'),
     path('classes/<int:pk>/delete/', school_views.ClassDeleteView.as_view(), name='class_delete'),
-    
+
+    # Student CRUD URLs
+    path('students/', student_views.StudentListView.as_view(), name='student_list'),
+    path('students//create/', student_views.StudentCreateView.as_view(), name='student_create'),
+    path('students/<int:pk>/', student_views.StudentDetailView.as_view(), name='student_detail'),
+    path('students/<int:pk>/edit/', student_views.StudentUpdateView.as_view(), name='student_edit'),
+    path('students/<int:pk>/delete/', student_views.StudentDeleteView.as_view(), name='student_delete'),
+    path('students/bulk-upload/', student_views.BulkUploadView.as_view(), name='bulk_upload'),
+    path('students/download-template/', student_views.download_template, name='download_template'),
+    path('students/promotion/', student_views.PromotionView.as_view(), name='promotion'),
+    path('students/ajax/students-by-class/', student_views.ajax_get_students_by_class, name='ajax_students_by_class'),
+    path('students/statistics/', student_views.student_statistics, name='statistics'),
+    path('students/inactive/', student_views.InactiveStudentsView.as_view(), name='inactive_students'),
+    path('students/<int:pk>/reactivate/', student_views.reactivate_student, name='reactivate_student'),
 ]

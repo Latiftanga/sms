@@ -3,12 +3,32 @@ from school.models import (
     School, AcademicYear, Term, Programme, House,
     Subject, Class, Student, Teacher
 )
+from django import forms
+from django.utils.html import format_html
+
+
+class SchoolAdminForm(forms.ModelForm):
+    """Custom form for School admin with color picker"""
+
+    class Meta:
+        model = School
+        fields = '__all__'
+        widgets = {
+            'primary_color': forms.TextInput(attrs={
+                'type': 'color',
+                'style': 'width: 50px; height: 40px; border: none; cursor: pointer;'
+            }),
+            'secondary_color': forms.TextInput(attrs={
+                'type': 'color',
+                'style': 'width: 50px; height: 40px; border: none; cursor: pointer;'
+            }),
+        }
 
 
 @admin.register(School)
 class SchoolAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'phone', 'email', 'established_year')
-    search_fields = ('name', 'code', 'email')
+    form = SchoolAdminForm
+
     fieldsets = (
         ('Basic Information', {
             'fields': ('name', 'code', 'address', 'phone', 'email', 'website')
@@ -19,13 +39,28 @@ class SchoolAdmin(admin.ModelAdmin):
         ('Academic Settings', {
             'fields': ('academic_year_start_month', 'terms_per_year')
         }),
-        ('Leadership', {
+        ('Contact Information', {
             'fields': ('headmaster_name', 'assistant_headmaster_name')
         }),
-        ('UI Theming', {
-            'fields': ('primary_color', 'secondary_color')
+        ('Theme Colors', {
+            'fields': ('primary_color', 'secondary_color'),
+            'description': 'Choose colors that will be applied throughout the system interface'
         }),
     )
+
+    list_display = ['name', 'code', 'phone', 'email', 'color_preview']
+
+    def color_preview(self, obj):
+        """Display color preview in admin list"""
+        return format_html(
+            '<div style="display: flex; gap: 5px;">'
+            '<div style="width: 20px; height: 20px; background-color: {}; border: 1px solid #ccc; border-radius: 3px;"></div>'
+            '<div style="width: 20px; height: 20px; background-color: {}; border: 1px solid #ccc; border-radius: 3px;"></div>'
+            '</div>',
+            obj.primary_color, obj.secondary_color
+        )
+    color_preview.short_description = 'Colors'
+    color_preview.allow_tags = True
 
 
 @admin.register(AcademicYear)

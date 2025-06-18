@@ -1,4 +1,3 @@
-<!-- File: templates/base.html -->
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
@@ -12,16 +11,21 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
     {% load static %}
+    {% load school_theme %}
+    
+    <!-- School Theme Colors -->
+    {% school_theme_css %}
+    
     <!-- Custom CSS -->
     <link href="{% static 'css/base.css' %}" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     {% if user.is_authenticated %}
-        <!-- Navbar -->
+        <!-- Navbar with school colors -->
         {% include 'partials/navbar.html' %}
         
-        <!-- Sidebar -->
+        <!-- Sidebar with school colors -->
         {% include 'partials/sidebar.html' %}
     {% endif %}
 
@@ -35,6 +39,38 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- School theme JavaScript -->
+    <script>
+    // Expose school colors to JavaScript
+    window.SCHOOL_THEME = {
+        primary: '{{ school_primary_color }}',
+        secondary: '{{ school_secondary_color }}',
+        primaryRgb: '{{ theme_colors.primary_rgb }}',
+        secondaryRgb: '{{ theme_colors.secondary_rgb }}',
+        gradient: '{{ theme_colors.gradient }}',
+        success: '{{ theme_colors.success }}',
+        info: '{{ theme_colors.info }}',
+        warning: '{{ theme_colors.warning }}',
+        danger: '{{ theme_colors.danger }}'
+    };
+    
+    // Apply theme colors to charts and dynamic elements
+    function applySchoolColors() {
+        // Chart.js default colors
+        if (window.Chart) {
+            Chart.defaults.color = getComputedStyle(document.documentElement).getPropertyValue('--school-primary');
+        }
+        
+        // Update any dynamic elements
+        document.querySelectorAll('.dynamic-school-color').forEach(el => {
+            el.style.color = window.SCHOOL_THEME.primary;
+        });
+    }
+    
+    // Apply colors when DOM is ready
+    document.addEventListener('DOMContentLoaded', applySchoolColors);
+    </script>
     
     <!-- Custom JS -->
     <script src="{% static 'js/base.js' %}"></script>

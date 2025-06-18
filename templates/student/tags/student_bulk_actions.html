@@ -1,0 +1,147 @@
+<div class="bulk-actions-bar" id="bulkActionsBar" style="display: none; position: sticky; top: 70px; z-index: 1020;">
+    <div class="card border-primary" style="margin-bottom: 1rem;">
+        <div class="card-body py-2">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong><span id="selectedCount">0</span> students selected</strong>
+                </div>
+                <div class="btn-group btn-group-sm">
+                    {% if user.is_admin or user.is_teacher %}
+                    <button type="button" class="btn btn-outline-warning" onclick="bulkPromote()">
+                        <i class="fas fa-arrow-up me-1"></i>Promote
+                    </button>
+                    <button type="button" class="btn btn-outline-info" onclick="bulkExport()">
+                        <i class="fas fa-download me-1"></i>Export
+                    </button>
+                    {% if user.is_admin %}
+                    <button type="button" class="btn btn-outline-danger" onclick="bulkDeactivate()">
+                        <i class="fas fa-user-times me-1"></i>Deactivate
+                    </button>
+                    {% endif %}
+                    {% endif %}
+                    <button type="button" class="btn btn-outline-secondary" onclick="clearSelection()">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Bulk actions functionality
+let selectedStudents = [];
+
+function updateBulkActions() {
+    const checkboxes = document.querySelectorAll('.student-select:checked');
+    selectedStudents = Array.from(checkboxes).map(cb => cb.value);
+    
+    const bulkBar = document.getElementById('bulkActionsBar');
+    const countEl = document.getElementById('selectedCount');
+    
+    if (selectedStudents.length > 0) {
+        if (bulkBar) bulkBar.style.display = 'block';
+        if (countEl) countEl.textContent = selectedStudents.length;
+    } else {
+        if (bulkBar) bulkBar.style.display = 'none';
+    }
+}
+
+function clearSelection() {
+    document.querySelectorAll('.student-select').forEach(cb => cb.checked = false);
+    const selectAll = document.getElementById('selectAll');
+    if (selectAll) selectAll.checked = false;
+    updateBulkActions();
+}
+
+function bulkPromote() {
+    if (selectedStudents.length === 0) return;
+    
+    const url = {% url 'student:promotion' %}?' + 
+                selectedStudents.map(id => `students=${id}`).join('&');
+    window.location.href = url;
+}
+
+function bulkExport() {
+    if (selectedStudents.length === 0) return;
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = {% url 'student:bulk_export' %};
+    
+    // Add CSRF token
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = csrfToken.value;
+        form.appendChild(csrfInput);
+    }
+    
+    // Add selected students
+    selectedStudents.forEach(id => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'students';
+        input.value = id;
+        form.appendChild(input);
+    });
+    
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+
+function bulkDeactivate() {
+    if (selectedStudents.length === 0) return;
+    
+    if (confirm(`Are you sure you want to deactivate ${selectedStudents.length} students?`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = {% url 'student:bulk_deactivate' %};
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken.value;
+            form.appendChild(csrfInput);
+        }
+        
+        // Add selected students
+        selectedStudents.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'students';
+            input.value = id;
+            form.appendChild(input);
+        });
+        
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+    }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Select all functionality
+    const selectAllBtn = document.getElementById('selectAll');
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('change', function() {
+            document.querySelectorAll('.student-select').forEach(cb => {
+                cb.checked = this.checked;
+            });
+            updateBulkActions();
+        });
+    }
+    
+    // Individual checkboxes
+    document.querySelectorAll('.student-select').forEach(cb => {
+        cb.addEventListener('change', updateBulkActions);
+    });
+});
+</script>

@@ -1,0 +1,168 @@
+{% load school_theme %}
+<style>
+:root {
+    /* School Colors */
+    --school-primary: {{ school_primary_color }};
+    --school-secondary: {{ school_secondary_color }};
+    --school-primary-rgb: {{ theme_colors.primary_rgb }};
+    --school-secondary-rgb: {{ theme_colors.secondary_rgb }};
+    
+    /* Generated Theme Colors */
+    --school-primary-light: {{ theme_colors.primary_light }};
+    --school-primary-dark: {{ theme_colors.primary_dark }};
+    --school-secondary-light: {{ theme_colors.secondary_light }};
+    --school-secondary-dark: {{ theme_colors.secondary_dark }};
+    
+    /* Semantic Colors */
+    --school-success: {{ theme_colors.success }};
+    --school-info: {{ theme_colors.info }};
+    --school-warning: {{ theme_colors.warning }};
+    --school-danger: {{ theme_colors.danger }};
+    --school-accent: {{ theme_colors.accent }};
+    
+    /* Gradients */
+    --school-gradient: {{ theme_colors.gradient }};
+    --school-gradient-light: {{ theme_colors.gradient_light }};
+    
+    /* Override Variables */
+    --tblr-primary: var(--school-primary);
+    --tblr-primary-rgb: var(--school-primary-rgb);
+    --tblr-secondary: var(--school-secondary);
+    --tblr-secondary-rgb: var(--school-secondary-rgb);
+    --tblr-accent: var(--school-accent);
+    
+    /* Bootstrap Override */
+    --bs-primary: var(--school-primary);
+    --bs-primary-rgb: var(--school-primary-rgb);
+    --bs-secondary: var(--school-secondary);
+    --bs-secondary-rgb: var(--school-secondary-rgb);
+}
+
+/* Dynamic School Theming */
+.school-primary-bg {
+    background-color: var(--school-primary) !important;
+    color: white;
+}
+
+.school-secondary-bg {
+    background-color: var(--school-secondary) !important;
+    color: white;
+}
+
+.school-primary-text {
+    color: var(--school-primary) !important;
+}
+
+.school-secondary-text {
+    color: var(--school-secondary) !important;
+}
+
+.school-gradient-bg {
+    background: var(--school-gradient) !important;
+    color: white;
+}
+
+.school-border-primary {
+    border-color: var(--school-primary) !important;
+}
+
+/* Override existing components */
+.btn-primary {
+    background-color: var(--school-primary);
+    border-color: var(--school-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--school-primary-dark);
+    border-color: var(--school-primary-dark);
+}
+
+.badge-primary, .badge.bg-primary {
+    background-color: var(--school-primary) !important;
+}
+
+.text-primary {
+    color: var(--school-primary) !important;
+}
+
+.navbar-brand-image {
+    background: var(--school-gradient) !important;
+}
+
+.stats-card::before {
+    background: var(--school-gradient) !important;
+}
+
+.student-card:hover {
+    border-color: var(--school-primary);
+}
+
+.profile-header {
+    background: var(--school-gradient) !important;
+}
+
+/* Navigation theming */
+.nav-link.active {
+    background-color: rgba(var(--school-primary-rgb), 0.1) !important;
+    color: var(--school-primary) !important;
+}
+
+.nav-link:hover {
+    color: var(--school-primary) !important;
+}
+
+/* Form theming */
+.form-control:focus {
+    border-color: var(--school-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--school-primary-rgb), 0.25);
+}
+
+/* Progress bars */
+.progress-bar {
+    background-color: var(--school-primary);
+}
+
+.progress-bar.bg-success {
+    background-color: var(--school-success) !important;
+}
+
+/* Alerts */
+.alert-primary {
+    background-color: rgba(var(--school-primary-rgb), 0.1);
+    border-color: var(--school-primary);
+    color: var(--school-primary-dark);
+}
+
+/* Cards */
+.card-header.bg-primary {
+    background-color: var(--school-primary) !important;
+}
+
+/* Table theming */
+.table-primary {
+    background-color: rgba(var(--school-primary-rgb), 0.1);
+}
+
+/* Pagination */
+.page-link {
+    color: var(--school-primary);
+}
+
+.page-item.active .page-link {
+    background-color: var(--school-primary);
+    border-color: var(--school-primary);
+}
+
+/* Dark theme overrides */
+[data-bs-theme="dark"] {
+    --school-primary-light: {{ theme_colors.primary_light }};
+    --school-secondary-light: {{ theme_colors.secondary_light }};
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .school-gradient-bg {
+        background: var(--school-primary) !important;
+    }
+}
+</style>

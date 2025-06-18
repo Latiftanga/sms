@@ -1,0 +1,418 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ student.get_full_name }} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, var(--bs-primary), var(--bs-info));
+        color: white;
+        border-radius: 15px 15px 0 0;
+    }
+    .info-card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
+    .info-item {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 12px 0;
+    }
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    .status-badge {
+        font-size: 0.9em;
+        padding: 8px 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Navigation -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'student:student_list' %}">Students</a></li>
+            <li class="breadcrumb-item active">{{ student.get_full_name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Profile Header -->
+    <div class="card info-card mb-4">
+        <div class="profile-header p-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h2 class="mb-2">{{ student.get_full_name }}</h2>
+                    <div class="row">
+                        <div class="col-auto">
+                            <i class="fas fa-id-card"></i> {{ student.student_id }}
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-graduation-cap"></i> {{ student.current_class|default:"No Class Assigned" }}
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-home"></i> {{ student.house.name|default:"No House Assigned" }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    {% if student.is_active %}
+                        <span class="badge bg-success status-badge">Active</span>
+                    {% else %}
+                        <span class="badge bg-danger status-badge">Inactive</span>
+                    {% endif %}
+                    <div class="mt-2">
+                        <small>Admitted: {{ student.year_admitted }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        {% if user.is_admin or user.is_teacher %}
+        <div class="card-footer bg-transparent">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{% url 'student:student_edit' student.pk %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit Student
+                </a>
+                {% if student.is_active %}
+                <a href="{% url 'student:student_delete' student.pk %}" class="btn btn-outline-danger">
+                    <i class="fas fa-user-times"></i> Deactivate
+                </a>
+                {% else %}
+                <a href="{% url 'student:reactivate_student' student.pk %}" class="btn btn-outline-success">
+                    <i class="fas fa-user-check"></i> Reactivate
+                </a>
+                {% endif %}
+                <button class="btn btn-outline-secondary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Profile
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <!-- Personal Information -->
+        <div class="col-lg-6 mb-4">
+            <div class="card info-card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-user text-primary"></i> Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Full Name:</div>
+                            <div class="col-7">{{ student.get_full_name }}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Gender:</div>
+                            <div class="col-7">
+                                <i class="fas fa-{% if student.gender == 'M' %}mars text-blue{% else %}venus text-pink{% endif %}"></i>
+                                {{ student.get_gender_display }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Date of Birth:</div>
+                            <div class="col-7">
+                                {{ student.date_of_birth|date:"F d, Y" }}
+                                <small class="text-muted">
+                                    ({{ student.date_of_birth|timesince }} old)
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Ghana Card:</div>
+                            <div class="col-7">{{ student.ghana_card_number|default:"Not provided" }}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Year Admitted:</div>
+                            <div class="col-7">{{ student.year_admitted }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="col-lg-6 mb-4">
+            <div class="card info-card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-address-book text-primary"></i> Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Email:</div>
+                            <div class="col-7">
+                                {% if student.email %}
+                                    <a href="mailto:{{ student.email }}">{{ student.email }}</a>
+                                {% else %}
+                                    <span class="text-muted">Not provided</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Phone:</div>
+                            <div class="col-7">
+                                {% if student.phone %}
+                                    <a href="tel:{{ student.phone }}">{{ student.phone }}</a>
+                                {% else %}
+                                    <span class="text-muted">Not provided</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Address:</div>
+                            <div class="col-7">{{ student.address|default:"Not provided" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Information -->
+        <div class="col-lg-6 mb-4">
+            <div class="card info-card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-graduation-cap text-primary"></i> Academic Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Current Class:</div>
+                            <div class="col-7">
+                                {% if student.current_class %}
+                                    <span class="badge bg-primary">{{ student.current_class }}</span>
+                                    <br><small class="text-muted">{{ student.current_class.get_full_name }}</small>
+                                {% else %}
+                                    <span class="text-muted">No class assigned</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Programme:</div>
+                            <div class="col-7">
+                                {% if student.current_class.programme %}
+                                    {{ student.current_class.programme.name }}
+                                {% else %}
+                                    <span class="text-muted">General</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">House:</div>
+                            <div class="col-7">
+                                {% if student.house %}
+                                    <span class="badge" style="background-color: {{ student.house.color }}">
+                                        {{ student.house.name }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">No house assigned</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Class Teacher:</div>
+                            <div class="col-7">
+                                {% if student.current_class.class_teacher %}
+                                    {{ student.current_class.class_teacher.get_full_name }}
+                                {% else %}
+                                    <span class="text-muted">Not assigned</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guardian Information -->
+        <div class="col-lg-6 mb-4">
+            <div class="card info-card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-users text-primary"></i> Guardian Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Guardian Name:</div>
+                            <div class="col-7">{{ student.guardian_name|default:"Not provided" }}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Relationship:</div>
+                            <div class="col-7">{{ student.relationship_to_guardian|default:"Not specified" }}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Guardian Phone:</div>
+                            <div class="col-7">
+                                {% if student.guardian_phone %}
+                                    <a href="tel:{{ student.guardian_phone }}">{{ student.guardian_phone }}</a>
+                                {% else %}
+                                    <span class="text-muted">Not provided</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="row">
+                            <div class="col-5 fw-medium">Guardian Email:</div>
+                            <div class="col-7">
+                                {% if student.guardian_email %}
+                                    <a href="mailto:{{ student.guardian_email }}">{{ student.guardian_email }}</a>
+                                {% else %}
+                                    <span class="text-muted">Not provided</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Information -->
+        {% if user.is_admin or user.is_teacher %}
+        <div class="col-lg-12 mb-4">
+            <div class="card info-card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-user-cog text-primary"></i> Account Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <div class="row">
+                                    <div class="col-5 fw-medium">Username:</div>
+                                    <div class="col-7">
+                                        {% if student.user %}
+                                            {{ student.user.username }}
+                                        {% else %}
+                                            <span class="text-muted">No account</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="row">
+                                    <div class="col-5 fw-medium">Account Status:</div>
+                                    <div class="col-7">
+                                        {% if student.user %}
+                                            {% if student.user.is_active %}
+                                                <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Inactive</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-secondary">No Account</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <div class="row">
+                                    <div class="col-5 fw-medium">Last Login:</div>
+                                    <div class="col-7">
+                                        {% if student.user.last_login %}
+                                            {{ student.user.last_login|date:"M d, Y H:i" }}
+                                        {% else %}
+                                            <span class="text-muted">Never logged in</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="row">
+                                    <div class="col-5 fw-medium">Date Joined:</div>
+                                    <div class="col-7">
+                                        {% if student.user %}
+                                            {{ student.user.date_joined|date:"M d, Y" }}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- System Information -->
+        <div class="col-lg-12">
+            <div class="card info-card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0"><i class="fas fa-info-circle text-primary"></i> System Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <div class="row">
+                                    <div class="col-5 fw-medium">Created:</div>
+                                    <div class="col-7">{{ student.created_at|date:"M d, Y H:i" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-item">
+                                <div class="row">
+                                    <div class="col-5 fw-medium">Last Updated:</div>
+                                    <div class="col-7">{{ student.updated_at|date:"M d, Y H:i" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Print functionality
+    function printProfile() {
+        window.print();
+    }
+    
+    // Add print styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @media print {
+            .btn, .breadcrumb, .card-footer { display: none !important; }
+            .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+            .profile-header { background: #f8f9fa !important; color: #333 !important; }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}
