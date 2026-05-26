@@ -1,0 +1,91 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ttek_sis
+      POSTGRES_USER: ttek
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ttek -d ttek_sis"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "6379:6379"
+
+  api:
+    build:
+      context: ./backend
+      target: runtime
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://ttek:${POSTGRES_PASSWORD}@db:5432/ttek_sis
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ./backend
+      target: runtime
+    command: ["python", "-m", "arq", "app.workers.WorkerSettings"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://ttek:${POSTGRES_PASSWORD}@db:5432/ttek_sis
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: ./backend
+      target: runtime
+    command: ["alembic", "upgrade", "head"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://ttek:${POSTGRES_PASSWORD}@db:5432/ttek_sis
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["migrate"]
+
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    environment:
+      API_TARGET: http://api:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

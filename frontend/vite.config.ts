@@ -1,0 +1,61 @@
+import { sveltekit } from "@sveltejs/kit/vite";
+import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
+
+export default defineConfig({
+  plugins: [
+    tailwindcss(),
+    sveltekit(),
+    VitePWA({
+      registerType: "autoUpdate",
+      devOptions: { enabled: true },
+      workbox: {
+        // Cache class and student lists for offline use
+        runtimeCaching: [
+          {
+            urlPattern: /\/api\/v1\/(classes|students)/,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "api-data",
+              expiration: { maxAgeSeconds: 60 * 60 * 4 }, // 4 hours
+            },
+          },
+        ],
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+      },
+      manifest: {
+        name: "TTEK-SIS",
+        short_name: "TTEK-SIS",
+        description: "Tagnatek School Information System",
+        theme_color: "#5B7FFF",
+        background_color: "#09090F",
+        display: "standalone",
+        orientation: "portrait",
+        icons: [
+          { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
+          { src: "/icon-512.png", sizes: "512x512", type: "image/png" },
+        ],
+      },
+    }),
+  ],
+  server: {
+    proxy: {
+      "/api": {
+        target: process.env.API_TARGET || "http://localhost:8000",
+        changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    // Enforce bundle size budget for teacher screens
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["axios", "dexie"],
+          query: ["@tanstack/svelte-query"],
+        },
+      },
+    },
+  },
+});

@@ -1,0 +1,27 @@
+services:
+  api:
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    volumes:
+      - ./backend:/app
+    environment:
+      APP_ENV: development
+
+  worker:
+    volumes:
+      - ./backend:/app
+    environment:
+      APP_ENV: development
+
+  migrate:
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build:
+      target: development
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
