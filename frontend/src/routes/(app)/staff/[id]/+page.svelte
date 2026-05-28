@@ -7,7 +7,6 @@
   import Button from "$components/ui/Button.svelte";
   import Badge from "$components/ui/Badge.svelte";
   import Spinner from "$components/ui/Spinner.svelte";
-  import Modal from "$components/ui/Modal.svelte";
   import {
     ArrowLeft, Pencil, Save, X, UserCheck, Upload,
     GraduationCap, TrendingUp, Shield, Plus, Trash2,
@@ -327,7 +326,7 @@
   }
 
   // ── Account creation ──────────────────────────────────────────────
-  let showAccountModal = false;
+  let creatingAccount = false;
   let accountEmail = "";
   let accountCreating = false;
   let accountError = "";
@@ -335,11 +334,12 @@
   let tempPwVisible = false;
   let copied = false;
 
-  function openAccountModal() {
+  function openAccountForm() {
     accountEmail = member?.personal_email ?? "";
     accountError = ""; accountResult = null; tempPwVisible = false;
-    showAccountModal = true;
+    creatingAccount = true;
   }
+  function closeAccountForm() { creatingAccount = false; accountResult = null; accountError = ""; }
 
   async function createAccount() {
     if (!accountEmail) { accountError = "Email is required."; return; }
@@ -440,7 +440,7 @@
       <!-- Header actions -->
       <div class="header-actions">
         {#if !member.has_account}
-          <Button variant="ghost" size="sm" on:click={openAccountModal}>
+          <Button variant="ghost" size="sm" on:click={openAccountForm}>
             <UserCheck size={13} /> Create Account
           </Button>
         {/if}
@@ -846,18 +846,68 @@
     <!-- ── Account tab ────────────────────────────────────────────── -->
     {:else if tab === "account"}
       <div class="section-card">
-        <div class="card-title">Login Account</div>
+        <div class="card-title">
+          Login Account
+          {#if !member.has_account && !creatingAccount}
+            <Button size="sm" on:click={openAccountForm}><UserCheck size={13} /> Create Account</Button>
+          {/if}
+        </div>
 
-        {#if member.has_account}
+        {#if member.has_account && !accountResult}
           <div class="account-status ok">
             <Check size={16} /> This staff member has an active login account.
           </div>
-        {:else}
+        {:else if !member.has_account && !creatingAccount}
           <div class="account-status warn">
             <AlertCircle size={16} />
             No login account yet. Create one to give this staff member access to the system.
           </div>
-          <Button on:click={openAccountModal}><UserCheck size={13} /> Create Account</Button>
+        {/if}
+
+        {#if creatingAccount && !accountResult}
+          <div class="inline-form">
+            {#if accountError}<p class="inline-form-error">{accountError}</p>{/if}
+            <p class="hint">A temporary password will be generated. The staff member must change it on first login.</p>
+            <div class="inline-form-row">
+              <div class="field">
+                <label for="ac-email">Login email <span class="req">*</span></label>
+                <input id="ac-email" class="input" type="email" bind:value={accountEmail} placeholder="staff@school.edu.gh" />
+              </div>
+            </div>
+            <div class="inline-form-actions">
+              <Button variant="ghost" size="sm" on:click={closeAccountForm}>Cancel</Button>
+              <Button size="sm" loading={accountCreating} on:click={createAccount}>Create Account</Button>
+            </div>
+          </div>
+        {/if}
+
+        {#if accountResult}
+          <div class="inline-form created-panel">
+            <div class="created-header">
+              <Check size={18} class="created-check" />
+              <strong>Account created!</strong>
+            </div>
+            <p class="hint">
+              Share these credentials with <strong>{member.first_name}</strong>. The password must be changed on first login.
+            </p>
+            <dl class="creds">
+              <dt>Email</dt>
+              <dd>{accountResult.email}</dd>
+              <dt>Temporary password</dt>
+              <dd class="pw-row">
+                <span class="mono">{tempPwVisible ? accountResult.temp_password : "•".repeat(accountResult.temp_password.length)}</span>
+                <button class="icon-btn" on:click={() => tempPwVisible = !tempPwVisible} title={tempPwVisible ? "Hide" : "Show"}>
+                  {#if tempPwVisible}<EyeOff size={13} />{:else}<Eye size={13} />{/if}
+                </button>
+                <button class="icon-btn" on:click={copyTempPw} title="Copy">
+                  {#if copied}<Check size={13} class="copy-ok" />{:else}<Copy size={13} />{/if}
+                </button>
+              </dd>
+            </dl>
+            <div class="inline-form-actions">
+              <Button size="sm" on:click={closeAccountForm}>Done</Button>
+            </div>
+          </div>
         {/if}
       </div>
     {/if}
@@ -865,53 +915,6 @@
   {/if}
 </div>
 
-<!-- ── Account creation modal ────────────────────────────────────── -->
-<Modal bind:open={showAccountModal} title="Create Login Account" noFooter>
-  <div class="form">
-    {#if !accountResult}
-      {#if accountError}<p class="form-error">{accountError}</p>{/if}
-      <p class="modal-hint">
-        A temporary password will be generated. The staff member must change it on first login.
-      </p>
-      <div class="field">
-        <label for="ac-email">Login email *</label>
-        <input id="ac-email" class="input" type="email" bind:value={accountEmail} placeholder="staff@school.edu.gh" />
-      </div>
-      <div class="form-actions">
-        <Button variant="ghost" on:click={() => showAccountModal = false}>Cancel</Button>
-        <Button loading={accountCreating} on:click={createAccount}>Create Account</Button>
-      </div>
-    {:else}
-      <div class="account-created">
-        <div class="created-header">
-          <Check size={24} class="created-check" />
-          <strong>Account created!</strong>
-        </div>
-        <p class="created-sub">
-          Share these credentials with <strong>{member?.first_name}</strong>.
-          The password must be changed on first login.
-        </p>
-        <dl class="creds">
-          <dt>Email</dt>
-          <dd>{accountResult.email}</dd>
-          <dt>Temporary password</dt>
-          <dd class="pw-row">
-            <span class="mono">{tempPwVisible ? accountResult.temp_password : "•".repeat(accountResult.temp_password.length)}</span>
-            <button class="icon-btn" on:click={() => tempPwVisible = !tempPwVisible} title={tempPwVisible ? "Hide" : "Show"}>
-              {#if tempPwVisible}<EyeOff size={13} />{:else}<Eye size={13} />{/if}
-            </button>
-            <button class="icon-btn" on:click={copyTempPw} title="Copy">
-              {#if copied}<Check size={13} class="copy-ok" />{:else}<Copy size={13} />{/if}
-            </button>
-          </dd>
-        </dl>
-      </div>
-      <div class="form-actions">
-        <Button on:click={() => showAccountModal = false}>Done</Button>
-      </div>
-    {/if}
-  </div>
-</Modal>
 
 <style>
   .page { display: flex; flex-direction: column; gap: 20px; }
@@ -1206,9 +1209,7 @@
     margin: 0; font-size: 0.8125rem; color: var(--err-text);
   }
 
-  /* ── Form elements ───────────────────────────── */
-  .form { display: flex; flex-direction: column; gap: 14px; }
-
+  /* ── Form error ──────────────────────────────── */
   .form-error {
     margin: 0; padding: 9px 12px; border-radius: 8px;
     font-size: 0.8125rem; color: #ef4444;
@@ -1216,20 +1217,12 @@
     border: 1px solid color-mix(in srgb, #ef4444 20%, transparent);
   }
 
-  .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
-
-  .modal-hint { margin: 0; font-size: 0.875rem; color: var(--tx-low); }
-
   /* ── Account created ─────────────────────────── */
-  .account-created { display: flex; flex-direction: column; gap: 12px; }
-
   .created-header {
     display: flex; align-items: center; gap: 10px;
     font-size: 1rem; color: var(--tx-high);
   }
   .created-header :global(.created-check) { color: #10b981; }
-
-  .created-sub { margin: 0; font-size: 0.875rem; color: var(--tx-low); }
 
   .creds {
     display: grid; grid-template-columns: 120px 1fr;
