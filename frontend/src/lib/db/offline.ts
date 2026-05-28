@@ -79,9 +79,20 @@ export async function queueScore(
 
 // ── Queue drain ───────────────────────────────────────────────────
 
+const MAX_RETRIES = 5;
+const QUEUE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
+function isStale(item: { queuedAt: number; retryCount: number }): boolean {
+  return item.retryCount >= MAX_RETRIES || Date.now() - item.queuedAt > QUEUE_TTL_MS;
+}
+
 export async function drainQueues(apiClient: typeof import("$api/client").api): Promise<void> {
   const attendance = await getPendingAttendance();
   for (const item of attendance) {
+    if (isStale(item)) {
+      await offlineDb.attendanceQueue.delete(item.id!);
+      continue;
+    }
     try {
       await apiClient.post("/attendance/mark", {
         school_calendar_id: item.schoolCalendarId,
@@ -102,6 +113,10 @@ export async function drainQueues(apiClient: typeof import("$api/client").api): 
 
   const scores = await offlineDb.scoreQueue.toArray();
   for (const item of scores) {
+    if (isStale(item)) {
+      await offlineDb.scoreQueue.delete(item.id!);
+      continue;
+    }
     try {
       await apiClient.post("/scores", {
         student_subject_registration_id: item.studentSubjectRegistrationId,

@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
@@ -15,6 +17,8 @@ from app.core.redis import init_redis, close_redis
 async def lifespan(app: FastAPI):
     # ── Startup ───────────────────────────────────────────────────
     await init_redis()
+    if settings.STORAGE_BACKEND == "local":
+        Path(settings.UPLOADS_DIR).mkdir(parents=True, exist_ok=True)
     yield
     # ── Shutdown ──────────────────────────────────────────────────
     await close_redis()
@@ -44,8 +48,8 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
         allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+        allow_methods=["GET", "POST", "PATCH", "DELETE"],
+        allow_headers=["Content-Type", "Authorization"],
     )
     app.add_middleware(RateLimitMiddleware)
     app.add_middleware(RequestIDMiddleware)
@@ -53,6 +57,13 @@ def create_app() -> FastAPI:
     # ── Routers ───────────────────────────────────────────────────
     from app.api.v1 import api_router
     app.include_router(api_router, prefix="/api/v1")
+
+    # ── Static file serving (local storage backend only) ──────────
+    # check_dir=False: dir is created in lifespan, not required at mount time
+    if settings.STORAGE_BACKEND == "local":
+        uploads_dir = Path(settings.UPLOADS_DIR).resolve()
+        url_path = settings.UPLOADS_URL_PREFIX.rstrip("/") or "/uploads"
+        app.mount(url_path, StaticFiles(directory=str(uploads_dir), check_dir=False), name="uploads")
 
     return app
 

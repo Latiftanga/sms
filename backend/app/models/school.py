@@ -26,6 +26,7 @@ class School(UUIDPrimaryKey, TimestampMixin, Base):
     phone: Mapped[str | None] = mapped_column(String(20))
     email: Mapped[str | None] = mapped_column(String(120))
     logo_url: Mapped[str | None] = mapped_column(String(500))
+    motto: Mapped[str | None] = mapped_column(String(300))
 
     # Facility configuration (set once during onboarding, rarely changed)
     education_levels: Mapped[list[str]] = mapped_column(

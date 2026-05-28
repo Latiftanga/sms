@@ -1,7 +1,10 @@
 from datetime import datetime
+from typing import Generic, TypeVar
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
+
+T = TypeVar("T")
 
 
 class OrmBase(BaseModel):
@@ -17,11 +20,11 @@ class IDSchema(OrmBase):
     id: UUID
 
 
-class PaginatedResponse(OrmBase):
+class PagedResponse(BaseModel, Generic[T]):
+    items: list[T]
     total: int
-    page: int
-    page_size: int
-    results: list
+    skip: int
+    limit: int
 
 
 class MessageResponse(BaseModel):

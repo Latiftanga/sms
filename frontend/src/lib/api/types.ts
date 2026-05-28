@@ -58,3 +58,95 @@ export interface AttendanceSummary {
 }
 
 export type Permission = string;
+
+export interface PagedResponse<T> {
+  items: T[];
+  total: number;
+  skip: number;
+  limit: number;
+}
+
+// ── Staff ─────────────────────────────────────────────────────────
+
+export type StaffCategory = "TEACHING" | "NON-TEACHING";
+export type StaffDesignation = "TEACHER" | "HEADTEACHER" | "ASSISTANT_HEAD" | "BURSAR";
+export type StaffEmploymentType = "PERMANENT" | "CONTRACT" | "VOLUNTEER" | "GES_POSTED";
+export type Gender = "MALE" | "FEMALE" | "OTHER";
+
+export interface StaffMember {
+  id: string;
+  school_id: string;
+  staff_id: string | null;
+  first_name: string;
+  middle_name: string | null;
+  last_name: string;
+  gender: Gender | null;
+  date_of_birth: string | null;
+  phone: string | null;
+  personal_email: string | null;
+  address: string | null;
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  category: StaffCategory;
+  employment_type: StaffEmploymentType;
+  designation: StaffDesignation | null;
+  date_joined: string | null;
+  is_active: boolean;
+  photo_url: string | null;
+  ges_staff_id: string | null;
+  registered_no: string | null;
+  licence_no: string | null;
+  ssnit_no: string | null;
+  current_rank: string | null;
+  has_account: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Qualification {
+  id: string;
+  degree: string;
+  institution: string;
+  year: number | null;
+  document_url: string | null;
+}
+
+export interface Promotion {
+  id: string;
+  rank: string;
+  date_promoted: string;
+  date_recorded: string;
+  recorded_by: string;
+}
+
+export interface StaffMemberDetail extends StaffMember {
+  qualifications: Qualification[];
+  promotions: Promotion[];
+}
+
+export interface AccountCreateResponse {
+  user_id: string;
+  email: string;
+  temp_password: string;
+}
+
+export interface BulkRowError {
+  row: number;
+  field: string | null;
+  message: string;
+}
+
+export interface BulkUploadResponse {
+  created: number;
+  skipped: number;
+  errors: BulkRowError[];
+}
+
+export interface StaffPosition {
+  id: string;
+  name: string;
+  code: string;
+  is_system_template: boolean;
+  is_active: boolean;
+  permissions: string[];
+}

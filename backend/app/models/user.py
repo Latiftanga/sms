@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -24,7 +24,11 @@ class User(UUIDPrimaryKey, TimestampMixin, Base):
     """
 
     __tablename__ = "user"
-    __table_args__ = (UniqueConstraint("email"),)
+    __table_args__ = (
+        UniqueConstraint("email"),
+        Index("ix_user_school_id", "school_id"),
+        Index("ix_user_staff_member_id", "staff_member_id"),
+    )
 
     email: Mapped[str] = mapped_column(String(254), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -48,6 +52,7 @@ class User(UUIDPrimaryKey, TimestampMixin, Base):
     )
 
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    must_change_password: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     # Invite flow

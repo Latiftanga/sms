@@ -6,6 +6,7 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 
 from app.api.deps import CurrentUser, RedisDep, SessionDep
+from app.core.config import settings
 from app.core.security import (
     create_access_token,
     create_refresh_token,
@@ -20,7 +21,7 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 _REFRESH_COOKIE = "refresh_token"
 _COOKIE_OPTS = {
     "httponly": True,
-    "secure": True,
+    "secure": settings.is_production,   # False in dev (HTTP); True in prod (HTTPS)
     "samesite": "lax",
     "max_age": 60 * 60 * 24 * 7,  # 7 days
     "path": "/api/v1/auth/refresh",

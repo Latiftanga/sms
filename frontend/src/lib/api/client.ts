@@ -3,6 +3,7 @@
  * All API calls go through this client.
  */
 import axios, { type AxiosInstance, type AxiosError } from "axios";
+import { offlineDb } from "$lib/db/offline";
 
 const BASE_URL = "/api/v1";
 
@@ -65,6 +66,8 @@ api.interceptors.response.use(
         failedQueue.forEach((q) => q.reject(refreshError));
         failedQueue = [];
         clearAccessToken();
+        await offlineDb.attendanceQueue.clear();
+        await offlineDb.scoreQueue.clear();
         if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
           window.location.href = "/login";
         }
@@ -78,19 +81,39 @@ api.interceptors.response.use(
   }
 );
 
-// ── Token storage (sessionStorage — cleared on tab close) ─────────
+// ── Token storage ──────────────────────────────────────────────────
+// Primary: sessionStorage — survives page refresh within the same tab,
+//          cleared when the tab closes (no long-lived XSS exposure).
+// Fallback: in-memory only when sessionStorage is unavailable (SSR, etc.)
+// The httpOnly refresh cookie is still used to rehydrate a new tab or
+// after the access token expires, via the 401 → /auth/refresh flow above.
 
-const TOKEN_KEY = "ttek_access_token";
+const _SESSION_KEY = "sis_at";
+let _accessToken: string | null = null;
 
 export function getAccessToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return sessionStorage.getItem(TOKEN_KEY);
+  if (_accessToken) return _accessToken;
+  try {
+    return sessionStorage.getItem(_SESSION_KEY);
+  } catch {
+    return null;
+  }
 }
 
 export function setAccessToken(token: string): void {
-  sessionStorage.setItem(TOKEN_KEY, token);
+  _accessToken = token;
+  try {
+    sessionStorage.setItem(_SESSION_KEY, token);
+  } catch {
+    // sessionStorage unavailable (private mode restrictions, etc.)
+  }
 }
 
 export function clearAccessToken(): void {
-  sessionStorage.removeItem(TOKEN_KEY);
+  _accessToken = null;
+  try {
+    sessionStorage.removeItem(_SESSION_KEY);
+  } catch {
+    // ignore
+  }
 }

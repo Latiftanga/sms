@@ -31,10 +31,16 @@ class Settings(BaseSettings):
     PERMISSION_CACHE_TTL: int = 900  # 15 minutes
 
     # ── Rate limiting ─────────────────────────────────────────────
-    RATE_LIMIT_PER_MINUTE: int = 100
+    RATE_LIMIT_PER_MINUTE: int = 300        # per authenticated user
+    RATE_LIMIT_UNAUTH_PER_MINUTE: int = 30  # per IP for unauthenticated
 
     # ── Sentry ────────────────────────────────────────────────────
     SENTRY_DSN: str | None = None
+
+    # ── File storage ──────────────────────────────────────────────
+    STORAGE_BACKEND: str = "local"           # "local" | "r2"
+    UPLOADS_DIR: str = "/tmp/uploads"        # local backend root (/tmp is always writable)
+    UPLOADS_URL_PREFIX: str = "/uploads"     # public URL prefix for local files
 
     # ── Cloudflare R2 ─────────────────────────────────────────────
     R2_ACCOUNT_ID: str | None = None

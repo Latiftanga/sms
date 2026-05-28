@@ -1,14 +1,19 @@
+# syntax=docker/dockerfile:1
 # ── Stage 1: dependency builder ───────────────────────────────────
+FROM ghcr.io/astral-sh/uv:latest AS uv
+
 FROM python:3.12-slim AS builder
 
 WORKDIR /app
 
-# Install uv for fast dependency resolution
-RUN pip install --no-cache-dir uv
+# Copy the uv binary from the official image — avoids pip install failures
+COPY --from=uv /uv /usr/local/bin/uv
 
-# Install deps into an isolated venv
+# Install deps into an isolated venv.
+# The cache mount avoids re-downloading packages on every rebuild.
 COPY pyproject.toml uv.lock* ./
-RUN uv venv /venv \
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv venv /venv \
     && UV_PROJECT_ENVIRONMENT=/venv uv sync --frozen --no-dev --no-install-project
 
 # ── Stage 2: runtime ──────────────────────────────────────────────

@@ -1,72 +1,129 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { api } from "$api/client";
+  import { toast } from "$stores/toast";
+  import { confirmDialog } from "$stores/confirm";
+  import { schoolBranding } from "$stores/school";
+  import Button    from "$components/ui/Button.svelte";
+  import Badge     from "$components/ui/Badge.svelte";
+  import Spinner   from "$components/ui/Spinner.svelte";
+  import EmptyState from "$components/ui/EmptyState.svelte";
+  import PageHeader from "$components/ui/PageHeader.svelte";
   import {
-    School2, CalendarDays, LayoutGrid, BookOpen,
-    Plus, Pencil, Trash2, Check, X, ChevronRight,
-    AlertCircle, Loader2,
+    School2, CalendarDays, LayoutGrid, BookOpen, Shield,
+    Plus, Pencil, Trash2, Check, X, ChevronDown,
+    AlertCircle, Loader2, MapPin, Phone, Palette, ImagePlus,
   } from "@lucide/svelte";
 
+  // ── Types ─────────────────────────────────────────────────────────
+  interface SchoolProfile {
+    name: string; phone: string | null; email: string | null;
+    address: string | null; region: string | null; district: string | null;
+    motto: string | null; accent_color: string; logo_url: string | null;
+    education_levels: string[];
+  }
+  interface AcademicTerm {
+    id: string; name: string; start_date: string; end_date: string; is_current: boolean;
+  }
+  interface AcademicYear {
+    id: string; name: string; start_date: string; end_date: string;
+    is_current: boolean; terms: AcademicTerm[];
+  }
+  interface LearningArea { id: string; name: string; short_name: string | null; is_active: boolean; }
+  interface SchoolClass {
+    id: string; name: string; level: string; year: number | null;
+    education_level: string; stream: string | null; is_active: boolean;
+    learning_area: LearningArea | null;
+  }
+
   // ── Tab ───────────────────────────────────────────────────────────
-  let tab: "school" | "calendar" | "classes" | "learning_areas" = "school";
+  let tab: "school" | "calendar" | "classes" | "learning_areas" | "positions" = "school";
 
-  const LEVEL_LABELS: Record<string, string> = {
-    EARLY_CHILDHOOD: "Early Childhood",
-    BASIC: "Basic",
-    SHS: "Senior High School",
-    TECHNICAL: "Technical",
-    JHS: "Junior High School",
-  };
+  // ── Confirm delete ────────────────────────────────────────────────
+  async function confirmDelete(title: string, message: string, fn: () => Promise<void>) {
+    const ok = await confirmDialog.show({ title, message, variant: "danger", confirmLabel: "Delete" });
+    if (!ok) return;
+    try { await fn(); }
+    catch (e) { toast.error(apiError(e)); }
+  }
 
-  // ── Helpers ───────────────────────────────────────────────────────
   function apiError(e: unknown): string {
     const err = e as { response?: { data?: { detail?: string } } };
     return err?.response?.data?.detail ?? "Something went wrong. Try again.";
   }
 
+  const LEVEL_LABELS: Record<string, string> = {
+    EARLY_CHILDHOOD: "Early Childhood", BASIC: "Basic",
+    SHS: "Senior High School", TECHNICAL: "Technical", JHS: "Junior High School",
+  };
+
   // ── School profile ────────────────────────────────────────────────
-  let school: any = null;
+  let school: SchoolProfile | null = null;
+  let schoolLoading = true;
+  let schoolLoadError = "";
   let schoolSaving = false;
   let schoolSuccess = false;
   let schoolError = "";
 
   $: isSHS = school?.education_levels?.includes("SHS") ?? false;
+  $: if (!isSHS && tab === "learning_areas") tab = "school";
 
   async function loadSchool() {
-    try {
-      const { data } = await api.get("/settings/school");
-      school = { ...data };
-    } catch { school = null; }
+    schoolLoading = true; schoolLoadError = "";
+    try { const { data } = await api.get("/settings/school"); school = { ...data }; }
+    catch (e) { school = null; schoolLoadError = apiError(e); }
+    finally { schoolLoading = false; }
   }
 
   async function saveSchool() {
     schoolSaving = true; schoolError = ""; schoolSuccess = false;
     try {
       await api.patch("/settings/school", {
-        name: school.name, phone: school.phone, email: school.email,
-        address: school.address, region: school.region,
-        district: school.district, accent_color: school.accent_color,
+        name: school!.name, phone: school!.phone, email: school!.email,
+        address: school!.address, region: school!.region, district: school!.district,
+        motto: school!.motto || null, accent_color: school!.accent_color,
       });
       schoolSuccess = true;
+      toast.success("School profile saved");
       setTimeout(() => schoolSuccess = false, 3000);
     } catch (e) { schoolError = apiError(e); }
     finally { schoolSaving = false; }
   }
 
+  // ── Logo upload ───────────────────────────────────────────────────
+  let logoUploading = false;
+  let logoError = "";
+
+  async function handleLogoChange(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    logoUploading = true; logoError = "";
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const { data } = await api.post("/settings/school/logo", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      school = { ...school!, logo_url: data.logo_url };
+      // Refresh branding store so sidebar + login page pick up the new logo immediately
+      await schoolBranding.load();
+      toast.success("Logo uploaded");
+    } catch (e) { logoError = apiError(e); toast.error(apiError(e)); }
+    finally { logoUploading = false; input.value = ""; }
+  }
+
   // ── Academic years ────────────────────────────────────────────────
-  let years: any[] = [];
+  let years: AcademicYear[] = [];
   let newYear = { name: "", start_date: "", end_date: "" };
   let yearErrors: Record<string, string> = {};
   let addingYear = false;
   let savingYear = false;
   let yearApiError = "";
-  let confirmDeleteYear: string | null = null;
 
   async function loadYears() {
-    try {
-      const { data } = await api.get("/settings/academic-years");
-      years = data;
-    } catch { years = []; }
+    try { const { data } = await api.get("/settings/academic-years"); years = data.items; }
+    catch { years = []; }
   }
 
   function validateYear() {
@@ -86,34 +143,30 @@
     try {
       await api.post("/settings/academic-years", newYear);
       newYear = { name: "", start_date: "", end_date: "" };
-      yearErrors = {};
-      addingYear = false;
+      yearErrors = {}; addingYear = false;
       await loadYears();
+      toast.success("Academic year created");
     } catch (e) { yearApiError = apiError(e); }
     finally { savingYear = false; }
   }
 
   async function activateYear(id: string) {
-    await api.post(`/settings/academic-years/${id}/activate`);
-    await loadYears();
+    try { await api.post(`/settings/academic-years/${id}/activate`); await loadYears(); }
+    catch (e) { toast.error(apiError(e)); }
   }
 
   async function deleteYear(id: string) {
-    try {
-      await api.delete(`/settings/academic-years/${id}`);
-      confirmDeleteYear = null;
-      await loadYears();
-    } catch (e) { alert(apiError(e)); }
+    try { await api.delete(`/settings/academic-years/${id}`); await loadYears(); toast.success("Year deleted"); }
+    catch (e) { toast.error(apiError(e)); }
   }
 
   // ── Terms ─────────────────────────────────────────────────────────
   let expandedYear: string | null = null;
-  let newTerm: Record<string, any> = {};
+  let newTerm: Record<string, { name: string; start_date: string; end_date: string }> = {};
   let termErrors: Record<string, Record<string, string>> = {};
   let addingTermFor: string | null = null;
   let savingTerm = false;
   let termApiError = "";
-  let confirmDeleteTerm: string | null = null;
 
   function validateTerm(yearId: string) {
     const t = newTerm[yearId] ?? {};
@@ -133,32 +186,32 @@
     try {
       await api.post(`/settings/academic-years/${yearId}/terms`, newTerm[yearId]);
       newTerm[yearId] = { name: "", start_date: "", end_date: "" };
-      termErrors[yearId] = {};
-      addingTermFor = null;
+      termErrors[yearId] = {}; addingTermFor = null;
       await loadYears();
+      toast.success("Term created");
     } catch (e) { termApiError = apiError(e); }
     finally { savingTerm = false; }
   }
 
   async function activateTerm(termId: string) {
-    await api.post(`/settings/terms/${termId}/activate`);
-    await loadYears();
+    try { await api.post(`/settings/terms/${termId}/activate`); await loadYears(); }
+    catch (e) { toast.error(apiError(e)); }
   }
 
   async function deleteTerm(termId: string) {
-    try {
-      await api.delete(`/settings/terms/${termId}`);
-      confirmDeleteTerm = null;
-      await loadYears();
-    } catch (e) { alert(apiError(e)); }
+    try { await api.delete(`/settings/terms/${termId}`); await loadYears(); toast.success("Term deleted"); }
+    catch (e) { toast.error(apiError(e)); }
   }
 
   // ── Learning areas ────────────────────────────────────────────────
   const GES_AREAS = [
-    "General Science", "General Arts", "Business",
-    "Visual Arts", "Home Economics", "Technical", "Agriculture",
+    "Science", "General Arts", "Business", "Applied Technology",
+    "Home Economics", "Visual and Performing Arts", "Agriculture",
+    "Languages", "Global Studies", "Engineering", "Biomedical Science",
+    "Manufacturing", "Information Technology", "Computer Science",
+    "Robotics", "Aviation and Aerospace",
   ];
-  let learningAreas: any[] = [];
+  let learningAreas: LearningArea[] = [];
   let newLA = { name: "", short_name: "" };
   let laErrors: Record<string, string> = {};
   let addingLA = false;
@@ -167,13 +220,11 @@
   let editingLA: string | null = null;
   let editLAShort = "";
   let savingLAEdit = false;
-  let confirmDeleteLA: string | null = null;
+  let laEditError = "";
 
   async function loadLearningAreas() {
-    try {
-      const { data } = await api.get("/settings/learning-areas");
-      learningAreas = data;
-    } catch { learningAreas = []; }
+    try { const { data } = await api.get("/settings/learning-areas"); learningAreas = data.items; }
+    catch { learningAreas = []; }
   }
 
   async function createLA() {
@@ -183,56 +234,65 @@
     savingLA = true; laApiError = "";
     try {
       await api.post("/settings/learning-areas", { name: newLA.name, short_name: newLA.short_name || null });
-      newLA = { name: "", short_name: "" };
-      addingLA = false;
+      newLA = { name: "", short_name: "" }; addingLA = false;
       await loadLearningAreas();
+      toast.success("Learning area added");
     } catch (e) { laApiError = apiError(e); }
     finally { savingLA = false; }
   }
 
   async function saveLA(id: string) {
-    savingLAEdit = true;
+    savingLAEdit = true; laEditError = "";
     try {
       await api.patch(`/settings/learning-areas/${id}`, { short_name: editLAShort || null });
       editingLA = null;
       await loadLearningAreas();
-    } catch { /* silent */ }
+      toast.success("Code updated");
+    } catch (e) { laEditError = apiError(e); }
     finally { savingLAEdit = false; }
   }
 
   async function deleteLA(id: string) {
-    try {
-      await api.delete(`/settings/learning-areas/${id}`);
-      confirmDeleteLA = null;
-      await loadLearningAreas();
-    } catch (e) { alert(apiError(e)); }
+    try { await api.delete(`/settings/learning-areas/${id}`); await loadLearningAreas(); toast.success("Learning area removed"); }
+    catch (e) { toast.error(apiError(e)); }
   }
 
   // ── Classes ───────────────────────────────────────────────────────
   const LEVELS = ["Creche", "Nursery", "KG", "Basic", "SHS"];
+  const LEVEL_EDU_MAP: Record<string, string> = {
+    Creche: "EARLY_CHILDHOOD", Nursery: "EARLY_CHILDHOOD", KG: "EARLY_CHILDHOOD",
+    Basic: "BASIC", SHS: "SHS",
+  };
   const YEAR_BOUNDS: Record<string, [number, number]> = {
     Nursery: [1, 2], KG: [1, 2], Basic: [1, 9], SHS: [1, 3],
   };
-  let classes: any[] = [];
+
+  // Only show levels the school actually offers
+  $: availableLevels = LEVELS.filter(l =>
+    school?.education_levels?.includes(LEVEL_EDU_MAP[l])
+  );
+  // If selected level is no longer in the available list, reset to first available
+  $: if (availableLevels.length && !availableLevels.includes(newClass.level)) {
+    newClass = { ...newClass, level: availableLevels[0] };
+  }
+
+  let classes: SchoolClass[] = [];
   let newClass = { level: "Basic", year: 1, learning_area_id: "", stream: "" };
   let classErrors: Record<string, string> = {};
   let addingClass = false;
   let savingClass = false;
   let classApiError = "";
-  let confirmDeleteClass: string | null = null;
 
   $: newClassYears = newClass.level in YEAR_BOUNDS
     ? Array.from({ length: YEAR_BOUNDS[newClass.level][1] - YEAR_BOUNDS[newClass.level][0] + 1 },
         (_, i) => i + YEAR_BOUNDS[newClass.level][0])
     : [];
 
-  $: if (newClass.level === "SHS" && isSHS && learningAreas.length === 0) loadLearningAreas();
+  $: if (newClass.level === "SHS" && learningAreas.length === 0) loadLearningAreas();
 
   async function loadClasses() {
-    try {
-      const { data } = await api.get("/settings/classes");
-      classes = data;
-    } catch { classes = []; }
+    try { const { data } = await api.get("/settings/classes"); classes = data.items; }
+    catch { classes = []; }
   }
 
   function validateClass() {
@@ -247,783 +307,1261 @@
     if (Object.keys(classErrors).length) return;
     savingClass = true; classApiError = "";
     try {
-      const payload: any = { level: newClass.level, stream: newClass.stream || null };
+      const payload: Record<string, unknown> = { level: newClass.level, stream: newClass.stream || null };
       if (newClass.level !== "Creche") payload.year = Number(newClass.year);
       if (newClass.level === "SHS") payload.learning_area_id = newClass.learning_area_id;
       await api.post("/settings/classes", payload);
       newClass = { level: "Basic", year: 1, learning_area_id: "", stream: "" };
-      classErrors = {};
-      addingClass = false;
+      classErrors = {}; addingClass = false;
       await loadClasses();
+      toast.success("Class created");
     } catch (e) { classApiError = apiError(e); }
     finally { savingClass = false; }
   }
 
   async function deleteClass(id: string) {
-    try {
-      await api.delete(`/settings/classes/${id}`);
-      confirmDeleteClass = null;
-      await loadClasses();
-    } catch (e) { alert(apiError(e)); }
+    try { await api.delete(`/settings/classes/${id}`); await loadClasses(); toast.success("Class deleted"); }
+    catch (e) { toast.error(apiError(e)); }
   }
 
-  $: classGroups = classes.reduce((acc: Record<string, any[]>, c: any) => {
+  $: classGroups = classes.reduce((acc: Record<string, SchoolClass[]>, c) => {
     (acc[c.education_level] ??= []).push(c);
     return acc;
   }, {});
 
-  // ── Init ─────────────────────────────────────────────────────────
+  // ── Accent colour ─────────────────────────────────────────────────
+  function applyAccent(hex: string) {
+    document.documentElement.style.setProperty("--accent", hex);
+    localStorage.setItem("sis-accent", hex);
+  }
+  $: if (school?.accent_color && /^#[0-9A-Fa-f]{3}$|^#[0-9A-Fa-f]{6}$/.test(school.accent_color)) {
+    if (typeof window !== "undefined") applyAccent(school.accent_color);
+  }
+
+  // ── Ghana regions ─────────────────────────────────────────────────
+  const GHANA_REGIONS = [
+    "Ahafo", "Ashanti", "Bono", "Bono East", "Central",
+    "Eastern", "Greater Accra", "North East", "Northern",
+    "Oti", "Savannah", "Upper East", "Upper West",
+    "Volta", "Western", "Western North",
+  ];
+
+  // ── Positions ─────────────────────────────────────────────────────
+  interface Position {
+    id: string; name: string; code: string;
+    is_system_template: boolean; is_active: boolean; permissions: string[];
+  }
+
+  let positions: Position[] = [];
+  let posLoading = false;
+  let posError = "";
+  let addingPos = false;
+  let savingPos = false;
+  let posApiError = "";
+  let newPos = { name: "", code: "" };
+  let editingPos: string | null = null;
+  let editPosName = "";
+
+  const ALL_PERMISSIONS = [
+    "manage_users", "view_students", "manage_students",
+    "view_fees", "manage_fees", "manage_assessments",
+    "manage_attendance", "manage_settings",
+  ];
+  const PERM_LABELS: Record<string, string> = {
+    manage_users: "Manage Users", view_students: "View Students",
+    manage_students: "Manage Students", view_fees: "View Fees",
+    manage_fees: "Manage Fees", manage_assessments: "Manage Assessments",
+    manage_attendance: "Manage Attendance", manage_settings: "System Settings",
+  };
+
+  let newPosPerms: string[] = [];
+
+  async function loadPositions() {
+    posLoading = true; posError = "";
+    try {
+      const { data } = await api.get<Position[]>("/settings/positions");
+      positions = data;
+    } catch (e) {
+      posError = apiError(e);
+    } finally {
+      posLoading = false;
+    }
+  }
+
+  async function savePosition() {
+    if (!newPos.name.trim() || !newPos.code.trim()) {
+      posApiError = "Name and code are required."; return;
+    }
+    savingPos = true; posApiError = "";
+    try {
+      await api.post("/settings/positions", {
+        name: newPos.name.trim(),
+        code: newPos.code.trim().toUpperCase(),
+        permissions: newPosPerms,
+      });
+      newPos = { name: "", code: "" }; newPosPerms = []; addingPos = false;
+      await loadPositions();
+      toast.success("Position created");
+    } catch (e) {
+      posApiError = apiError(e);
+    } finally {
+      savingPos = false;
+    }
+  }
+
+  async function updatePositionName(id: string) {
+    if (!editPosName.trim()) return;
+    try {
+      await api.patch(`/settings/positions/${id}`, { name: editPosName.trim() });
+      positions = positions.map(p => p.id === id ? { ...p, name: editPosName.trim() } : p);
+      editingPos = null;
+      toast.success("Position updated");
+    } catch (e) {
+      toast.error(apiError(e));
+    }
+  }
+
+  async function deletePosition(id: string) {
+    try {
+      await api.delete(`/settings/positions/${id}`);
+      positions = positions.filter(p => p.id !== id);
+      toast.success("Position deleted");
+    } catch (e) {
+      toast.error(apiError(e));
+    }
+  }
+
+  function togglePosPermission(tab_perm: string) {
+    if (newPosPerms.includes(tab_perm)) {
+      newPosPerms = newPosPerms.filter(p => p !== tab_perm);
+    } else {
+      newPosPerms = [...newPosPerms, tab_perm];
+    }
+  }
+
+  $: if (tab === "positions" && positions.length === 0 && !posLoading && !posError) {
+    loadPositions();
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────
   onMount(async () => {
     await loadSchool();
     await loadYears();
     await loadClasses();
-    if (school?.education_levels?.includes("SHS")) await loadLearningAreas();
+    await loadLearningAreas();
   });
 </script>
 
 <svelte:head><title>Settings — TTEK-SIS</title></svelte:head>
 
-<!-- Page header -->
-<div class="page-header">
-  <h1 class="page-title">Settings</h1>
-  <p class="page-subtitle">Configure your school, academic calendar, classes and learning areas.</p>
-</div>
+<div class="settings-root">
 
-<!-- Tabs -->
-<div class="tabs">
-  {#each [
-    { id: "school",         label: "School",           icon: School2 },
-    { id: "calendar",       label: "Academic Calendar", icon: CalendarDays },
-    { id: "classes",        label: "Classes",           icon: LayoutGrid },
-    ...(isSHS ? [{ id: "learning_areas", label: "Learning Areas", icon: BookOpen }] : []),
-  ] as t}
-    <button class="tab-btn" class:active={tab === t.id} on:click={() => tab = t.id as any}>
-      <svelte:component this={t.icon} size={14} />
-      {t.label}
+  <!-- ── Tab bar ───────────────────────────────────────────────────── -->
+  <div class="tabs-bar">
+    <button class="tab" class:active={tab === "school"} on:click={() => tab = "school"}>
+      <School2 size={14} /><span class="tab-label">School Profile</span>
     </button>
-  {/each}
-</div>
-
-
-<!-- ══ SCHOOL PROFILE ══════════════════════════════════════════════ -->
-{#if tab === "school"}
-  <div class="card form-card max-w-lg">
-    <h2 class="section-title" style="margin-bottom:18px;">School Profile</h2>
-
-    {#if school}
-      <form on:submit|preventDefault={saveSchool} novalidate>
-        <div class="field-grid">
-          {#each [
-            { key: "name",     label: "School Name",  id: "s-name" },
-            { key: "phone",    label: "Phone",         id: "s-phone" },
-            { key: "email",    label: "Email",         id: "s-email" },
-            { key: "address",  label: "Address",       id: "s-address" },
-            { key: "region",   label: "Region",        id: "s-region" },
-            { key: "district", label: "District",      id: "s-district" },
-          ] as f}
-            <div class="field">
-              <label for={f.id}>{f.label}</label>
-              <input id={f.id} class="input" bind:value={school[f.key]} />
-            </div>
-          {/each}
-
-          <div class="field">
-            <label for="s-accent">Accent Colour</label>
-            <div class="color-row">
-              <input type="color" id="s-accent" class="color-swatch" bind:value={school.accent_color} />
-              <input class="input" bind:value={school.accent_color} placeholder="#185FA5" aria-label="Hex colour value" />
-            </div>
-          </div>
-        </div>
-
-        {#if schoolError}
-          <div class="form-error" role="alert">
-            <AlertCircle size={14} />{schoolError}
-          </div>
-        {/if}
-
-        <div class="form-footer">
-          <button type="submit" class="btn-primary" disabled={schoolSaving}>
-            {#if schoolSaving}<Loader2 size={14} class="spin" />{/if}
-            {schoolSaving ? "Saving…" : "Save changes"}
-          </button>
-          {#if schoolSuccess}
-            <span class="success-text"><Check size={13} />Saved</span>
-          {/if}
-        </div>
-      </form>
-    {:else}
-      <p class="text-muted">Loading school data…</p>
+    <button class="tab" class:active={tab === "calendar"} on:click={() => tab = "calendar"}>
+      <CalendarDays size={14} /><span class="tab-label">Academic Calendar</span>
+    </button>
+    {#if isSHS}
+      <button class="tab" class:active={tab === "learning_areas"} on:click={() => tab = "learning_areas"}>
+        <BookOpen size={14} /><span class="tab-label">Learning Areas</span>
+      </button>
     {/if}
+    <button class="tab" class:active={tab === "classes"} on:click={() => tab = "classes"}>
+      <LayoutGrid size={14} /><span class="tab-label">Classes</span>
+    </button>
+    <button class="tab" class:active={tab === "positions"} on:click={() => tab = "positions"}>
+      <Shield size={14} /><span class="tab-label">Positions</span>
+    </button>
   </div>
 
+  <!-- ── Content ───────────────────────────────────────────────────── -->
+  <div class="content">
 
-<!-- ══ ACADEMIC CALENDAR ════════════════════════════════════════════ -->
-{:else if tab === "calendar"}
-  <div class="max-w-2xl">
+    <!-- ══ SCHOOL PROFILE ════════════════════════════════════════════ -->
+    {#if tab === "school"}
+      {#if schoolLoading}
+        <EmptyState message="Loading school data…">
+          <svelte:fragment slot="icon"><Spinner size={28} /></svelte:fragment>
+        </EmptyState>
+      {:else if schoolLoadError}
+        <EmptyState message={schoolLoadError} bordered>
+          <svelte:fragment slot="icon"><AlertCircle size={28} /></svelte:fragment>
+          <Button on:click={loadSchool}>Retry</Button>
+        </EmptyState>
+      {:else if school}
+        <form on:submit|preventDefault={saveSchool} novalidate>
+          <div class="two-col">
 
-    <div class="section-header">
-      <h2 class="section-title">Academic Years</h2>
-      <button class="btn-primary" on:click={() => { addingYear = !addingYear; yearErrors = {}; yearApiError = ""; }}>
-        <Plus size={13} />{addingYear ? "Cancel" : "Add Year"}
-      </button>
-    </div>
+            <!-- Left: Identity + Branding -->
+            <div class="col">
 
-    {#if addingYear}
-      <div class="card form-card">
-        <form on:submit|preventDefault={createYear} novalidate>
-          <div class="grid-3">
-            <div class="field">
-              <label for="y-name">Name <span class="required">*</span></label>
-              <input
-                id="y-name" class="input" class:invalid={yearErrors.name}
-                bind:value={newYear.name}
-                aria-invalid={!!yearErrors.name}
-                aria-describedby={yearErrors.name ? "y-name-err" : undefined}
-                placeholder="2025/2026"
-              />
-              {#if yearErrors.name}<p id="y-name-err" class="field-error">{yearErrors.name}</p>{/if}
-            </div>
-            <div class="field">
-              <label for="y-start">Start date <span class="required">*</span></label>
-              <input
-                type="date" id="y-start" class="input" class:invalid={yearErrors.start_date}
-                bind:value={newYear.start_date}
-                aria-invalid={!!yearErrors.start_date}
-                aria-describedby={yearErrors.start_date ? "y-start-err" : undefined}
-              />
-              {#if yearErrors.start_date}<p id="y-start-err" class="field-error">{yearErrors.start_date}</p>{/if}
-            </div>
-            <div class="field">
-              <label for="y-end">End date <span class="required">*</span></label>
-              <input
-                type="date" id="y-end" class="input" class:invalid={yearErrors.end_date}
-                bind:value={newYear.end_date}
-                aria-invalid={!!yearErrors.end_date}
-                aria-describedby={yearErrors.end_date ? "y-end-err" : undefined}
-              />
-              {#if yearErrors.end_date}<p id="y-end-err" class="field-error">{yearErrors.end_date}</p>{/if}
-            </div>
-          </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-hicon"><School2 size={14} /></div>
+                  <div>
+                    <h2 class="card-title">School Identity</h2>
+                    <p class="card-desc">Name and logo shown on reports and the app header.</p>
+                  </div>
+                </div>
+                <div class="card-body form-stack">
+                  <!-- Logo upload -->
+                  <div class="logo-block">
+                    <label class="logo-thumb" class:uploading={logoUploading} for="s-logo-file" title="Click to change logo">
+                      {#if logoUploading}
+                        <Loader2 size={20} class="spin" />
+                      {:else if school.logo_url}
+                        <img src={school.logo_url} alt="School logo" />
+                        <div class="logo-overlay"><ImagePlus size={14} /></div>
+                      {:else}
+                        <ImagePlus size={20} style="opacity:.4" />
+                        <span class="logo-hint-text">Upload logo</span>
+                      {/if}
+                    </label>
+                    <input
+                      id="s-logo-file"
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                      style="display:none"
+                      on:change={handleLogoChange}
+                    />
+                    <div class="field" style="flex:1;min-width:0;">
+                      <p class="logo-upload-label">School Logo</p>
+                      <p class="hint">Click the thumbnail to upload. JPEG, PNG, WebP or SVG · max 2 MB.</p>
+                      {#if logoError}<p class="field-error">{logoError}</p>{/if}
+                    </div>
+                  </div>
 
-          {#if yearApiError}
-            <div class="form-error" role="alert"><AlertCircle size={14} />{yearApiError}</div>
-          {/if}
+                  <div class="field">
+                    <label for="s-name">School Name</label>
+                    <input id="s-name" class="input" bind:value={school.name} placeholder="e.g. Accra Academy" />
+                  </div>
+                  <div class="field">
+                    <label for="s-motto">School Motto <span class="opt-label">optional</span></label>
+                    <input id="s-motto" class="input" bind:value={school.motto}
+                      placeholder="e.g. Excellence in all things" maxlength="300" />
+                  </div>
+                </div>
+              </div>
 
-          <div class="form-footer">
-            <button type="submit" class="btn-primary" disabled={savingYear}>
-              {#if savingYear}<Loader2 size={14} class="spin" />{/if}
-              {savingYear ? "Saving…" : "Save year"}
-            </button>
-            <button type="button" class="btn-secondary" on:click={() => { addingYear = false; yearErrors = {}; }}>Cancel</button>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-hicon"><Palette size={14} /></div>
+                  <div>
+                    <h2 class="card-title">Branding</h2>
+                    <p class="card-desc">Accent colour applied across the whole interface. Changes preview live.</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="field">
+                    <label for="s-accent">Accent Colour</label>
+                    <div class="color-row">
+                      <input type="color" id="s-accent" class="color-swatch" bind:value={school.accent_color} />
+                      <input class="input mono" style="max-width:130px;"
+                        bind:value={school.accent_color} placeholder="#185FA5" />
+                      <div class="color-sample" style="background:{school.accent_color};">Button preview</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /col left -->
+
+            <!-- Right: Contact + Location -->
+            <div class="col">
+
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-hicon"><Phone size={14} /></div>
+                  <div>
+                    <h2 class="card-title">Contact Information</h2>
+                    <p class="card-desc">How parents and external parties reach your school.</p>
+                  </div>
+                </div>
+                <div class="card-body form-stack">
+                  <div class="field">
+                    <label for="s-phone">Phone Number</label>
+                    <input id="s-phone" class="input" bind:value={school.phone} placeholder="+233 XX XXX XXXX" />
+                  </div>
+                  <div class="field">
+                    <label for="s-email">Email Address</label>
+                    <input id="s-email" type="email" class="input" bind:value={school.email} placeholder="school@example.edu.gh" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-hicon"><MapPin size={14} /></div>
+                  <div>
+                    <h2 class="card-title">Location</h2>
+                    <p class="card-desc">Used on official documents and correspondence.</p>
+                  </div>
+                </div>
+                <div class="card-body form-stack">
+                  <div class="field">
+                    <label for="s-address">Street Address</label>
+                    <input id="s-address" class="input" bind:value={school.address} placeholder="P.O. Box or street address" />
+                  </div>
+                  <div class="field">
+                    <label for="s-region">Region</label>
+                    <select id="s-region" class="input" bind:value={school.region}>
+                      <option value="">— select region —</option>
+                      {#each GHANA_REGIONS as r}<option value={r}>{r}</option>{/each}
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="s-district">District</label>
+                    <input id="s-district" class="input" bind:value={school.district} placeholder="e.g. Accra Metropolitan" />
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /col right -->
+          </div><!-- /two-col -->
+
+          <div class="save-bar">
+            {#if schoolError}
+              <span class="feedback err"><AlertCircle size={13} />{schoolError}</span>
+            {/if}
+            {#if schoolSuccess}
+              <span class="feedback ok"><Check size={13} />Saved successfully</span>
+            {/if}
+            <span style="flex:1"></span>
+            <Button type="submit" loading={schoolSaving}>
+              {schoolSaving ? "Saving…" : "Save changes"}
+            </Button>
           </div>
         </form>
-      </div>
-    {/if}
+      {/if}
 
-    {#if years.length === 0 && !addingYear}
-      <div class="empty-state">
-        <CalendarDays size={28} />
-        <p>No academic years yet.</p>
-        <button class="btn-primary" on:click={() => addingYear = true}><Plus size={13} />Add your first year</button>
-      </div>
-    {/if}
 
-    {#each years as year}
-      <div class="card year-card">
-        <!-- Year row -->
-        <div
-          class="year-header"
-          role="button" tabindex="0"
-          on:click={() => expandedYear = expandedYear === year.id ? null : year.id}
-          on:keydown={(e) => e.key === "Enter" && (expandedYear = expandedYear === year.id ? null : year.id)}
-        >
-          <ChevronRight size={14} class="chevron{expandedYear === year.id ? ' open' : ''}" />
-          <span class="year-name">{year.name}</span>
-          <span class="year-dates">{year.start_date} – {year.end_date}</span>
+    <!-- ══ ACADEMIC CALENDAR ══════════════════════════════════════════ -->
+    {:else if tab === "calendar"}
+      <PageHeader title="Academic Calendar" description="Manage academic years and their terms.">
+        <Button on:click={() => { addingYear = !addingYear; yearErrors = {}; yearApiError = ""; }}>
+          <Plus size={13} />{addingYear ? "Cancel" : "Add Year"}
+        </Button>
+      </PageHeader>
 
-          {#if year.is_current}
-            <span class="badge-ok">Current</span>
-          {:else}
-            <button class="btn-link" on:click|stopPropagation={() => activateYear(year.id)}>Set current</button>
-          {/if}
+      {#if addingYear}
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body">
+            <h3 class="card-title" style="margin-bottom:16px;">New Academic Year</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label for="y-name">Year name <span class="req">*</span></label>
+                <input id="y-name" class="input" class:invalid={yearErrors.name}
+                  bind:value={newYear.name} placeholder="2024/2025" />
+                {#if yearErrors.name}<p class="ferr">{yearErrors.name}</p>{/if}
+              </div>
+              <div class="field">
+                <label>Start date <span class="req">*</span></label>
+                <input type="date" class="input" class:invalid={yearErrors.start_date}
+                  bind:value={newYear.start_date} />
+                {#if yearErrors.start_date}<p class="ferr">{yearErrors.start_date}</p>{/if}
+              </div>
+              <div class="field">
+                <label>End date <span class="req">*</span></label>
+                <input type="date" class="input" class:invalid={yearErrors.end_date}
+                  bind:value={newYear.end_date} />
+                {#if yearErrors.end_date}<p class="ferr">{yearErrors.end_date}</p>{/if}
+              </div>
+            </div>
+            {#if yearApiError}<div class="api-err"><AlertCircle size={13} />{yearApiError}</div>{/if}
+            <div class="actions">
+              <Button on:click={createYear} loading={savingYear}>
+                {savingYear ? "Creating…" : "Create year"}
+              </Button>
+              <Button variant="ghost" on:click={() => { addingYear = false; yearErrors = {}; }}>Cancel</Button>
+            </div>
+          </div>
+        </div>
+      {/if}
 
-          <!-- Delete with inline confirmation -->
-          {#if confirmDeleteYear === year.id}
-            <span class="confirm-label">Delete?</span>
-            <button class="btn-danger-sm" on:click|stopPropagation={() => deleteYear(year.id)}>Yes</button>
-            <button class="btn-secondary-sm" on:click|stopPropagation={() => confirmDeleteYear = null}>No</button>
-          {:else}
-            <button class="btn-icon" title="Delete year"
-              on:click|stopPropagation={() => { if (!year.is_current) confirmDeleteYear = year.id; }}
-              disabled={year.is_current}
-            ><Trash2 size={13} /></button>
+      {#if years.length === 0 && !addingYear}
+        <EmptyState message="No academic years yet.">
+          <svelte:fragment slot="icon"><CalendarDays size={28} /></svelte:fragment>
+          <Button on:click={() => addingYear = true}><Plus size={13} />Add your first year</Button>
+        </EmptyState>
+      {/if}
+
+      {#each years as year}
+        <div class="year-card" class:is-current={year.is_current}>
+          <div class="year-head">
+            <div class="year-head-l">
+              <button class="expand-btn"
+                on:click={() => expandedYear = expandedYear === year.id ? null : year.id}
+                aria-expanded={expandedYear === year.id}>
+                <ChevronDown size={14} class="chevron {expandedYear === year.id ? 'open' : ''}" />
+              </button>
+              <div>
+                <div class="year-name">{year.name}</div>
+                <div class="year-dates">{year.start_date} – {year.end_date}</div>
+              </div>
+            </div>
+            <div class="year-head-r">
+              {#if year.is_current}
+                <Badge variant="ok" size="sm">Current</Badge>
+              {:else}
+                <Button variant="link" on:click={() => activateYear(year.id)}>Set current</Button>
+              {/if}
+              <span class="pill">{year.terms?.length ?? 0} term{year.terms?.length !== 1 ? "s" : ""}</span>
+              <Button
+                variant="icon"
+                ariaLabel="Delete year"
+                disabled={year.is_current}
+                on:click={() => confirmDelete(
+                  "Delete academic year?",
+                  `"${year.name}" and all its terms will be permanently removed.`,
+                  () => deleteYear(year.id)
+                )}
+              ><Trash2 size={13} /></Button>
+            </div>
+          </div>
+
+          {#if expandedYear === year.id}
+            <div class="terms-panel">
+              {#if year.terms?.length > 0}
+                {#each year.terms as term}
+                  <div class="term-row">
+                    <div class="term-l">
+                      <span class="tdot" class:active={term.is_current}></span>
+                      <span class="term-name">{term.name}</span>
+                      <span class="term-dates">{term.start_date} – {term.end_date}</span>
+                    </div>
+                    <div class="term-r">
+                      {#if term.is_current}
+                        <Badge variant="ok" size="sm">Current</Badge>
+                      {:else}
+                        <Button variant="link" on:click={() => activateTerm(term.id)}>Set current</Button>
+                      {/if}
+                      <Button
+                        variant="icon"
+                        ariaLabel="Delete term"
+                        disabled={term.is_current}
+                        on:click={() => confirmDelete(
+                          "Delete term?",
+                          `"${term.name}" will be permanently removed.`,
+                          () => deleteTerm(term.id)
+                        )}
+                      ><Trash2 size={12} /></Button>
+                    </div>
+                  </div>
+                {/each}
+              {:else}
+                <p class="terms-empty">No terms added yet.</p>
+              {/if}
+
+              {#if addingTermFor === year.id}
+                <div class="term-form">
+                  <div class="form-grid">
+                    <div class="field">
+                      <label for="t-name-{year.id}">Term name <span class="req">*</span></label>
+                      <input id="t-name-{year.id}" class="input" class:invalid={termErrors[year.id]?.name}
+                        bind:value={newTerm[year.id].name} placeholder="Term 1" />
+                      {#if termErrors[year.id]?.name}<p class="ferr">{termErrors[year.id].name}</p>{/if}
+                    </div>
+                    <div class="field">
+                      <label for="t-start-{year.id}">Start date <span class="req">*</span></label>
+                      <input id="t-start-{year.id}" type="date" class="input" class:invalid={termErrors[year.id]?.start_date}
+                        bind:value={newTerm[year.id].start_date} />
+                      {#if termErrors[year.id]?.start_date}<p class="ferr">{termErrors[year.id].start_date}</p>{/if}
+                    </div>
+                    <div class="field">
+                      <label for="t-end-{year.id}">End date <span class="req">*</span></label>
+                      <input id="t-end-{year.id}" type="date" class="input" class:invalid={termErrors[year.id]?.end_date}
+                        bind:value={newTerm[year.id].end_date} />
+                      {#if termErrors[year.id]?.end_date}<p class="ferr">{termErrors[year.id].end_date}</p>{/if}
+                    </div>
+                  </div>
+                  {#if termApiError}<div class="api-err"><AlertCircle size={13} />{termApiError}</div>{/if}
+                  <div class="actions">
+                    <Button on:click={() => createTerm(year.id)} loading={savingTerm}>
+                      {savingTerm ? "Saving…" : "Save term"}
+                    </Button>
+                    <Button variant="ghost" on:click={() => { addingTermFor = null; termErrors = {}; }}>Cancel</Button>
+                  </div>
+                </div>
+              {:else}
+                <button class="add-term-btn" on:click={() => {
+                  addingTermFor = year.id;
+                  newTerm[year.id] = { name: "", start_date: "", end_date: "" };
+                  termErrors[year.id] = {};
+                }}>
+                  <Plus size={12} /> Add term
+                </button>
+              {/if}
+            </div>
           {/if}
         </div>
+      {/each}
 
-        <!-- Terms panel -->
-        {#if expandedYear === year.id}
-          <div class="terms-panel">
-            {#if year.terms.length === 0}
-              <p class="text-muted small">No terms added yet.</p>
-            {/if}
 
-            {#each year.terms as term}
-              <div class="term-row">
-                <span class="term-name">{term.name}</span>
-                <span class="term-dates">{term.start_date} – {term.end_date}</span>
+    <!-- ══ CLASSES ════════════════════════════════════════════════════ -->
+    {:else if tab === "classes"}
+      <PageHeader title="Classes" description="Define the class structure offered at your school.">
+        <Button on:click={() => { addingClass = !addingClass; classErrors = {}; classApiError = ""; }}>
+          <Plus size={13} />{addingClass ? "Cancel" : "Add Class"}
+        </Button>
+      </PageHeader>
 
-                {#if term.is_current}
-                  <span class="badge-ok">Current</span>
-                {:else}
-                  <button class="btn-link" on:click={() => activateTerm(term.id)}>Set current</button>
-                {/if}
+      {#if addingClass}
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body">
+            <h3 class="card-title" style="margin-bottom:16px;">New Class</h3>
+            <div class="class-form-grid">
+              <div class="field">
+                <label for="c-level">Level</label>
+                <select id="c-level" class="input" bind:value={newClass.level}>
+                  {#each availableLevels as l}<option>{l}</option>{/each}
+                </select>
+              </div>
+              {#if newClass.level !== "Creche"}
+                <div class="field">
+                  <label for="c-year">Year</label>
+                  <select id="c-year" class="input" bind:value={newClass.year}>
+                    {#each newClassYears as y}<option value={y}>{y}</option>{/each}
+                  </select>
+                </div>
+              {/if}
+              {#if newClass.level === "SHS"}
+                <div class="field">
+                  <label for="c-la">Learning Area <span class="req">*</span></label>
+                  <select id="c-la" class="input" class:invalid={classErrors.learning_area_id}
+                    bind:value={newClass.learning_area_id}>
+                    <option value="">— select —</option>
+                    {#each learningAreas as la}<option value={la.id}>{la.name}</option>{/each}
+                  </select>
+                  {#if classErrors.learning_area_id}<p class="ferr">{classErrors.learning_area_id}</p>{/if}
+                </div>
+              {/if}
+              <div class="field">
+                <label for="c-stream">Stream <span class="opt">(optional)</span></label>
+                <input id="c-stream" class="input" bind:value={newClass.stream} placeholder="A, Gold, Blue…" />
+              </div>
+            </div>
+            {#if classApiError}<div class="api-err"><AlertCircle size={13} />{classApiError}</div>{/if}
+            <div class="actions">
+              <Button on:click={createClass} loading={savingClass}>
+                {savingClass ? "Creating…" : "Create class"}
+              </Button>
+              <Button variant="ghost" on:click={() => { addingClass = false; classErrors = {}; }}>Cancel</Button>
+            </div>
+          </div>
+        </div>
+      {/if}
 
-                {#if confirmDeleteTerm === term.id}
-                  <span class="confirm-label">Delete?</span>
-                  <button class="btn-danger-sm" on:click={() => deleteTerm(term.id)}>Yes</button>
-                  <button class="btn-secondary-sm" on:click={() => confirmDeleteTerm = null}>No</button>
-                {:else}
-                  <button class="btn-icon" title="Delete term"
-                    on:click={() => { if (!term.is_current) confirmDeleteTerm = term.id; }}
-                    disabled={term.is_current}
-                  ><Trash2 size={12} /></button>
-                {/if}
+      {#if classes.length === 0 && !addingClass}
+        <EmptyState message="No classes configured yet.">
+          <svelte:fragment slot="icon"><LayoutGrid size={28} /></svelte:fragment>
+          <Button on:click={() => addingClass = true}><Plus size={13} />Add your first class</Button>
+        </EmptyState>
+      {/if}
+
+      {#each Object.entries(classGroups) as [level, group]}
+        <div class="class-section">
+          <div class="section-label">
+            <span>{LEVEL_LABELS[level] ?? level}</span>
+            <span class="pill">{group.length}</span>
+          </div>
+          <div class="class-grid">
+            {#each group as cls}
+              <div class="class-chip" class:inactive={!cls.is_active}>
+                <span class="chip-name">{cls.name}</span>
+                {#if !cls.is_active}<span class="warn-dot" title="Inactive"></span>{/if}
+                <button class="chip-del" aria-label="Delete {cls.name}"
+                  on:click={() => confirmDelete(
+                    "Delete class?",
+                    `"${cls.name}" will be permanently removed.`,
+                    () => deleteClass(cls.id)
+                  )}
+                ><X size={11} /></button>
               </div>
             {/each}
-
-            {#if addingTermFor === year.id}
-              <div class="term-form">
-                <div class="grid-3">
-                  <div class="field">
-                    <label for="t-name-{year.id}">Term name <span class="required">*</span></label>
-                    <input
-                      id="t-name-{year.id}" class="input" class:invalid={termErrors[year.id]?.name}
-                      bind:value={newTerm[year.id].name} placeholder="Term 1"
-                    />
-                    {#if termErrors[year.id]?.name}<p class="field-error">{termErrors[year.id].name}</p>{/if}
-                  </div>
-                  <div class="field">
-                    <label for="t-start-{year.id}">Start <span class="required">*</span></label>
-                    <input type="date" id="t-start-{year.id}" class="input"
-                      class:invalid={termErrors[year.id]?.start_date}
-                      bind:value={newTerm[year.id].start_date} />
-                    {#if termErrors[year.id]?.start_date}<p class="field-error">{termErrors[year.id].start_date}</p>{/if}
-                  </div>
-                  <div class="field">
-                    <label for="t-end-{year.id}">End <span class="required">*</span></label>
-                    <input type="date" id="t-end-{year.id}" class="input"
-                      class:invalid={termErrors[year.id]?.end_date}
-                      bind:value={newTerm[year.id].end_date} />
-                    {#if termErrors[year.id]?.end_date}<p class="field-error">{termErrors[year.id].end_date}</p>{/if}
-                  </div>
-                </div>
-                {#if termApiError}
-                  <div class="form-error" role="alert"><AlertCircle size={14} />{termApiError}</div>
-                {/if}
-                <div class="form-footer">
-                  <button class="btn-primary" on:click={() => createTerm(year.id)} disabled={savingTerm}>
-                    {#if savingTerm}<Loader2 size={14} class="spin" />{/if}
-                    {savingTerm ? "Saving…" : "Save term"}
-                  </button>
-                  <button class="btn-secondary" on:click={() => { addingTermFor = null; termErrors = {}; }}>Cancel</button>
-                </div>
-              </div>
-            {:else}
-              <button class="btn-link small" on:click={() => {
-                addingTermFor = year.id;
-                newTerm[year.id] = { name: "", start_date: "", end_date: "" };
-                termErrors[year.id] = {};
-              }}>
-                <Plus size={12} /> Add term
-              </button>
-            {/if}
           </div>
-        {/if}
-      </div>
-    {/each}
-  </div>
+        </div>
+      {/each}
 
 
-<!-- ══ CLASSES ══════════════════════════════════════════════════════ -->
-{:else if tab === "classes"}
-  <div class="max-w-2xl">
+    <!-- ══ LEARNING AREAS ══════════════════════════════════════════════ -->
+    {:else if tab === "learning_areas"}
+      <PageHeader title="Learning Areas" description="GES programmes offered at SHS. Short codes appear in class names.">
+        <Button on:click={() => { addingLA = !addingLA; laErrors = {}; laApiError = ""; }}>
+          <Plus size={13} />{addingLA ? "Cancel" : "Add Area"}
+        </Button>
+      </PageHeader>
 
-    <div class="section-header">
-      <h2 class="section-title">Classes</h2>
-      <button class="btn-primary" on:click={() => { addingClass = !addingClass; classErrors = {}; classApiError = ""; }}>
-        <Plus size={13} />{addingClass ? "Cancel" : "Add Class"}
-      </button>
-    </div>
-
-    {#if addingClass}
-      <div class="card form-card">
-        <form on:submit|preventDefault={createClass} novalidate>
-          <div class="grid-auto">
-            <div class="field">
-              <label for="c-level">Level</label>
-              <select id="c-level" class="input" bind:value={newClass.level}>
-                {#each LEVELS as l}<option>{l}</option>{/each}
-              </select>
-            </div>
-
-            {#if newClass.level !== "Creche"}
+      {#if addingLA}
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body">
+            <h3 class="card-title" style="margin-bottom:16px;">New Learning Area</h3>
+            <div class="form-grid">
               <div class="field">
-                <label for="c-year">Year</label>
-                <select id="c-year" class="input" bind:value={newClass.year}>
-                  {#each newClassYears as y}<option value={y}>{y}</option>{/each}
-                </select>
-              </div>
-            {/if}
-
-            {#if newClass.level === "SHS"}
-              <div class="field">
-                <label for="c-la">Learning Area <span class="required">*</span></label>
-                <select id="c-la" class="input" class:invalid={classErrors.learning_area_id}
-                  bind:value={newClass.learning_area_id}
-                  aria-invalid={!!classErrors.learning_area_id}
-                >
+                <label for="la-name">Learning Area <span class="req">*</span></label>
+                <select id="la-name" class="input" class:invalid={laErrors.name} bind:value={newLA.name}>
                   <option value="">— select —</option>
-                  {#each learningAreas as la}<option value={la.id}>{la.name}</option>{/each}
+                  {#each GES_AREAS.filter(a => !learningAreas.find((l) => l.name === a)) as a}
+                    <option>{a}</option>
+                  {/each}
                 </select>
-                {#if classErrors.learning_area_id}
-                  <p class="field-error">{classErrors.learning_area_id}</p>
-                {/if}
+                {#if laErrors.name}<p class="ferr">{laErrors.name}</p>{/if}
               </div>
-            {/if}
-
-            <div class="field">
-              <label for="c-stream">Stream <span class="optional">(optional)</span></label>
-              <input id="c-stream" class="input" bind:value={newClass.stream} placeholder="A, Gold, Blue…" />
+              <div class="field">
+                <label for="la-code">Short Code <span class="opt">(optional)</span></label>
+                <input id="la-code" class="input" bind:value={newLA.short_name} placeholder="SCI, ART, BUS…" />
+                <p class="hint">Used in class names e.g. "SHS 2 SCI A"</p>
+              </div>
+            </div>
+            {#if laApiError}<div class="api-err"><AlertCircle size={13} />{laApiError}</div>{/if}
+            <div class="actions">
+              <Button on:click={createLA} loading={savingLA}>
+                {savingLA ? "Adding…" : "Add learning area"}
+              </Button>
+              <Button variant="ghost" on:click={() => { addingLA = false; laErrors = {}; }}>Cancel</Button>
             </div>
           </div>
+        </div>
+      {/if}
 
-          {#if classApiError}
-            <div class="form-error" role="alert"><AlertCircle size={14} />{classApiError}</div>
-          {/if}
+      {#if learningAreas.length === 0 && !addingLA}
+        <EmptyState message="No learning areas configured yet.">
+          <svelte:fragment slot="icon"><BookOpen size={28} /></svelte:fragment>
+          <Button on:click={() => addingLA = true}><Plus size={13} />Add first learning area</Button>
+        </EmptyState>
+      {:else if learningAreas.length > 0}
+        <div class="card">
+          {#each learningAreas as la, i}
+            <div class="la-row" class:border-t={i > 0}>
+              <div class="la-main">
+                <span class="la-name">{la.name}</span>
+                {#if editingLA !== la.id}
+                  <span class="la-code">{la.short_name ?? "No code"}</span>
+                {:else}
+                  <div>
+                    <input class="input" style="width:110px;"
+                      bind:value={editLAShort} placeholder="e.g. ART" />
+                    {#if laEditError}<p class="ferr">{laEditError}</p>{/if}
+                  </div>
+                {/if}
+              </div>
+              <div class="la-actions">
+                {#if editingLA === la.id}
+                  <Button variant="icon" ariaLabel="Save code" on:click={() => saveLA(la.id)} loading={savingLAEdit}>
+                    <Check size={13} />
+                  </Button>
+                  <Button variant="icon" ariaLabel="Cancel edit" on:click={() => { editingLA = null; laEditError = ""; }}>
+                    <X size={13} />
+                  </Button>
+                {:else}
+                  <Button variant="icon" ariaLabel="Edit code"
+                    on:click={() => { editingLA = la.id; editLAShort = la.short_name ?? ""; laEditError = ""; }}>
+                    <Pencil size={13} />
+                  </Button>
+                  <Button variant="icon" ariaLabel="Delete {la.name}"
+                    on:click={() => confirmDelete(
+                      "Remove learning area?",
+                      `"${la.name}" will be removed. Classes using it will retain their existing data.`,
+                      () => deleteLA(la.id)
+                    )}
+                  ><Trash2 size={13} /></Button>
+                {/if}
+              </div>
+            </div>
+          {/each}
+        </div>
+      {/if}
+    {/if}
 
-          <div class="form-footer">
-            <button type="submit" class="btn-primary" disabled={savingClass}>
-              {#if savingClass}<Loader2 size={14} class="spin" />{/if}
-              {savingClass ? "Saving…" : "Create class"}
-            </button>
-            <button type="button" class="btn-secondary" on:click={() => { addingClass = false; classErrors = {}; }}>Cancel</button>
+    <!-- ══ POSITIONS ═════════════════════════════════════════════════ -->
+    {#if tab === "positions"}
+      <PageHeader title="Staff Positions" description="Define roles (e.g. Bursar, Housemaster) and their default permissions.">
+        <Button on:click={() => { addingPos = !addingPos; posApiError = ""; newPos = { name: "", code: "" }; newPosPerms = []; }}>
+          <Plus size={13} />{addingPos ? "Cancel" : "Add Position"}
+        </Button>
+      </PageHeader>
+
+      {#if addingPos}
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body">
+            <h3 class="card-title" style="margin-bottom:16px;">New Position</h3>
+            <div class="form-grid">
+              <div class="field">
+                <label for="pos-name">Position name <span class="req">*</span></label>
+                <input id="pos-name" class="input" bind:value={newPos.name} placeholder="e.g. Class Teacher" />
+              </div>
+              <div class="field">
+                <label for="pos-code">Code <span class="req">*</span></label>
+                <input id="pos-code" class="input" bind:value={newPos.code} placeholder="e.g. CLASS_TEACHER" style="text-transform:uppercase;" />
+                <p class="hint">Unique identifier. Uppercase letters + underscores.</p>
+              </div>
+            </div>
+
+            <div class="field" style="margin-top:8px;">
+              <label>Default permissions</label>
+              <div class="perm-grid">
+                {#each ALL_PERMISSIONS as perm}
+                  <label class="perm-check">
+                    <input type="checkbox"
+                      checked={newPosPerms.includes(perm)}
+                      on:change={() => togglePosPermission(perm)}
+                    />
+                    <span>{PERM_LABELS[perm] ?? perm}</span>
+                  </label>
+                {/each}
+              </div>
+            </div>
+
+            {#if posApiError}<div class="api-err"><AlertCircle size={13} />{posApiError}</div>{/if}
+            <div class="actions">
+              <Button on:click={savePosition} loading={savingPos}>
+                {savingPos ? "Creating…" : "Create position"}
+              </Button>
+              <Button variant="ghost" on:click={() => { addingPos = false; posApiError = ""; }}>Cancel</Button>
+            </div>
           </div>
-        </form>
-      </div>
-    {/if}
+        </div>
+      {/if}
 
-    {#if classes.length === 0 && !addingClass}
-      <div class="empty-state">
-        <LayoutGrid size={28} />
-        <p>No classes yet.</p>
-        <button class="btn-primary" on:click={() => addingClass = true}><Plus size={13} />Add your first class</button>
-      </div>
-    {/if}
-
-    {#each Object.entries(classGroups) as [level, group]}
-      <div class="class-group">
-        <div class="group-label">{LEVEL_LABELS[level] ?? level}</div>
-        <div class="class-chips">
-          {#each group as cls}
-            <div class="chip" class:inactive={!cls.is_active}>
-              <span class="chip-name">{cls.name}</span>
-              {#if !cls.is_active}<span class="chip-badge">inactive</span>{/if}
-
-              {#if confirmDeleteClass === cls.id}
-                <span class="confirm-label">Delete?</span>
-                <button class="btn-danger-xs" on:click={() => deleteClass(cls.id)}>Yes</button>
-                <button class="btn-ghost-xs" on:click={() => confirmDeleteClass = null}>No</button>
-              {:else}
-                <button class="chip-del" title="Delete class" on:click={() => confirmDeleteClass = cls.id}>
-                  <X size={11} />
-                </button>
+      {#if posLoading}
+        <div class="pos-loading"><Spinner /></div>
+      {:else if posError}
+        <div class="api-err"><AlertCircle size={13} />{posError}</div>
+      {:else if positions.length === 0 && !addingPos}
+        <EmptyState message="No positions defined yet. Add one to get started.">
+          <svelte:fragment slot="icon"><Shield size={28} /></svelte:fragment>
+          <Button on:click={() => addingPos = true}><Plus size={13} />Add first position</Button>
+        </EmptyState>
+      {:else if positions.length > 0}
+        <div class="card">
+          {#each positions as pos, i}
+            <div class="pos-row" class:border-t={i > 0}>
+              <div class="pos-main">
+                {#if pos.is_system_template}
+                  <span class="sys-badge">system</span>
+                {/if}
+                {#if editingPos === pos.id && !pos.is_system_template}
+                  <input class="input" style="width:200px;" bind:value={editPosName} />
+                {:else}
+                  <span class="pos-name">{pos.name}</span>
+                {/if}
+                <span class="pos-code">{pos.code}</span>
+                <div class="pos-perms">
+                  {#each pos.permissions as perm}
+                    <span class="perm-tag">{PERM_LABELS[perm] ?? perm}</span>
+                  {:else}
+                    <span class="no-perms">No default permissions</span>
+                  {/each}
+                </div>
+              </div>
+              {#if !pos.is_system_template}
+                <div class="la-actions">
+                  {#if editingPos === pos.id}
+                    <Button variant="icon" ariaLabel="Save name" on:click={() => updatePositionName(pos.id)}>
+                      <Check size={13} />
+                    </Button>
+                    <Button variant="icon" ariaLabel="Cancel" on:click={() => { editingPos = null; }}>
+                      <X size={13} />
+                    </Button>
+                  {:else}
+                    <Button variant="icon" ariaLabel="Edit {pos.name}"
+                      on:click={() => { editingPos = pos.id; editPosName = pos.name; }}>
+                      <Pencil size={13} />
+                    </Button>
+                    <Button variant="icon" ariaLabel="Delete {pos.name}"
+                      on:click={() => confirmDelete(
+                        "Delete position?",
+                        `"${pos.name}" will be permanently removed. Staff assigned to it will lose their default permissions.`,
+                        () => deletePosition(pos.id)
+                      )}
+                    ><Trash2 size={13} /></Button>
+                  {/if}
+                </div>
               {/if}
             </div>
           {/each}
         </div>
-      </div>
-    {/each}
-  </div>
-
-
-<!-- ══ LEARNING AREAS ═══════════════════════════════════════════════ -->
-{:else if tab === "learning_areas"}
-  <div class="max-w-lg">
-
-    <div class="section-header">
-      <div>
-        <h2 class="section-title">Learning Areas</h2>
-        <p class="section-subtitle">GES programmes offered at your SHS. Short codes appear in class names.</p>
-      </div>
-      <button class="btn-primary" on:click={() => { addingLA = !addingLA; laErrors = {}; laApiError = ""; }}>
-        <Plus size={13} />{addingLA ? "Cancel" : "Add"}
-      </button>
-    </div>
-
-    {#if addingLA}
-      <div class="card form-card">
-        <form on:submit|preventDefault={createLA} novalidate>
-          <div class="grid-2">
-            <div class="field">
-              <label for="la-name">Learning Area <span class="required">*</span></label>
-              <select id="la-name" class="input" class:invalid={laErrors.name}
-                bind:value={newLA.name}
-                aria-invalid={!!laErrors.name}
-                aria-describedby={laErrors.name ? "la-name-err" : undefined}
-              >
-                <option value="">— select —</option>
-                {#each GES_AREAS.filter(a => !learningAreas.find((l: any) => l.name === a)) as a}
-                  <option>{a}</option>
-                {/each}
-              </select>
-              {#if laErrors.name}<p id="la-name-err" class="field-error">{laErrors.name}</p>{/if}
-            </div>
-            <div class="field">
-              <label for="la-code">Short code <span class="optional">(optional)</span></label>
-              <input id="la-code" class="input" bind:value={newLA.short_name} placeholder="SCI, ART, BUS…" />
-              <p class="field-hint">Used in class names, e.g. "2 SCI A"</p>
-            </div>
-          </div>
-
-          {#if laApiError}
-            <div class="form-error" role="alert"><AlertCircle size={14} />{laApiError}</div>
-          {/if}
-
-          <div class="form-footer">
-            <button type="submit" class="btn-primary" disabled={savingLA}>
-              {#if savingLA}<Loader2 size={14} class="spin" />{/if}
-              {savingLA ? "Saving…" : "Add learning area"}
-            </button>
-            <button type="button" class="btn-secondary" on:click={() => { addingLA = false; laErrors = {}; }}>Cancel</button>
-          </div>
-        </form>
-      </div>
+      {/if}
     {/if}
 
-    {#if learningAreas.length === 0 && !addingLA}
-      <div class="empty-state">
-        <BookOpen size={28} />
-        <p>No learning areas configured yet.</p>
-        <button class="btn-primary" on:click={() => addingLA = true}><Plus size={13} />Add first learning area</button>
-      </div>
-    {:else if learningAreas.length > 0}
-      <div class="card list-card">
-        {#each learningAreas as la, i}
-          <div class="list-row" class:border-top={i > 0}>
-            <div class="list-row-main">
-              <div class="list-row-title">{la.name}</div>
-              {#if editingLA !== la.id}
-                <div class="list-row-sub">Code: {la.short_name ?? "—"}</div>
-              {:else}
-                <input class="input inline-input" bind:value={editLAShort} placeholder="e.g. ART"
-                  aria-label="Short code for {la.name}" />
-              {/if}
-            </div>
-
-            <div class="list-row-actions">
-              {#if editingLA === la.id}
-                <button class="btn-icon ok" title="Save" on:click={() => saveLA(la.id)} disabled={savingLAEdit}>
-                  {#if savingLAEdit}<Loader2 size={13} class="spin" />{:else}<Check size={13} />{/if}
-                </button>
-                <button class="btn-icon" title="Cancel" on:click={() => editingLA = null}><X size={13} /></button>
-              {:else if confirmDeleteLA === la.id}
-                <span class="confirm-label">Delete?</span>
-                <button class="btn-danger-sm" on:click={() => deleteLA(la.id)}>Yes</button>
-                <button class="btn-secondary-sm" on:click={() => confirmDeleteLA = null}>No</button>
-              {:else}
-                <button class="btn-icon" title="Edit short code"
-                  on:click={() => { editingLA = la.id; editLAShort = la.short_name ?? ""; }}>
-                  <Pencil size={13} />
-                </button>
-                <button class="btn-icon danger" title="Delete" on:click={() => confirmDeleteLA = la.id}>
-                  <Trash2 size={13} />
-                </button>
-              {/if}
-            </div>
-          </div>
-        {/each}
-      </div>
-    {/if}
-  </div>
-{/if}
+  </div><!-- /content -->
+</div><!-- /settings-root -->
 
 <style>
-  /* ── Layout ──────────────────────────────────────────────────── */
-  .page-header { margin-bottom: 20px; }
-  .page-title  { font-size: 17px; font-weight: 600; color: var(--tx-high); }
-  .page-subtitle { font-size: 13px; color: var(--tx-low); margin-top: 3px; }
+/* ── Root ─────────────────────────────────────────────────────────── */
+.settings-root { display: flex; flex-direction: column; min-height: 100%; }
 
-  .max-w-lg  { max-width: 560px; }
-  .max-w-2xl { max-width: 680px; }
+/* ── Tab bar ─────────────────────────────────────────────────────── */
+.tabs-bar {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.tabs-bar::-webkit-scrollbar { display: none; }
 
-  /* ── Tabs ────────────────────────────────────────────────────── */
-  .tabs {
-    display: flex;
-    gap: 2px;
-    margin-bottom: 22px;
-    border-bottom: 1px solid var(--border-subtle);
-  }
-  .tab-btn {
-    display: flex; align-items: center; gap: 6px;
-    padding: 8px 14px;
-    font-size: 13px; font-weight: 400;
-    color: var(--tx-mid);
-    border: none; border-bottom: 2px solid transparent;
-    background: transparent; cursor: pointer;
-    margin-bottom: -1px;
-    transition: color 0.12s;
-  }
-  .tab-btn:hover { color: var(--tx-high); }
-  .tab-btn.active { color: var(--accent); font-weight: 600; border-bottom-color: var(--accent); }
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--tx-low);
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.tab:hover { color: var(--tx-mid); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
+@media (max-width: 480px) {
+  .tab { padding: 10px 12px; }
+  .tab-label { display: none; }
+}
 
-  /* ── Cards ───────────────────────────────────────────────────── */
-  .card {
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-xs);
-  }
-  .card.form-card { padding: 20px; margin-bottom: 14px; }
-  .card.list-card { overflow: hidden; }
-  .year-card    { margin-bottom: 10px; overflow: hidden; }
+/* ── Content ─────────────────────────────────────────────────────── */
+.content { width: 100%; }
 
-  /* ── Section header ──────────────────────────────────────────── */
-  .section-header {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    margin-bottom: 14px; gap: 12px;
-  }
-  .section-title   { font-size: 14px; font-weight: 600; color: var(--tx-high); margin: 0; }
-  .section-subtitle { font-size: 12px; color: var(--tx-low); margin-top: 2px; }
+/* ── Two-column (School Profile) ─────────────────────────────────── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.col { display: flex; flex-direction: column; gap: 16px; }
+@media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
 
-  /* ── Fields ──────────────────────────────────────────────────── */
-  .field-grid { display: grid; gap: 14px; margin-bottom: 18px; }
-  .grid-2     { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-  .grid-3     { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px; }
-  .grid-auto  { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 14px; }
+/* ── Cards ───────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: var(--shadow-xs);
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+.card:focus-within { box-shadow: 0 0 0 1px var(--accent-border), var(--shadow-sm); }
+.col .card { margin-bottom: 0; }
 
-  @media (max-width: 600px) {
-    .grid-2, .grid-3, .grid-auto { grid-template-columns: 1fr; }
-  }
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 18px;
+  background: var(--surface-0);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.card-hicon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.card-title { font-size: 13px; font-weight: 600; color: var(--tx-high); margin: 0 0 2px; }
+.card-desc  { font-size: 12px; color: var(--tx-low); margin: 0; line-height: 1.5; }
+.card-body { padding: 16px 18px; }
 
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label {
-    font-size: 11.5px; font-weight: 500; color: var(--tx-low);
-  }
-  .required { color: var(--accent); }
-  .optional  { color: var(--tx-low); font-weight: 400; font-size: 10.5px; }
+/* ── Form helpers ─────────────────────────────────────────────────── */
+.form-stack { display: flex; flex-direction: column; gap: 14px; }
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+.field { display: flex; flex-direction: column; gap: 5px; }
 
-  .input {
-    width: 100%;
-    padding: 7px 10px;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm);
-    background: var(--surface-1);
-    color: var(--tx-high);
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.12s, box-shadow 0.12s;
-  }
-  .input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
-  }
-  .input.invalid {
-    border-color: var(--err-text);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--err-text) 12%, transparent);
-  }
-  .input.inline-input { width: 130px; margin-top: 4px; }
+label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tx-mid);
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+.req { color: var(--accent); margin-left: 2px; }
+.opt { font-weight: 400; font-size: 11px; color: var(--tx-low); }
 
-  select.input { cursor: pointer; }
+.input {
+  width: 100%;
+  height: 34px;
+  padding: 0 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface-0);
+  color: var(--tx-high);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.input::placeholder { color: var(--tx-placeholder); }
+.input:hover:not(:focus):not(:disabled) {
+  border-color: color-mix(in srgb, var(--border-strong) 40%, var(--accent));
+  background: var(--surface-1);
+}
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent);
+}
+.input.invalid { border-color: var(--err-text); }
+.input:disabled { opacity: 0.55; cursor: not-allowed; }
 
-  .field-error {
-    font-size: 11.5px; color: var(--err-text);
-    display: flex; align-items: center; gap: 4px;
-    margin: 0;
-  }
-  .field-hint  { font-size: 11px; color: var(--tx-low); margin: 0; }
+select.input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2396938B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+  cursor: pointer;
+}
 
-  /* ── Colour picker ───────────────────────────────────────────── */
-  .color-row { display: flex; align-items: center; gap: 8px; }
-  .color-swatch {
-    width: 38px; height: 34px;
-    padding: 2px; border: 1px solid var(--border-strong);
-    border-radius: var(--radius-sm); cursor: pointer;
-    flex-shrink: 0;
-  }
-  .color-row .input { flex: 1; }
+.ferr { font-size: 11.5px; color: var(--err-text); margin: 0; }
+.hint { font-size: 11.5px; color: var(--tx-low); margin: 0; line-height: 1.4; }
 
-  /* ── Form footer ─────────────────────────────────────────────── */
-  .form-footer {
-    display: flex; align-items: center; gap: 10px; margin-top: 18px;
-  }
-  .form-error {
-    display: flex; align-items: center; gap: 7px;
-    padding: 9px 12px; margin-top: 12px;
-    border-radius: var(--radius-sm);
-    background: var(--err-bg); color: var(--err-text);
-    font-size: 13px;
-  }
-  .success-text {
-    display: flex; align-items: center; gap: 5px;
-    font-size: 13px; color: var(--ok-text);
-  }
+/* ── Actions row ─────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
 
-  /* ── Buttons ─────────────────────────────────────────────────── */
-  .btn-primary {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 16px;
-    border-radius: var(--radius-sm);
-    background: var(--accent); color: var(--accent-fg);
-    border: none; font-size: 13px; font-weight: 500;
-    cursor: pointer; white-space: nowrap;
-    transition: opacity 0.12s;
-  }
-  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+/* ── API-level inline error ──────────────────────────────────────── */
+.api-err {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--err-bg);
+  color: var(--err-text);
+  font-size: 12.5px;
+  margin-top: 10px;
+  border: 1px solid color-mix(in srgb, var(--err-text) 18%, transparent);
+}
 
-  .btn-secondary {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 7px 14px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-strong);
-    background: transparent; color: var(--tx-mid);
-    font-size: 13px; font-weight: 400; cursor: pointer;
-    transition: background 0.12s;
-  }
-  .btn-secondary:hover { background: var(--surface-2); }
+/* ── Save bar ────────────────────────────────────────────────────── */
+.save-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0 4px;
+  flex-wrap: wrap;
+}
+.feedback {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.feedback.ok  { color: var(--ok-text); }
+.feedback.err { color: var(--err-text); }
 
-  .btn-icon {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px; border-radius: 6px;
-    border: none; background: transparent;
-    color: var(--tx-low); cursor: pointer;
-    transition: background 0.12s, color 0.12s;
-  }
-  .btn-icon:hover { background: var(--surface-2); color: var(--tx-high); }
-  .btn-icon:disabled { opacity: 0.35; cursor: not-allowed; }
-  .btn-icon.ok:hover  { color: var(--ok-text); }
-  .btn-icon.danger:hover { color: var(--err-text); }
+/* ── Logo block ──────────────────────────────────────────────────── */
+.logo-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.logo-thumb {
+  width: 64px; height: 64px;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+  flex-shrink: 0;
+  color: var(--tx-low);
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s, background 0.15s;
+}
+.logo-thumb:hover {
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+}
+.logo-thumb.uploading { opacity: .6; pointer-events: none; }
+.logo-thumb img { width: 100%; height: 100%; object-fit: contain; }
+.logo-overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.logo-thumb:hover .logo-overlay { opacity: 1; }
+.logo-hint-text { font-size: 9px; color: var(--tx-low); text-align: center; line-height: 1.2; }
+.logo-upload-label { font-size: 12px; font-weight: 500; color: var(--tx-high); margin-bottom: 3px; }
+.opt-label { font-size: 10px; font-weight: 400; color: var(--tx-low); margin-left: 4px; }
+.field-error { font-size: 11px; color: #ef4444; margin-top: 3px; }
 
-  .btn-link {
-    background: none; border: none; padding: 0;
-    color: var(--accent); font-size: 12px; font-weight: 500;
-    cursor: pointer; white-space: nowrap;
-  }
-  .btn-link:hover { text-decoration: underline; }
-  .btn-link.small { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 12px; }
+/* ── Colour picker ───────────────────────────────────────────────── */
+.color-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.color-swatch {
+  width: 34px; height: 34px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 2px;
+  cursor: pointer;
+  background: none;
+  flex-shrink: 0;
+}
+.color-sample {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  flex-shrink: 0;
+}
+.mono { font-family: "Menlo", "Consolas", monospace; }
 
-  /* ── Delete confirmation inline buttons ──────────────────────── */
-  .confirm-label  { font-size: 12px; color: var(--tx-mid); white-space: nowrap; }
-  .btn-danger-sm {
-    padding: 3px 9px; border-radius: 5px; font-size: 12px; font-weight: 600;
-    border: none; background: var(--err-text); color: #fff; cursor: pointer;
-  }
-  .btn-secondary-sm {
-    padding: 3px 9px; border-radius: 5px; font-size: 12px;
-    border: 1px solid var(--border-strong); background: transparent;
-    color: var(--tx-mid); cursor: pointer;
-  }
-  .btn-danger-xs {
-    padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600;
-    border: none; background: var(--err-text); color: #fff; cursor: pointer;
-  }
-  .btn-ghost-xs {
-    padding: 2px 7px; border-radius: 4px; font-size: 11px;
-    border: 1px solid var(--border-strong); background: transparent;
-    color: var(--tx-mid); cursor: pointer;
-  }
+/* ── Page header (used by non-form tabs) ─────────────────────────── */
+:global(.page-head) { margin-bottom: 20px; }
 
-  /* ── Academic year rows ──────────────────────────────────────── */
-  .year-header {
-    display: flex; align-items: center; gap: 10px;
-    padding: 12px 16px; cursor: pointer;
-    user-select: none;
-  }
-  .year-header:hover { background: var(--surface-2); }
-  .year-name  { font-size: 13px; font-weight: 600; color: var(--tx-high); flex: 1; }
-  .year-dates { font-size: 11.5px; color: var(--tx-low); white-space: nowrap; }
+/* ── Academic Calendar ───────────────────────────────────────────── */
+.year-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--surface-1);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.year-card.is-current { border-color: color-mix(in srgb, var(--accent) 35%, var(--border-subtle)); }
 
-  :global(.chevron) { color: var(--tx-low); transition: transform 0.15s; flex-shrink: 0; }
-  :global(.chevron.open) { transform: rotate(90deg); }
+.year-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+}
+.year-head-l { display: flex; align-items: center; gap: 10px; }
+.year-head-r { display: flex; align-items: center; gap: 8px; }
 
-  .terms-panel {
-    border-top: 1px solid var(--border-subtle);
-    padding: 12px 16px 14px;
-    background: var(--surface-0);
-  }
-  .term-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 7px 10px; border-radius: 6px;
-    background: var(--surface-1);
-    margin-bottom: 6px;
-  }
-  .term-name  { font-size: 13px; font-weight: 500; color: var(--tx-high); flex: 1; }
-  .term-dates { font-size: 11.5px; color: var(--tx-low); white-space: nowrap; }
-  .term-form  { margin-top: 12px; padding: 14px; border-radius: var(--radius-sm); background: var(--surface-1); }
+.year-name  { font-size: 13.5px; font-weight: 600; color: var(--tx-high); }
+.year-dates { font-size: 11.5px; color: var(--tx-low); margin-top: 1px; }
 
-  /* ── Badges ──────────────────────────────────────────────────── */
-  .badge-ok {
-    font-size: 11px; font-weight: 600;
-    padding: 2px 8px; border-radius: 4px;
-    background: var(--ok-bg); color: var(--ok-text);
-    white-space: nowrap;
-  }
+.expand-btn {
+  width: 26px; height: 26px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--tx-low);
+  cursor: pointer;
+  transition: background 0.1s;
+  flex-shrink: 0;
+}
+.expand-btn:hover { background: var(--surface-2); }
+:global(.chevron) { transition: transform 0.18s ease; }
+:global(.chevron.open) { transform: rotate(180deg); }
 
-  /* ── Class chips ─────────────────────────────────────────────── */
-  .class-group { margin-bottom: 18px; }
-  .group-label {
-    font-size: 11px; font-weight: 600; letter-spacing: .07em;
-    text-transform: uppercase; color: var(--tx-low); margin-bottom: 8px;
-  }
-  .class-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-  .chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 5px 10px;
-    border-radius: 6px;
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
-  }
-  .chip.inactive { opacity: 0.55; }
-  .chip-name  { font-size: 13px; font-weight: 500; color: var(--tx-high); }
-  .chip-badge { font-size: 10px; color: var(--tx-low); }
-  .chip-del {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 18px; height: 18px; border-radius: 4px;
-    border: none; background: transparent; color: var(--tx-low);
-    cursor: pointer; transition: background 0.1s, color 0.1s;
-  }
-  .chip-del:hover { background: var(--err-bg); color: var(--err-text); }
+.pill {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--surface-2);
+  color: var(--tx-low);
+  border: 1px solid var(--border-subtle);
+}
 
-  /* ── List rows (learning areas) ──────────────────────────────── */
-  .list-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 16px;
-  }
-  .list-row.border-top { border-top: 1px solid var(--border-subtle); }
-  .list-row-main  { flex: 1; min-width: 0; }
-  .list-row-title { font-size: 13px; font-weight: 500; color: var(--tx-high); }
-  .list-row-sub   { font-size: 12px; color: var(--tx-low); margin-top: 1px; }
-  .list-row-actions { display: flex; align-items: center; gap: 4px; }
+.terms-panel {
+  border-top: 1px solid var(--border-subtle);
+  padding: 8px 14px 12px;
+  background: var(--surface-0);
+}
 
-  /* ── Empty state ─────────────────────────────────────────────── */
-  .empty-state {
-    display: flex; flex-direction: column; align-items: center;
-    gap: 10px; padding: 44px 20px; text-align: center;
-    color: var(--tx-low);
-    border: 1px dashed var(--border-subtle);
-    border-radius: var(--radius);
-  }
-  .empty-state p { font-size: 14px; color: var(--tx-mid); margin: 0; }
+.term-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.term-row:last-child { border-bottom: none; }
 
-  /* ── Misc ────────────────────────────────────────────────────── */
-  .text-muted { font-size: 13px; color: var(--tx-low); }
-  .small      { font-size: 12px; }
+.term-l { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.term-r { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
-  :global(.spin) {
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-  }
+.tdot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+.tdot.active { background: var(--ok-dot); }
+
+.term-name  { font-size: 13px; font-weight: 500; color: var(--tx-high); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.term-dates { font-size: 11.5px; color: var(--tx-low); white-space: nowrap; }
+
+.terms-empty { font-size: 12.5px; color: var(--tx-low); padding: 10px 0; margin: 0; }
+
+.term-form {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.add-term-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 0;
+  margin-top: 8px;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.1s;
+}
+.add-term-btn:hover { opacity: 0.75; }
+
+/* ── Classes ─────────────────────────────────────────────────────── */
+.class-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 14px;
+}
+
+.class-section { margin-bottom: 18px; }
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--tx-low);
+  margin-bottom: 8px;
+}
+
+.class-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.class-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 8px 5px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--tx-high);
+  transition: border-color 0.1s, box-shadow 0.1s;
+}
+.class-chip:hover { border-color: var(--border-strong); box-shadow: var(--shadow-xs); }
+.class-chip.inactive { opacity: 0.55; }
+
+.chip-name { white-space: nowrap; }
+
+.chip-del {
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  color: var(--tx-low);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  flex-shrink: 0;
+}
+.chip-del:hover { background: var(--err-bg); color: var(--err-text); }
+
+.warn-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--warn-dot); }
+
+/* ── Learning Areas ──────────────────────────────────────────────── */
+.la-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 18px;
+}
+.border-t { border-top: 1px solid var(--border-subtle); }
+
+.la-main { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+.la-name { font-size: 13.5px; font-weight: 500; color: var(--tx-high); }
+.la-code { font-size: 12px; color: var(--tx-low); background: var(--surface-2); padding: 2px 7px; border-radius: 4px; }
+.la-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+
+/* ── Positions ────────────────────────────────────────────────────── */
+.pos-loading { display: flex; justify-content: center; padding: 40px; }
+
+.pos-row {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 10px; padding: 12px 18px;
+}
+
+.pos-main { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+
+.pos-name { font-size: 13.5px; font-weight: 600; color: var(--tx-high); }
+.pos-code { font-size: 11px; font-weight: 600; font-family: monospace; color: var(--tx-low); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.sys-badge {
+  display: inline-block; padding: 1px 7px; border-radius: 10px;
+  font-size: 10.5px; font-weight: 600;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent); width: fit-content;
+}
+
+.pos-perms { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.perm-tag {
+  padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 500;
+  background: var(--surface-1); border: 1px solid var(--border-subtle);
+  color: var(--tx-mid);
+}
+
+.no-perms { font-size: 11.5px; color: var(--tx-low); font-style: italic; }
+
+.perm-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px; margin-top: 6px;
+}
+
+.perm-check {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 10px; border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1); cursor: pointer;
+  font-size: 12.5px; color: var(--tx-mid);
+  transition: border-color 0.12s, background 0.12s;
+  user-select: none;
+}
+.perm-check:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.perm-check input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; }
+
+/* ── Spinner (global keyframe) ───────────────────────────────────── */
+:global(.spin) { animation: spin 0.75s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>

@@ -18,6 +18,7 @@ if TYPE_CHECKING:
 
 class AcademicYear(UUIDPrimaryKey, TimestampMixin, Base):
     __tablename__ = "academic_year"
+    __table_args__ = (UniqueConstraint("school_id", "name", name="uq_academic_year_school_name"),)
 
     school_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("school.id", ondelete="CASCADE"), nullable=False
@@ -35,6 +36,7 @@ class AcademicYear(UUIDPrimaryKey, TimestampMixin, Base):
 
 class AcademicTerm(UUIDPrimaryKey, TimestampMixin, Base):
     __tablename__ = "academic_term"
+    __table_args__ = (UniqueConstraint("academic_year_id", "name", name="uq_academic_term_year_name"),)
 
     academic_year_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("academic_year.id", ondelete="CASCADE"), nullable=False
@@ -163,6 +165,15 @@ class Class(UUIDPrimaryKey, TimestampMixin, Base):
     """
 
     __tablename__ = "class"
+    __table_args__ = (
+        # Prevents duplicate classes within a school.
+        # Note: PostgreSQL treats NULLs as distinct in unique constraints, so the
+        # API layer also checks for duplicates to cover NULL column combinations.
+        UniqueConstraint(
+            "school_id", "level", "year", "learning_area_id", "stream",
+            name="uq_class_identity",
+        ),
+    )
 
     school_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("school.id", ondelete="CASCADE"), nullable=False

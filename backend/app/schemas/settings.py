@@ -140,6 +140,7 @@ class SchoolProfileUpdate(OrmBase):
     address: str | None = None
     region: str | None = None
     district: str | None = None
+    motto: str | None = None
     accent_color: str | None = None
 
     @field_validator("accent_color")

@@ -44,6 +44,21 @@ export default defineConfig({
       "/api": {
         target: process.env.API_TARGET || "http://localhost:8000",
         changeOrigin: true,
+        // Strip the Secure flag from Set-Cookie headers so they work over plain http://localhost
+        configure(proxy) {
+          proxy.on("proxyRes", (proxyRes) => {
+            const cookies = proxyRes.headers["set-cookie"];
+            if (!cookies) return;
+            proxyRes.headers["set-cookie"] = cookies.map((c) =>
+              c.replace(/;\s*Secure/gi, "")
+            );
+          });
+        },
+      },
+      // Proxy uploaded files (logos etc.) served as static files by the backend
+      "/uploads": {
+        target: process.env.API_TARGET || "http://localhost:8000",
+        changeOrigin: true,
       },
     },
   },

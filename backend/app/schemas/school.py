@@ -60,6 +60,8 @@ class SchoolResponse(IDSchema, TimestampSchema):
     has_houses: bool
     has_fees_module: bool
     accent_color: str
+    logo_url: str | None
+    motto: str | None
     is_active: bool
 
 
