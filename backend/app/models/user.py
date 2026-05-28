@@ -18,7 +18,7 @@ class User(UUIDPrimaryKey, TimestampMixin, Base):
 
     system_role controls top-level access:
       SUPERADMIN   — Tagnatek staff. Bypasses all permission checks. school_id = NULL.
-      SCHOOL_STAFF — permission-gated via StaffPosition + StaffPermission.
+      SCHOOL_STAFF — permission-gated via UserRole + StaffPermission overrides.
       STUDENT      — read-only, scoped to own academic data.
       PARENT       — read-only, scoped to own children's data.
     """
@@ -41,11 +41,6 @@ class User(UUIDPrimaryKey, TimestampMixin, Base):
         UUID(as_uuid=True), ForeignKey("school.id", ondelete="SET NULL"), nullable=True
     )
 
-    # NULL for STUDENT / PARENT — those have no position/permission toggles
-    position_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("staff_position.id", ondelete="SET NULL"), nullable=True
-    )
-
     # Linked staff record (NULL for STUDENT / PARENT)
     staff_member_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("staff_member.id", ondelete="SET NULL"), nullable=True
@@ -60,7 +55,41 @@ class User(UUIDPrimaryKey, TimestampMixin, Base):
     invite_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     is_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
-    position: Mapped["StaffPosition | None"] = relationship(foreign_keys=[position_id])
     staff_member: Mapped["StaffMember | None"] = relationship(
         foreign_keys=[staff_member_id], back_populates="user"
     )
+    user_roles: Mapped[list["UserRole"]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        foreign_keys="UserRole.user_id",
+    )
+
+
+class UserRole(Base):
+    """
+    Junction table: a user can hold multiple roles (M2M).
+    Permission resolution unions all assigned roles, then personal overrides win.
+    """
+
+    __tablename__ = "user_role"
+    __table_args__ = (
+        UniqueConstraint("user_id", "role_id"),
+        Index("ix_user_role_user_id", "user_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user.id", ondelete="CASCADE"), nullable=False
+    )
+    role_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("staff_position.id", ondelete="RESTRICT"), nullable=False
+    )
+    assigned_by: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user.id", ondelete="SET NULL"), nullable=True
+    )
+    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    user: Mapped["User"] = relationship(foreign_keys=[user_id], back_populates="user_roles")
+    role: Mapped["StaffPosition"] = relationship(foreign_keys=[role_id])

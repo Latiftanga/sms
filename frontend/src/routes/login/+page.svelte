@@ -45,6 +45,8 @@
   async function handleLogin(e: SubmitEvent) {
     e.preventDefault();
     error = "";
+    if (!email.trim()) { error = "Email address is required."; return; }
+    if (!password)     { error = "Password is required."; return; }
     loading = true;
     try {
       await auth.login(email, password);

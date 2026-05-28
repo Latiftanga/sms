@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { goto } from "$app/navigation";
+  import { goto, preloadData } from "$app/navigation";
   import { api } from "$api/client";
   import Button from "$components/ui/Button.svelte";
   import Badge from "$components/ui/Badge.svelte";
@@ -9,6 +9,9 @@
   import PageHeader from "$components/ui/PageHeader.svelte";
   import { UserPlus, Upload, Search, ChevronLeft, ChevronRight, Check, AlertCircle } from "@lucide/svelte";
   import type { StaffMember, PagedResponse } from "$api/types";
+  import { auth } from "$lib/stores/auth";
+
+  $: canManageStaff = $auth.user?.system_role === "SUPERADMIN" || $auth.user?.permissions?.manage_staff === true;
 
   // ── List state ────────────────────────────────────────────────────
   let staff: StaffMember[] = [];
@@ -77,12 +80,14 @@
 
 <div class="page">
   <PageHeader title="Staff" description="Manage teaching and non-teaching staff">
-    <Button variant="ghost" size="sm" on:click={() => goto("/staff/import")}>
-      <Upload size={13} /> Bulk Import
-    </Button>
-    <Button size="sm" on:click={() => goto("/staff/new")}>
-      <UserPlus size={13} /> Add Staff
-    </Button>
+    {#if canManageStaff}
+      <Button variant="ghost" size="sm" on:click={() => goto("/staff/import")}>
+        <Upload size={13} /> Bulk Import
+      </Button>
+      <Button size="sm" on:click={() => goto("/staff/new")}>
+        <UserPlus size={13} /> Add Staff
+      </Button>
+    {/if}
   </PageHeader>
 
   <!-- Filters -->
@@ -124,7 +129,7 @@
       <EmptyState
         message={search || filterCategory ? "No staff match your filters. Try adjusting your search." : "No staff yet. Add individual staff or bulk import from CSV/Excel."}
       >
-        {#if !search && !filterCategory}
+        {#if !search && !filterCategory && canManageStaff}
           <Button on:click={() => goto("/staff/new")}><UserPlus size={13} /> Add First Staff Member</Button>
         {/if}
       </EmptyState>
@@ -143,7 +148,9 @@
         </thead>
         <tbody>
           {#each staff as member}
-            <tr class="staff-row" on:click={() => window.location.href = `/staff/${member.id}`}>
+            <tr class="staff-row"
+              on:click={() => goto(`/staff/${member.id}`)}
+              on:mouseenter={() => preloadData(`/staff/${member.id}`)}>
               <td>
                 <div class="member-cell">
                   <div class="avatar" data-cat={member.category}>

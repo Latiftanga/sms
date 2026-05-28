@@ -1,45 +1,37 @@
 <script lang="ts">
-  import { onMount } from "svelte";
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { api } from "$api/client";
   import { toast } from "$stores/toast";
   import Button from "$components/ui/Button.svelte";
   import Badge from "$components/ui/Badge.svelte";
-  import Spinner from "$components/ui/Spinner.svelte";
   import {
     ArrowLeft, Pencil, Save, X, UserCheck, Upload,
     GraduationCap, TrendingUp, Shield, Plus, Trash2,
     Check, AlertCircle, Copy, Eye, EyeOff, Loader2, Camera,
+    User, Briefcase, Phone, Info,
   } from "@lucide/svelte";
-  import type { StaffMemberDetail, Qualification, Promotion, AccountCreateResponse } from "$api/types";
+  import type { StaffMemberDetail, Qualification, Promotion, AccountCreateResponse, UserRole, StaffPermissionsResponse, Role } from "$api/types";
+  import type { PageData } from "./+page";
   import { confirmDialog } from "$stores/confirm";
+  import { auth } from "$lib/stores/auth";
+
+  export let data: PageData;
+
+  $: canManageStaff      = $auth.user?.system_role === "SUPERADMIN" || $auth.user?.permissions?.manage_staff === true;
+  $: canManageUsers      = $auth.user?.system_role === "SUPERADMIN" || $auth.user?.permissions?.manage_users === true;
+  $: canManagePromotions = $auth.user?.system_role === "SUPERADMIN" || $auth.user?.permissions?.manage_promotions === true;
 
   const staffId = $page.params.id;
 
-  // ── Data ──────────────────────────────────────────────────────────
-  let member: StaffMemberDetail | null = null;
-  let loading = true;
-  let loadError = "";
+  // ── Data — ready before mount via +page.ts ────────────────────────
+  let member: StaffMemberDetail = data.member;
+  $: if (data.member.id !== member.id) { member = data.member; tab = "profile"; staffPerms = null; }
 
   function apiError(e: unknown): string {
     const err = e as { response?: { data?: { detail?: string } } };
     return err?.response?.data?.detail ?? "Something went wrong.";
   }
-
-  async function load() {
-    loading = true; loadError = "";
-    try {
-      const { data } = await api.get<StaffMemberDetail>(`/staff/${staffId}`);
-      member = data;
-    } catch (e) {
-      loadError = apiError(e);
-    } finally {
-      loading = false;
-    }
-  }
-
-  onMount(load);
 
   // ── Tab ───────────────────────────────────────────────────────────
   let tab: "profile" | "qualifications" | "promotions" | "account" = "profile";
@@ -363,6 +355,123 @@
     setTimeout(() => copied = false, 2000);
   }
 
+  // ── Admin password reset ──────────────────────────────────────────
+  let resetResult: AccountCreateResponse | null = null;
+  let resetting = false;
+  let resetPwVisible = false;
+  let resetCopied = false;
+
+  async function resetPassword() {
+    const ok = await confirmDialog.show({
+      title: "Reset password",
+      message: "A new temporary password will be generated. The staff member will be required to change it on next login.",
+      variant: "danger",
+      confirmLabel: "Reset password",
+    });
+    if (!ok) return;
+    resetting = true;
+    try {
+      const { data } = await api.post<AccountCreateResponse>(`/staff/${staffId}/reset-password`);
+      resetResult = data;
+      toast.success("Password reset");
+    } catch (e) { toast.error(apiError(e)); }
+    finally { resetting = false; }
+  }
+
+  async function copyResetPw() {
+    if (!resetResult) return;
+    await navigator.clipboard.writeText(resetResult.temp_password);
+    resetCopied = true;
+    setTimeout(() => resetCopied = false, 2000);
+  }
+
+  // ── Reactivate staff ──────────────────────────────────────────────
+  let reactivating = false;
+
+  async function reactivate() {
+    const ok = await confirmDialog.show({
+      title: "Reactivate staff member",
+      message: `${member?.first_name} ${member?.last_name} will be restored to active status and their login account re-enabled.`,
+      confirmLabel: "Reactivate",
+    });
+    if (!ok) return;
+    reactivating = true;
+    try {
+      await api.post(`/staff/${staffId}/reactivate`);
+      member = { ...member!, is_active: true };
+      toast.success("Staff member reactivated");
+    } catch (e) { toast.error(apiError(e)); }
+    finally { reactivating = false; }
+  }
+
+  // ── Roles & permissions ───────────────────────────────────────────
+  let staffPerms: StaffPermissionsResponse | null = null;
+  let permsLoading = false;
+  let allRoles: Role[] = [];
+  let addingRole = false;
+  let selectedRoleId = "";
+  let roleAdding = false;
+
+  async function loadPerms() {
+    if (!member?.has_account) return;
+    permsLoading = true;
+    try {
+      const [permsRes, rolesRes] = await Promise.all([
+        api.get<StaffPermissionsResponse>(`/staff/${staffId}/permissions`),
+        api.get<Role[]>("/settings/positions"),
+      ]);
+      staffPerms = permsRes.data;
+      allRoles = rolesRes.data;
+    } catch { /* ignore */ } finally {
+      permsLoading = false;
+    }
+  }
+
+  $: if (tab === "account" && member?.has_account && !staffPerms) {
+    loadPerms();
+  }
+
+  $: assignedRoleIds = new Set(staffPerms?.roles.map(r => r.role.id) ?? []);
+  $: availableRoles = allRoles.filter(r => !assignedRoleIds.has(r.id));
+
+  async function addRole() {
+    if (!selectedRoleId) return;
+    roleAdding = true;
+    try {
+      await api.post(`/staff/${staffId}/roles`, { role_id: selectedRoleId });
+      await loadPerms();
+      addingRole = false; selectedRoleId = "";
+      toast.success("Role assigned");
+    } catch (e) {
+      toast.error(apiError(e));
+    } finally { roleAdding = false; }
+  }
+
+  async function removeRole(userRoleId: string) {
+    const ok = await confirmDialog.show({
+      title: "Remove role",
+      message: "The role and its permissions will be revoked immediately.",
+      variant: "danger", confirmLabel: "Remove",
+    });
+    if (!ok) return;
+    try {
+      await api.delete(`/staff/${staffId}/roles/${userRoleId}`);
+      staffPerms = { ...staffPerms!, roles: staffPerms!.roles.filter(r => r.id !== userRoleId) };
+      toast.success("Role removed");
+      await loadPerms(); // refresh effective permissions
+    } catch (e) { toast.error(apiError(e)); }
+  }
+
+  // ── Account role preview ──────────────────────────────────────────
+  const DESIG_ROLE_LABEL: Record<string, string> = {
+    HEADTEACHER: "Headteacher", ASSISTANT_HEAD: "Assistant Headteacher",
+    BURSAR: "Bursar", HOUSEMASTER: "Housemaster", SENIOR_HOUSEMASTER: "Senior Housemaster",
+  };
+  $: defaultRoleLabel = !member ? null
+    : member.designation && DESIG_ROLE_LABEL[member.designation]
+      ? DESIG_ROLE_LABEL[member.designation]
+      : member.category === "TEACHING" ? "Class Teacher" : null;
+
   // ── Helpers ───────────────────────────────────────────────────────
   function initials(m: StaffMemberDetail) {
     return (m.first_name.charAt(0) + m.last_name.charAt(0)).toUpperCase();
@@ -381,19 +490,10 @@
 </script>
 
 <svelte:head>
-  <title>{member ? `${member.first_name} ${member.last_name}` : "Staff"} — TTEK-SIS</title>
+  <title>{member.first_name} {member.last_name} — TTEK-SIS</title>
 </svelte:head>
 
 <div class="page">
-  {#if loading}
-    <div class="centered"><Spinner /></div>
-  {:else if loadError}
-    <div class="centered">
-      <AlertCircle size={20} />
-      <p>{loadError}</p>
-      <Button size="sm" on:click={load}>Retry</Button>
-    </div>
-  {:else if member}
 
     <!-- Back -->
     <button class="back-btn" on:click={() => goto("/staff")}>
@@ -439,12 +539,17 @@
 
       <!-- Header actions -->
       <div class="header-actions">
-        {#if !member.has_account}
+        {#if !member.is_active && canManageStaff}
+          <Button variant="ghost" size="sm" loading={reactivating} on:click={reactivate}>
+            <UserCheck size={13} /> Reactivate
+          </Button>
+        {/if}
+        {#if !member.has_account && canManageUsers}
           <Button variant="ghost" size="sm" on:click={openAccountForm}>
             <UserCheck size={13} /> Create Account
           </Button>
         {/if}
-        {#if !editing}
+        {#if !editing && canManageStaff}
           <Button size="sm" on:click={startEdit}>
             <Pencil size={13} /> Edit Profile
           </Button>
@@ -483,7 +588,7 @@
             <div class="edit-col">
 
               <div class="edit-card">
-                <div class="edit-card-head">Personal Information</div>
+                <div class="edit-card-head"><div class="card-hicon"><User size={13} /></div>Personal Information</div>
                 <div class="edit-card-body">
                   <div class="row-3">
                     <div class="field">
@@ -518,7 +623,7 @@
               </div>
 
               <div class="edit-card">
-                <div class="edit-card-head">Contact Details</div>
+                <div class="edit-card-head"><div class="card-hicon"><Phone size={13} /></div>Contact Details</div>
                 <div class="edit-card-body">
                   <div class="row-2">
                     <div class="field">
@@ -555,7 +660,7 @@
             <div class="edit-col">
 
               <div class="edit-card">
-                <div class="edit-card-head">Employment</div>
+                <div class="edit-card-head"><div class="card-hicon"><Briefcase size={13} /></div>Employment</div>
                 <div class="edit-card-body">
                   <div class="row-2">
                     <div class="field">
@@ -583,6 +688,8 @@
                       <option value="HEADTEACHER">Headteacher</option>
                       <option value="ASSISTANT_HEAD">Assistant Head</option>
                       <option value="BURSAR">Bursar</option>
+                      <option value="HOUSEMASTER">Housemaster</option>
+                      <option value="SENIOR_HOUSEMASTER">Senior Housemaster</option>
                     </select>
                   </div>
                   <div class="row-2">
@@ -599,7 +706,7 @@
               </div>
 
               <div class="edit-card">
-                <div class="edit-card-head">GES Details</div>
+                <div class="edit-card-head"><div class="card-hicon"><Shield size={13} /></div>GES Details</div>
                 <div class="edit-card-body">
                   <div class="row-2">
                     <div class="field">
@@ -631,44 +738,64 @@
         <!-- View mode -->
         <div class="info-grid">
           <div class="section-card">
-            <div class="card-title">Personal Information</div>
-            <dl class="info-list">
-              <dt>Full name</dt><dd>{member.first_name} {member.middle_name ?? ""} {member.last_name}</dd>
-              <dt>Gender</dt><dd>{member.gender ?? "—"}</dd>
-              <dt>Date of birth</dt><dd>{fmt(member.date_of_birth)}</dd>
-              <dt>Phone</dt><dd>{member.phone ?? "—"}</dd>
-              <dt>Personal email</dt><dd>{member.personal_email ?? "—"}</dd>
-              <dt>Address</dt><dd>{member.address ?? "—"}</dd>
-            </dl>
+            <div class="card-header">
+              <div class="card-hicon"><User size={14} /></div>
+              <span class="card-title">Personal Information</span>
+            </div>
+            <div class="card-body">
+              <dl class="info-list">
+                <dt>Full name</dt><dd>{member.first_name} {member.middle_name ?? ""} {member.last_name}</dd>
+                <dt>Gender</dt><dd>{member.gender ?? "—"}</dd>
+                <dt>Date of birth</dt><dd>{fmt(member.date_of_birth)}</dd>
+                <dt>Phone</dt><dd>{member.phone ?? "—"}</dd>
+                <dt>Personal email</dt><dd>{member.personal_email ?? "—"}</dd>
+                <dt>Address</dt><dd>{member.address ?? "—"}</dd>
+              </dl>
+            </div>
           </div>
 
           <div class="section-card">
-            <div class="card-title">Employment</div>
-            <dl class="info-list">
-              <dt>Category</dt><dd>{member.category}</dd>
-              <dt>Employment type</dt><dd>{member.employment_type}</dd>
-              <dt>Designation</dt><dd>{member.designation ?? "—"}</dd>
-              <dt>Date joined</dt><dd>{fmt(member.date_joined)}</dd>
-              <dt>School staff ID</dt><dd class="mono">{member.staff_id ?? "—"}</dd>
-            </dl>
+            <div class="card-header">
+              <div class="card-hicon"><Briefcase size={14} /></div>
+              <span class="card-title">Employment</span>
+            </div>
+            <div class="card-body">
+              <dl class="info-list">
+                <dt>Category</dt><dd>{member.category}</dd>
+                <dt>Employment type</dt><dd>{member.employment_type}</dd>
+                <dt>Designation</dt><dd>{member.designation ?? "—"}</dd>
+                <dt>Date joined</dt><dd>{fmt(member.date_joined)}</dd>
+                <dt>School staff ID</dt><dd class="mono">{member.staff_id ?? "—"}</dd>
+              </dl>
+            </div>
           </div>
 
           <div class="section-card">
-            <div class="card-title">GES Details</div>
-            <dl class="info-list">
-              <dt>GES staff ID</dt><dd class="mono">{member.ges_staff_id ?? "—"}</dd>
-              <dt>Registered no.</dt><dd class="mono">{member.registered_no ?? "—"}</dd>
-              <dt>Licence no.</dt><dd class="mono">{member.licence_no ?? "—"}</dd>
-              <dt>SSNIT no.</dt><dd class="mono">{member.ssnit_no ?? "—"}</dd>
-            </dl>
+            <div class="card-header">
+              <div class="card-hicon"><Shield size={14} /></div>
+              <span class="card-title">GES Details</span>
+            </div>
+            <div class="card-body">
+              <dl class="info-list">
+                <dt>GES staff ID</dt><dd class="mono">{member.ges_staff_id ?? "—"}</dd>
+                <dt>Registered no.</dt><dd class="mono">{member.registered_no ?? "—"}</dd>
+                <dt>Licence no.</dt><dd class="mono">{member.licence_no ?? "—"}</dd>
+                <dt>SSNIT no.</dt><dd class="mono">{member.ssnit_no ?? "—"}</dd>
+              </dl>
+            </div>
           </div>
 
           <div class="section-card">
-            <div class="card-title">Emergency Contact</div>
-            <dl class="info-list">
-              <dt>Name</dt><dd>{member.emergency_contact_name ?? "—"}</dd>
-              <dt>Phone</dt><dd>{member.emergency_contact_phone ?? "—"}</dd>
-            </dl>
+            <div class="card-header">
+              <div class="card-hicon"><Phone size={14} /></div>
+              <span class="card-title">Emergency Contact</span>
+            </div>
+            <div class="card-body">
+              <dl class="info-list">
+                <dt>Name</dt><dd>{member.emergency_contact_name ?? "—"}</dd>
+                <dt>Phone</dt><dd>{member.emergency_contact_phone ?? "—"}</dd>
+              </dl>
+            </div>
           </div>
         </div>
       {/if}
@@ -676,12 +803,14 @@
     <!-- ── Qualifications tab ─────────────────────────────────────── -->
     {:else if tab === "qualifications"}
       <div class="section-card">
-        <div class="card-title">
-          Academic Qualifications
-          {#if !addingQual}
+        <div class="card-header">
+          <div class="card-hicon"><GraduationCap size={14} /></div>
+          <span class="card-title">Academic Qualifications</span>
+          {#if !addingQual && canManageStaff}
             <Button size="sm" on:click={openQualForm}><Plus size={13} /> Add</Button>
           {/if}
         </div>
+        <div class="card-body">
 
         {#if addingQual}
           <div class="inline-form">
@@ -740,8 +869,10 @@
                       <td>{q.institution}</td>
                       <td>{q.year ?? "—"}</td>
                       <td class="action-cell">
-                        <button class="icon-btn" on:click={() => startEditQual(q)} title="Edit"><Pencil size={13} /></button>
-                        <button class="icon-btn danger" on:click={() => removeQual(q.id)} title="Remove"><Trash2 size={13} /></button>
+                        {#if canManageStaff}
+                          <button class="icon-btn" on:click={() => startEditQual(q)} title="Edit"><Pencil size={13} /></button>
+                          <button class="icon-btn danger" on:click={() => removeQual(q.id)} title="Remove"><Trash2 size={13} /></button>
+                        {/if}
                       </td>
                     </tr>
                   {/if}
@@ -750,17 +881,20 @@
             </table>
           </div>
         {/if}
+        </div>
       </div>
 
     <!-- ── Promotions / Rank history tab ─────────────────────────── -->
     {:else if tab === "promotions"}
       <div class="section-card">
-        <div class="card-title">
-          GES Rank History
-          {#if !addingProm}
+        <div class="card-header">
+          <div class="card-hicon"><TrendingUp size={14} /></div>
+          <span class="card-title">GES Rank History</span>
+          {#if !addingProm && canManagePromotions}
             <Button size="sm" on:click={openPromForm}><Plus size={13} /> Record Promotion</Button>
           {/if}
         </div>
+        <div class="card-body">
         <p class="card-hint">Promotion history — latest rank at the top. Each row is an immutable record.</p>
 
         {#if addingProm}
@@ -831,8 +965,10 @@
                       <td>{fmt(p.date_promoted)}</td>
                       <td class="text-muted">{fmt(p.date_recorded)}</td>
                       <td class="action-cell">
-                        <button class="icon-btn" on:click={() => startEditProm(p)} title="Edit"><Pencil size={13} /></button>
-                        <button class="icon-btn danger" on:click={() => removeProm(p.id)} title="Remove"><Trash2 size={13} /></button>
+                        {#if canManagePromotions}
+                          <button class="icon-btn" on:click={() => startEditProm(p)} title="Edit"><Pencil size={13} /></button>
+                          <button class="icon-btn danger" on:click={() => removeProm(p.id)} title="Remove"><Trash2 size={13} /></button>
+                        {/if}
                       </td>
                     </tr>
                   {/if}
@@ -841,32 +977,42 @@
             </table>
           </div>
         {/if}
+        </div>
       </div>
 
     <!-- ── Account tab ────────────────────────────────────────────── -->
     {:else if tab === "account"}
       <div class="section-card">
-        <div class="card-title">
-          Login Account
-          {#if !member.has_account && !creatingAccount}
+        <div class="card-header">
+          <div class="card-hicon"><UserCheck size={14} /></div>
+          <span class="card-title">Login Account</span>
+          {#if !member.has_account && !creatingAccount && canManageUsers}
             <Button size="sm" on:click={openAccountForm}><UserCheck size={13} /> Create Account</Button>
           {/if}
         </div>
+        <div class="card-body">
 
-        {#if member.has_account && !accountResult}
-          <div class="account-status ok">
-            <Check size={16} /> This staff member has an active login account.
-          </div>
-        {:else if !member.has_account && !creatingAccount}
+        <!-- No account yet -->
+        {#if !member.has_account && !creatingAccount}
           <div class="account-status warn">
             <AlertCircle size={16} />
             No login account yet. Create one to give this staff member access to the system.
           </div>
         {/if}
 
+        <!-- Create account form -->
         {#if creatingAccount && !accountResult}
           <div class="inline-form">
             {#if accountError}<p class="inline-form-error">{accountError}</p>{/if}
+            <div class="role-preview-row">
+              {#if defaultRoleLabel}
+                <Info size={13} class="role-preview-icon" />
+                <span>This account will be assigned the <strong>{defaultRoleLabel}</strong> role.</span>
+              {:else}
+                <AlertCircle size={13} class="role-preview-icon warn" />
+                <span>No default role for this designation — assign one manually after creating.</span>
+              {/if}
+            </div>
             <p class="hint">A temporary password will be generated. The staff member must change it on first login.</p>
             <div class="inline-form-row">
               <div class="field">
@@ -881,6 +1027,7 @@
           </div>
         {/if}
 
+        <!-- Account created result -->
         {#if accountResult}
           <div class="inline-form created-panel">
             <div class="created-header">
@@ -909,21 +1056,122 @@
             </div>
           </div>
         {/if}
+
+        <!-- ── Roles & permissions (only when account exists) ── -->
+        {#if member.has_account}
+          {#if permsLoading}
+            <div class="perms-loading"><Loader2 size={14} class="spin" /> Loading roles…</div>
+          {:else if staffPerms}
+
+            <!-- Roles section -->
+            <div class="roles-section">
+              <div class="roles-header">
+                <span class="roles-label"><Shield size={13} /> Assigned Roles</span>
+                {#if canManageUsers && !addingRole && availableRoles.length > 0}
+                  <button class="add-role-btn" on:click={() => { addingRole = true; selectedRoleId = ""; }}>
+                    <Plus size={12} /> Add Role
+                  </button>
+                {/if}
+              </div>
+
+              <div class="role-chips">
+                {#each staffPerms.roles as ur}
+                  <span class="role-chip">
+                    {ur.role.name}
+                    {#if canManageUsers}
+                      <button class="chip-remove" on:click={() => removeRole(ur.id)} title="Remove role">
+                        <X size={11} />
+                      </button>
+                    {/if}
+                  </span>
+                {/each}
+                {#if staffPerms.roles.length === 0}
+                  <span class="no-roles">No roles assigned — this account has no permissions.</span>
+                {/if}
+              </div>
+
+              {#if addingRole}
+                <div class="add-role-row">
+                  <select class="input" bind:value={selectedRoleId}>
+                    <option value="">— Select a role —</option>
+                    {#each availableRoles as r}
+                      <option value={r.id}>{r.name}</option>
+                    {/each}
+                  </select>
+                  <Button size="sm" loading={roleAdding} on:click={addRole} disabled={!selectedRoleId}>Assign</Button>
+                  <Button variant="ghost" size="sm" on:click={() => { addingRole = false; selectedRoleId = ""; }}>Cancel</Button>
+                </div>
+              {/if}
+            </div>
+
+            <!-- Effective permissions -->
+            {#if Object.keys(staffPerms.permissions).length > 0}
+              <div class="perms-section">
+                <p class="perms-label">Effective Permissions</p>
+                <div class="perms-grid">
+                  {#each Object.entries(staffPerms.permissions) as [key, granted]}
+                    <div class="perm-row" class:granted class:denied={!granted}>
+                      <span class="perm-dot"></span>
+                      <span class="perm-key">{key.replace(/_/g, " ")}</span>
+                    </div>
+                  {/each}
+                </div>
+              </div>
+            {/if}
+
+          {/if}
+
+            <!-- Reset password -->
+            {#if canManageUsers}
+              <div class="reset-pw-section">
+                {#if resetResult}
+                  <div class="inline-form" style="margin-top:0;">
+                    <div class="created-header">
+                      <Check size={16} class="created-check" />
+                      <strong>New temporary password</strong>
+                    </div>
+                    <p class="hint">Share this with {member.first_name}. They must change it on next login.</p>
+                    <dl class="creds">
+                      <dt>Temporary password</dt>
+                      <dd class="pw-row">
+                        <span class="mono">{resetPwVisible ? resetResult.temp_password : "•".repeat(resetResult.temp_password.length)}</span>
+                        <button class="icon-btn" on:click={() => resetPwVisible = !resetPwVisible}>
+                          {#if resetPwVisible}<EyeOff size={13} />{:else}<Eye size={13} />{/if}
+                        </button>
+                        <button class="icon-btn" on:click={copyResetPw}>
+                          {#if resetCopied}<Check size={13} class="copy-ok" />{:else}<Copy size={13} />{/if}
+                        </button>
+                      </dd>
+                    </dl>
+                    <div class="inline-form-actions">
+                      <Button size="sm" variant="ghost" on:click={() => resetResult = null}>Done</Button>
+                    </div>
+                  </div>
+                {:else}
+                  <div class="reset-pw-row">
+                    <div>
+                      <p class="reset-pw-label">Reset password</p>
+                      <p class="reset-pw-hint">Generate a new temporary password and require the staff member to change it on next login.</p>
+                    </div>
+                    <Button variant="ghost" size="sm" loading={resetting} on:click={resetPassword}>
+                      Reset
+                    </Button>
+                  </div>
+                {/if}
+              </div>
+            {/if}
+
+        {/if}
+        </div>
       </div>
     {/if}
 
-  {/if}
 </div>
+
 
 
 <style>
   .page { display: flex; flex-direction: column; gap: 20px; }
-
-  .centered {
-    display: flex; flex-direction: column; align-items: center;
-    justify-content: center; gap: 12px; padding: 80px 24px;
-    color: var(--tx-low);
-  }
 
   /* ── Back ───────────────────────────────────── */
   .back-btn {
@@ -1006,17 +1254,38 @@
   .section-card {
     background: var(--surface-0);
     border: 1px solid var(--border-subtle);
-    border-radius: 12px; padding: 20px 24px;
-    display: flex; flex-direction: column; gap: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px;
+    background: var(--surface-1);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .card-hicon {
+    width: 28px; height: 28px; border-radius: 7px;
+    background: var(--accent-subtle); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
   }
 
   .card-title {
-    display: flex; align-items: center; justify-content: space-between;
-    font-size: 0.9375rem; font-weight: 700; color: var(--tx-high);
+    flex: 1;
+    font-size: 0.875rem; font-weight: 600; color: var(--tx-high);
   }
+
   .card-actions { display: flex; gap: 8px; }
 
-  .card-hint { margin: -8px 0 0; font-size: 0.8125rem; color: var(--tx-low); }
+  .card-body {
+    padding: 20px 24px;
+    display: flex; flex-direction: column; gap: 16px;
+  }
+
+  .card-hint { margin: 0; font-size: 0.8125rem; color: var(--tx-low); }
+  .hint { margin: 0; font-size: 0.8125rem; color: var(--tx-low); }
 
   .info-grid {
     display: grid;
@@ -1113,10 +1382,6 @@
     padding: 12px 16px; border-radius: 8px;
     font-size: 0.875rem;
   }
-  .account-status.ok {
-    background: color-mix(in srgb, #10b981 8%, transparent);
-    color: #10b981; border: 1px solid color-mix(in srgb, #10b981 25%, transparent);
-  }
   .account-status.warn {
     background: color-mix(in srgb, #f59e0b 8%, transparent);
     color: #d97706; border: 1px solid color-mix(in srgb, #f59e0b 25%, transparent);
@@ -1151,6 +1416,7 @@
   }
 
   .edit-card-head {
+    display: flex; align-items: center; gap: 8px;
     padding: 10px 16px;
     background: var(--surface-1);
     border-bottom: 1px solid var(--border-subtle);
@@ -1209,6 +1475,17 @@
     margin: 0; font-size: 0.8125rem; color: var(--err-text);
   }
 
+  /* ── Role preview ────────────────────────────── */
+  .role-preview-row {
+    display: flex; align-items: flex-start; gap: 7px;
+    padding: 8px 10px; border-radius: 7px;
+    background: color-mix(in srgb, var(--accent) 6%, var(--surface-1));
+    border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+    font-size: 0.8125rem; color: var(--tx-mid); line-height: 1.4;
+  }
+  .role-preview-row :global(.role-preview-icon) { color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+  .role-preview-row :global(.role-preview-icon.warn) { color: var(--tx-low); }
+
   /* ── Form error ──────────────────────────────── */
   .form-error {
     margin: 0; padding: 9px 12px; border-radius: 8px;
@@ -1238,6 +1515,124 @@
   .pw-row .mono { font-family: monospace; letter-spacing: 0.04em; }
 
   .icon-btn :global(.copy-ok) { color: #10b981; }
+
+  /* ── Roles & permissions ─────────────────────── */
+  .perms-loading {
+    display: flex; align-items: center; gap: 8px;
+    color: var(--tx-low); font-size: 0.875rem;
+  }
+
+  .roles-section {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 14px 16px;
+    background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+  }
+
+  .roles-header {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .roles-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.8125rem; font-weight: 600; color: var(--tx-mid);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  .add-role-btn {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 6px;
+    background: none; border: 1px solid var(--border-subtle);
+    cursor: pointer; font-size: 0.8rem; color: var(--tx-mid);
+    transition: background 0.12s, border-color 0.12s, color 0.12s;
+  }
+  .add-role-btn:hover {
+    background: var(--surface-0);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .role-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .role-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 20px;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    font-size: 0.8125rem; font-weight: 600;
+  }
+
+  .chip-remove {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: none; border: none; cursor: pointer;
+    color: inherit; opacity: 0.6;
+    transition: opacity 0.12s, background 0.12s;
+    padding: 0;
+  }
+  .chip-remove:hover { opacity: 1; background: color-mix(in srgb, var(--accent) 20%, transparent); }
+
+  .no-roles {
+    font-size: 0.8125rem; color: var(--tx-low); font-style: italic;
+  }
+
+  .add-role-row {
+    display: flex; gap: 8px; align-items: center;
+    padding-top: 4px;
+  }
+  .add-role-row .input { flex: 1; max-width: 280px; }
+
+  .perms-section {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+
+  .perms-label {
+    margin: 0;
+    font-size: 0.75rem; font-weight: 600; color: var(--tx-low);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  .perms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 4px 16px;
+  }
+
+  .perm-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.8125rem; padding: 3px 0;
+  }
+
+  .perm-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .perm-row.granted .perm-dot { background: #10b981; }
+  .perm-row.denied .perm-dot { background: var(--border-subtle); }
+
+  .perm-key {
+    color: var(--tx-mid); text-transform: capitalize;
+  }
+  .perm-row.denied .perm-key { color: var(--tx-low); }
+
+  /* ── Reset password ──────────────────────────────────────────── */
+  .reset-pw-section {
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 14px;
+  }
+
+  .reset-pw-row {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  }
+
+  .reset-pw-label {
+    margin: 0 0 2px; font-size: 0.875rem; font-weight: 600; color: var(--tx-high);
+  }
+
+  .reset-pw-hint {
+    margin: 0; font-size: 0.8rem; color: var(--tx-low); max-width: 380px;
+  }
 
   :global(.spin) { animation: spin 0.75s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }

@@ -8,7 +8,7 @@ from app.schemas.common import IDSchema, OrmBase, TimestampSchema
 VALID_CATEGORIES = {"TEACHING", "NON-TEACHING"}
 VALID_EMPLOYMENT = {"PERMANENT", "CONTRACT", "VOLUNTEER", "GES_POSTED"}
 VALID_GENDERS = {"MALE", "FEMALE", "OTHER"}
-VALID_DESIGNATIONS = {"TEACHER", "HEADTEACHER", "ASSISTANT_HEAD", "BURSAR"}
+VALID_DESIGNATIONS = {"TEACHER", "HEADTEACHER", "ASSISTANT_HEAD", "BURSAR", "HOUSEMASTER", "SENIOR_HOUSEMASTER"}
 
 
 # ── Qualifications ────────────────────────────────────────────────────────────
@@ -208,11 +208,26 @@ class PositionResponse(IDSchema):
     permissions: list[str]
 
 
+# ── Roles (user_role) ─────────────────────────────────────────────────────────
+
+class RoleResponse(OrmBase):
+    id: UUID
+    name: str
+    code: str
+    is_system_template: bool
+
+
+class UserRoleResponse(OrmBase):
+    id: UUID
+    role: RoleResponse
+    assigned_at: datetime
+
+
+class RoleAssignRequest(OrmBase):
+    role_id: UUID
+
+
 # ── Permission overrides ──────────────────────────────────────────────────────
-
-class PositionAssignRequest(OrmBase):
-    position_id: str | None  # UUID string or null to unassign
-
 
 class PermissionOverrideCreate(OrmBase):
     permission_key: str
@@ -230,5 +245,6 @@ class PermissionOverrideResponse(OrmBase):
 
 class StaffPermissionsResponse(OrmBase):
     staff_member_id: UUID
+    roles: list[UserRoleResponse]
     permissions: dict[str, bool]
     overrides: list[PermissionOverrideResponse]

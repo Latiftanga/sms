@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { page } from "$app/stores";
+  import { page, navigating } from "$app/stores";
   import { auth, isAuthenticated, currentUser } from "$stores/auth";
   import { schoolBranding } from "$stores/school";
   import { Avatar, Toaster, ConfirmDialog } from "$components";
@@ -90,15 +90,24 @@
   $: pageTitle = currentPath.split("/").filter(Boolean)[0]?.replace(/-/g, " ") ?? "Dashboard";
 
   // ── Role-based nav ─────────────────────────────────────────────
-  $: isSuperAdmin = $currentUser?.system_role === "SUPERADMIN";
-  $: isSchoolStaff = $currentUser?.system_role === "SCHOOL_STAFF";
-  $: canViewStudents  = isSuperAdmin || auth.can("view_students");
-  $: canViewFees      = isSuperAdmin || auth.can("view_fees");
-  $: canManageStaff   = isSuperAdmin || isSchoolStaff;
+  $: isSuperAdmin   = $currentUser?.system_role === "SUPERADMIN";
+  $: isSchoolStaff  = $currentUser?.system_role === "SCHOOL_STAFF";
+  // Read directly from $currentUser.permissions so Svelte tracks the store
+  // subscription and re-evaluates when auth loads (isSuperAdmin stays false
+  // for SCHOOL_STAFF so the indirect chain via auth.can() wouldn't fire).
+  $: canViewStudents  = isSuperAdmin || $currentUser?.permissions?.view_students === true;
+  $: canViewFees      = isSuperAdmin || $currentUser?.permissions?.view_fees === true;
+  $: canViewStaff     = isSuperAdmin || $currentUser?.permissions?.view_staff === true;
+  $: canManageStaff   = isSuperAdmin || $currentUser?.permissions?.manage_staff === true;
 
   // Auth guard
   $: if (!$auth.loading && !$isAuthenticated) {
     goto("/login");
+  }
+
+  // Force password change
+  $: if (!$auth.loading && $auth.user?.must_change_password) {
+    goto("/change-password");
   }
 
   // Only dynamic/positional properties — static styles live in the CSS block
@@ -111,6 +120,10 @@
 </script>
 
 <div class="app-shell">
+
+  {#if $navigating}
+    <div class="nav-bar"></div>
+  {/if}
 
   <!-- ── Full-bleed topbar (content constrained to max-width) ── -->
   <header class="topbar">
@@ -227,7 +240,7 @@
         {/if}
 
         <!-- Admin -->
-        {#if canManageStaff}
+        {#if canViewStaff}
           <div class="nav-section">
             {#if !collapsed || mobile}
               <span class="nav-section-label">Admin</span>
@@ -585,5 +598,23 @@
     min-width: 0;
     overflow-y: auto;
     padding: 24px 28px;
+  }
+
+  /* ── Navigation progress bar ────────────────── */
+  .nav-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    width: 100%;
+    z-index: 9999;
+    background: var(--accent);
+    transform-origin: left;
+    animation: nav-progress 8s cubic-bezier(0.1, 0.05, 0, 1) forwards;
+  }
+  @keyframes nav-progress {
+    0%   { transform: scaleX(0); }
+    40%  { transform: scaleX(0.6); }
+    80%  { transform: scaleX(0.85); }
+    100% { transform: scaleX(0.95); }
   }
 </style>

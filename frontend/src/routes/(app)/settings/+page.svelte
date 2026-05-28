@@ -351,6 +351,61 @@
     id: string; name: string; code: string;
     is_system_template: boolean; is_active: boolean; permissions: string[];
   }
+  interface PermMeta { key: string; name: string; desc: string; }
+  interface PermGroup { label: string; perms: PermMeta[]; }
+
+  const PERM_GROUPS: PermGroup[] = [
+    { label: "Students", perms: [
+      { key: "view_students",             name: "View Students",       desc: "Browse student profiles and records" },
+      { key: "enroll_students",           name: "Enroll Students",     desc: "Admit new students and manage enrollment" },
+      { key: "transfer_students",         name: "Transfer Students",   desc: "Move students between classes or schools" },
+    ]},
+    { label: "Staff", perms: [
+      { key: "view_staff",                name: "View Staff",          desc: "Browse staff profiles and employment details" },
+      { key: "manage_staff",              name: "Manage Staff",        desc: "Create, edit and deactivate staff records" },
+      { key: "manage_promotions",         name: "Rank History",        desc: "Record and edit GES rank promotions" },
+    ]},
+    { label: "Academics", perms: [
+      { key: "view_scores",               name: "View Scores",         desc: "View assessment marks and report cards" },
+      { key: "enter_scores",              name: "Enter Scores",        desc: "Submit marks for assessments" },
+      { key: "approve_scores",            name: "Approve Scores",      desc: "Validate and lock submitted marks" },
+      { key: "manage_timetable",          name: "Timetable",           desc: "Create and modify the class timetable" },
+    ]},
+    { label: "Attendance", perms: [
+      { key: "mark_attendance",           name: "Mark Attendance",     desc: "Record daily and period attendance" },
+      { key: "view_attendance",           name: "View Attendance",     desc: "View attendance records and reports" },
+    ]},
+    { label: "Reports", perms: [
+      { key: "generate_reports",          name: "Generate Reports",    desc: "Print report cards and official documents" },
+      { key: "revoke_documents",          name: "Revoke Documents",    desc: "Cancel already-issued report cards" },
+    ]},
+    { label: "Fees", perms: [
+      { key: "view_fees",                 name: "View Fees",           desc: "See fee balances and payment records" },
+      { key: "record_payments",           name: "Record Payments",     desc: "Post student fee payments" },
+      { key: "manage_fee_structure",      name: "Fee Structure",       desc: "Set and modify fee schedules" },
+      { key: "waive_fees",                name: "Waive Fees",          desc: "Grant fee exemptions or reductions" },
+    ]},
+    { label: "Communication", perms: [
+      { key: "send_sms",                  name: "Send SMS",            desc: "Send text messages to parents and students" },
+      { key: "send_announcements",        name: "Announcements",       desc: "Broadcast notices to the school" },
+    ]},
+    { label: "Boarding", perms: [
+      { key: "manage_houses",             name: "Manage Houses",       desc: "Administer boarding houses and house lists" },
+      { key: "manage_exeats",             name: "Exeats",              desc: "Issue and track student exit permissions" },
+      { key: "night_roll_call",           name: "Night Roll Call",     desc: "Conduct evening boarding attendance" },
+    ]},
+    { label: "Administration", perms: [
+      { key: "manage_school_config",      name: "School Config",       desc: "Edit school profile and branding" },
+      { key: "manage_academic_structure", name: "Academic Structure",  desc: "Manage years, terms and classes" },
+      { key: "manage_users",              name: "User Accounts",       desc: "Create accounts and assign roles to staff" },
+      { key: "view_analytics",            name: "Analytics",           desc: "Access school-wide dashboards and insights" },
+    ]},
+  ];
+
+  const ALL_PERMISSIONS = PERM_GROUPS.flatMap(g => g.perms.map(p => p.key));
+  const PERM_LABELS: Record<string, string> = Object.fromEntries(
+    PERM_GROUPS.flatMap(g => g.perms.map(p => [p.key, p.name]))
+  );
 
   let positions: Position[] = [];
   let posLoading = false;
@@ -359,22 +414,14 @@
   let savingPos = false;
   let posApiError = "";
   let newPos = { name: "", code: "" };
+  let newPosPerms: string[] = [];
   let editingPos: string | null = null;
   let editPosName = "";
-
-  const ALL_PERMISSIONS = [
-    "manage_users", "view_students", "manage_students",
-    "view_fees", "manage_fees", "manage_assessments",
-    "manage_attendance", "manage_settings",
-  ];
-  const PERM_LABELS: Record<string, string> = {
-    manage_users: "Manage Users", view_students: "View Students",
-    manage_students: "Manage Students", view_fees: "View Fees",
-    manage_fees: "Manage Fees", manage_assessments: "Manage Assessments",
-    manage_attendance: "Manage Attendance", manage_settings: "System Settings",
-  };
-
-  let newPosPerms: string[] = [];
+  let expandedPos: string | null = null;
+  let editingPosPerms: string | null = null;
+  let editPosPermsSet = new Set<string>();
+  let savingPosPerms = false;
+  let posPermsError = "";
 
   async function loadPositions() {
     posLoading = true; posError = "";
@@ -415,9 +462,34 @@
       await api.patch(`/settings/positions/${id}`, { name: editPosName.trim() });
       positions = positions.map(p => p.id === id ? { ...p, name: editPosName.trim() } : p);
       editingPos = null;
-      toast.success("Position updated");
+      toast.success("Name updated");
+    } catch (e) { toast.error(apiError(e)); }
+  }
+
+  function startEditPosPerms(pos: Position) {
+    editingPosPerms = pos.id;
+    editPosPermsSet = new Set(pos.permissions);
+    posPermsError = "";
+  }
+
+  function toggleEditPerm(key: string) {
+    if (editPosPermsSet.has(key)) { editPosPermsSet.delete(key); }
+    else { editPosPermsSet.add(key); }
+    editPosPermsSet = editPosPermsSet;
+  }
+
+  async function savePosPerms(id: string) {
+    savingPosPerms = true; posPermsError = "";
+    try {
+      const perms = [...editPosPermsSet];
+      await api.patch(`/settings/positions/${id}`, { permissions: perms });
+      positions = positions.map(p => p.id === id ? { ...p, permissions: perms } : p);
+      editingPosPerms = null;
+      toast.success("Permissions updated");
     } catch (e) {
-      toast.error(apiError(e));
+      posPermsError = apiError(e);
+    } finally {
+      savingPosPerms = false;
     }
   }
 
@@ -426,17 +498,12 @@
       await api.delete(`/settings/positions/${id}`);
       positions = positions.filter(p => p.id !== id);
       toast.success("Position deleted");
-    } catch (e) {
-      toast.error(apiError(e));
-    }
+    } catch (e) { toast.error(apiError(e)); }
   }
 
-  function togglePosPermission(tab_perm: string) {
-    if (newPosPerms.includes(tab_perm)) {
-      newPosPerms = newPosPerms.filter(p => p !== tab_perm);
-    } else {
-      newPosPerms = [...newPosPerms, tab_perm];
-    }
+  function togglePosPermission(perm: string) {
+    if (newPosPerms.includes(perm)) { newPosPerms = newPosPerms.filter(p => p !== perm); }
+    else { newPosPerms = [...newPosPerms, perm]; }
   }
 
   $: if (tab === "positions" && positions.length === 0 && !posLoading && !posError) {
@@ -658,14 +725,14 @@
                 {#if yearErrors.name}<p class="ferr">{yearErrors.name}</p>{/if}
               </div>
               <div class="field">
-                <label>Start date <span class="req">*</span></label>
-                <input type="date" class="input" class:invalid={yearErrors.start_date}
+                <label for="y-start">Start date <span class="req">*</span></label>
+                <input id="y-start" type="date" class="input" class:invalid={yearErrors.start_date}
                   bind:value={newYear.start_date} />
                 {#if yearErrors.start_date}<p class="ferr">{yearErrors.start_date}</p>{/if}
               </div>
               <div class="field">
-                <label>End date <span class="req">*</span></label>
-                <input type="date" class="input" class:invalid={yearErrors.end_date}
+                <label for="y-end">End date <span class="req">*</span></label>
+                <input id="y-end" type="date" class="input" class:invalid={yearErrors.end_date}
                   bind:value={newYear.end_date} />
                 {#if yearErrors.end_date}<p class="ferr">{yearErrors.end_date}</p>{/if}
               </div>
@@ -977,44 +1044,46 @@
 
     <!-- ══ POSITIONS ═════════════════════════════════════════════════ -->
     {#if tab === "positions"}
-      <PageHeader title="Staff Positions" description="Define roles (e.g. Bursar, Housemaster) and their default permissions.">
+      <PageHeader title="Staff Positions" description="Define roles and the default permissions they grant.">
         <Button on:click={() => { addingPos = !addingPos; posApiError = ""; newPos = { name: "", code: "" }; newPosPerms = []; }}>
-          <Plus size={13} />{addingPos ? "Cancel" : "Add Position"}
+          <Plus size={13} />{addingPos ? "Cancel" : "New Position"}
         </Button>
       </PageHeader>
 
       {#if addingPos}
         <div class="card" style="margin-bottom:14px;">
           <div class="card-body">
-            <h3 class="card-title" style="margin-bottom:16px;">New Position</h3>
-            <div class="form-grid">
+            <div class="form-grid" style="margin-bottom:16px;">
               <div class="field">
                 <label for="pos-name">Position name <span class="req">*</span></label>
-                <input id="pos-name" class="input" bind:value={newPos.name} placeholder="e.g. Class Teacher" />
+                <input id="pos-name" class="input" bind:value={newPos.name} placeholder="e.g. Housemaster" />
               </div>
               <div class="field">
                 <label for="pos-code">Code <span class="req">*</span></label>
-                <input id="pos-code" class="input" bind:value={newPos.code} placeholder="e.g. CLASS_TEACHER" style="text-transform:uppercase;" />
-                <p class="hint">Unique identifier. Uppercase letters + underscores.</p>
+                <input id="pos-code" class="input" bind:value={newPos.code} placeholder="e.g. HOUSEMASTER" style="text-transform:uppercase;" />
+                <p class="hint">Unique key. Uppercase + underscores.</p>
               </div>
             </div>
 
-            <div class="field" style="margin-top:8px;">
-              <label>Default permissions</label>
-              <div class="perm-grid">
-                {#each ALL_PERMISSIONS as perm}
-                  <label class="perm-check">
-                    <input type="checkbox"
-                      checked={newPosPerms.includes(perm)}
-                      on:change={() => togglePosPermission(perm)}
-                    />
-                    <span>{PERM_LABELS[perm] ?? perm}</span>
-                  </label>
-                {/each}
-              </div>
+            <p class="perm-section-label">Default permissions</p>
+            <div class="perm-create-grid">
+              {#each PERM_GROUPS as group}
+                <div class="perm-create-group">
+                  <p class="perm-group-label">{group.label}</p>
+                  {#each group.perms as perm}
+                    <label class="perm-check">
+                      <input type="checkbox"
+                        checked={newPosPerms.includes(perm.key)}
+                        on:change={() => togglePosPermission(perm.key)}
+                      />
+                      <span class="perm-check-name">{perm.name}</span>
+                    </label>
+                  {/each}
+                </div>
+              {/each}
             </div>
 
-            {#if posApiError}<div class="api-err"><AlertCircle size={13} />{posApiError}</div>{/if}
+            {#if posApiError}<div class="api-err" style="margin-top:12px;"><AlertCircle size={13} />{posApiError}</div>{/if}
             <div class="actions">
               <Button on:click={savePosition} loading={savingPos}>
                 {savingPos ? "Creating…" : "Create position"}
@@ -1034,52 +1103,122 @@
           <svelte:fragment slot="icon"><Shield size={28} /></svelte:fragment>
           <Button on:click={() => addingPos = true}><Plus size={13} />Add first position</Button>
         </EmptyState>
-      {:else if positions.length > 0}
-        <div class="card">
-          {#each positions as pos, i}
-            <div class="pos-row" class:border-t={i > 0}>
-              <div class="pos-main">
-                {#if pos.is_system_template}
-                  <span class="sys-badge">system</span>
+      {:else}
+        <div class="pos-list">
+          {#each positions as pos}
+            {@const isExpanded = expandedPos === pos.id}
+            {@const isEditingPerms = editingPosPerms === pos.id}
+            {@const grantedCount = pos.permissions.length}
+            <div class="pos-card" class:is-expanded={isExpanded}>
+
+              <!-- Card header row -->
+              <div class="pos-card-head">
+                <!-- Expand toggle (left + chevron) -->
+                <button class="pos-toggle" type="button" on:click={() => {
+                  expandedPos = isExpanded ? null : pos.id;
+                  if (!isExpanded) { editingPosPerms = null; editingPos = null; }
+                }}>
+                  <ChevronDown size={14} class="pos-chevron {isExpanded ? 'open' : ''}" />
+                  {#if pos.is_system_template}<span class="sys-badge">system</span>{/if}
+
+                  {#if editingPos !== pos.id}
+                    <span class="pos-name">{pos.name}</span>
+                  {/if}
+                  <span class="pos-code">{pos.code}</span>
+                  <span class="pos-perm-count">
+                    {#if grantedCount === 0}No permissions{:else}{grantedCount} permission{grantedCount !== 1 ? "s" : ""}{/if}
+                  </span>
+                </button>
+
+                <!-- Name edit input (outside toggle button) -->
+                {#if editingPos === pos.id}
+                  <input class="input pos-name-input" bind:value={editPosName}
+                    on:keydown={e => e.key === "Enter" && updatePositionName(pos.id)} />
                 {/if}
-                {#if editingPos === pos.id && !pos.is_system_template}
-                  <input class="input" style="width:200px;" bind:value={editPosName} />
-                {:else}
-                  <span class="pos-name">{pos.name}</span>
-                {/if}
-                <span class="pos-code">{pos.code}</span>
-                <div class="pos-perms">
-                  {#each pos.permissions as perm}
-                    <span class="perm-tag">{PERM_LABELS[perm] ?? perm}</span>
-                  {:else}
-                    <span class="no-perms">No default permissions</span>
-                  {/each}
-                </div>
-              </div>
-              {#if !pos.is_system_template}
-                <div class="la-actions">
+
+                <!-- Action buttons (siblings, not inside toggle) -->
+                {#if !pos.is_system_template}
                   {#if editingPos === pos.id}
-                    <Button variant="icon" ariaLabel="Save name" on:click={() => updatePositionName(pos.id)}>
+                    <button class="icon-act" title="Save name" on:click={() => updatePositionName(pos.id)}>
                       <Check size={13} />
-                    </Button>
-                    <Button variant="icon" ariaLabel="Cancel" on:click={() => { editingPos = null; }}>
+                    </button>
+                    <button class="icon-act" title="Cancel" on:click={() => editingPos = null}>
                       <X size={13} />
-                    </Button>
+                    </button>
                   {:else}
-                    <Button variant="icon" ariaLabel="Edit {pos.name}"
-                      on:click={() => { editingPos = pos.id; editPosName = pos.name; }}>
-                      <Pencil size={13} />
-                    </Button>
-                    <Button variant="icon" ariaLabel="Delete {pos.name}"
-                      on:click={() => confirmDelete(
-                        "Delete position?",
-                        `"${pos.name}" will be permanently removed. Staff assigned to it will lose their default permissions.`,
-                        () => deletePosition(pos.id)
-                      )}
-                    ><Trash2 size={13} /></Button>
+                    <button class="icon-act" title="Rename" on:click={() => {
+                      editingPos = pos.id; editPosName = pos.name; expandedPos = pos.id;
+                    }}><Pencil size={13} /></button>
+                    <button class="icon-act danger" title="Delete" on:click={() => confirmDelete(
+                      "Delete position?",
+                      `"${pos.name}" will be removed. Staff assigned to it will lose these default permissions.`,
+                      () => deletePosition(pos.id)
+                    )}><Trash2 size={13} /></button>
+                  {/if}
+                {/if}
+              </div>
+
+              <!-- Expanded permissions panel -->
+              {#if isExpanded}
+                <div class="perm-panel">
+                  {#if isEditingPerms}
+                    <!-- Edit mode: grouped checkboxes -->
+                    <div class="perm-edit-grid">
+                      {#each PERM_GROUPS as group}
+                        <div class="perm-edit-group">
+                          <p class="perm-group-label">{group.label}</p>
+                          {#each group.perms as perm}
+                            <label class="perm-check perm-check-sm">
+                              <input type="checkbox"
+                                checked={editPosPermsSet.has(perm.key)}
+                                on:change={() => toggleEditPerm(perm.key)}
+                              />
+                              <span class="perm-check-name">{perm.name}</span>
+                            </label>
+                          {/each}
+                        </div>
+                      {/each}
+                    </div>
+                    {#if posPermsError}<div class="api-err" style="margin-top:10px;"><AlertCircle size={13} />{posPermsError}</div>{/if}
+                    <div class="perm-edit-actions">
+                      <Button size="sm" loading={savingPosPerms} on:click={() => savePosPerms(pos.id)}>Save permissions</Button>
+                      <Button size="sm" variant="ghost" on:click={() => { editingPosPerms = null; posPermsError = ""; }}>Cancel</Button>
+                    </div>
+
+                  {:else}
+                    <!-- View mode: grouped permission rows -->
+                    <div class="perm-view-grid">
+                      {#each PERM_GROUPS as group}
+                        {@const groupGranted = group.perms.filter(p => pos.permissions.includes(p.key))}
+                        {#if !pos.is_system_template || groupGranted.length > 0}
+                          <div class="perm-view-group">
+                            <p class="perm-group-label">{group.label}</p>
+                            {#each group.perms as perm}
+                              {@const granted = pos.permissions.includes(perm.key)}
+                              <div class="perm-view-row" class:granted class:denied={!granted}>
+                                {#if granted}
+                                  <Check size={12} class="pv-check" />
+                                {:else}
+                                  <span class="pv-dash">—</span>
+                                {/if}
+                                <span class="perm-view-name">{perm.name}</span>
+                              </div>
+                            {/each}
+                          </div>
+                        {/if}
+                      {/each}
+                    </div>
+                    {#if !pos.is_system_template}
+                      <div class="perm-edit-actions">
+                        <Button size="sm" variant="ghost" on:click={() => startEditPosPerms(pos)}>
+                          <Pencil size={12} /> Edit permissions
+                        </Button>
+                      </div>
+                    {/if}
                   {/if}
                 </div>
               {/if}
+
             </div>
           {/each}
         </div>
@@ -1516,50 +1655,129 @@ select.input {
 
 /* ── Positions ────────────────────────────────────────────────────── */
 .pos-loading { display: flex; justify-content: center; padding: 40px; }
+.pos-list { display: flex; flex-direction: column; gap: 8px; }
 
-.pos-row {
-  display: flex; align-items: flex-start; justify-content: space-between;
-  gap: 10px; padding: 12px 18px;
+.pos-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--surface-1);
+  overflow: hidden;
+  transition: border-color 0.12s;
+}
+.pos-card.is-expanded { border-color: color-mix(in srgb, var(--accent) 30%, var(--border-subtle)); }
+
+.pos-card-head {
+  display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 4px;
 }
 
-.pos-main { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.pos-toggle {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1; min-width: 0; padding: 8px 10px;
+  background: none; border: none; cursor: pointer; text-align: left;
+  border-radius: 7px; transition: background 0.1s;
+}
+.pos-toggle:hover { background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
 
 .pos-name { font-size: 13.5px; font-weight: 600; color: var(--tx-high); }
-.pos-code { font-size: 11px; font-weight: 600; font-family: monospace; color: var(--tx-low); text-transform: uppercase; letter-spacing: 0.05em; }
+.pos-name-input { height: 30px; font-size: 13px; width: 180px; }
+.pos-code {
+  font-size: 10.5px; font-weight: 700; font-family: monospace;
+  color: var(--tx-low); background: var(--surface-2);
+  padding: 2px 7px; border-radius: 4px; letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.pos-perm-count { font-size: 11.5px; color: var(--tx-low); white-space: nowrap; }
 
 .sys-badge {
-  display: inline-block; padding: 1px 7px; border-radius: 10px;
-  font-size: 10.5px; font-weight: 600;
+  display: inline-block; padding: 1px 8px; border-radius: 10px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
   background: color-mix(in srgb, var(--accent) 10%, transparent);
-  color: var(--accent); width: fit-content;
+  color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  flex-shrink: 0;
 }
 
-.pos-perms { display: flex; flex-wrap: wrap; gap: 5px; }
+.icon-act {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 6px;
+  background: none; border: none; cursor: pointer;
+  color: var(--tx-low); transition: background 0.1s, color 0.1s;
+}
+.icon-act:hover { background: var(--surface-2); color: var(--tx-mid); }
+.icon-act.danger:hover { background: color-mix(in srgb, #ef4444 10%, transparent); color: #ef4444; }
 
-.perm-tag {
-  padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 500;
-  background: var(--surface-1); border: 1px solid var(--border-subtle);
-  color: var(--tx-mid);
+:global(.pos-chevron) { color: var(--tx-low); transition: transform 0.18s ease; flex-shrink: 0; }
+:global(.pos-chevron.open) { transform: rotate(180deg); }
+
+/* Permissions panel */
+.perm-panel {
+  border-top: 1px solid var(--border-subtle);
+  padding: 16px 18px;
+  background: var(--surface-0);
 }
 
-.no-perms { font-size: 11.5px; color: var(--tx-low); font-style: italic; }
+/* View mode */
+.perm-view-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px 24px;
+}
+.perm-view-group { display: flex; flex-direction: column; gap: 4px; }
 
-.perm-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 8px; margin-top: 6px;
+.perm-view-row {
+  display: flex; align-items: baseline; gap: 6px;
+  font-size: 12.5px; padding: 2px 0;
+}
+.perm-view-row.denied { opacity: 0.45; }
+
+:global(.pv-check) { color: #10b981; flex-shrink: 0; margin-top: 1px; }
+.pv-dash { font-size: 11px; color: var(--border-strong); flex-shrink: 0; width: 12px; text-align: center; }
+
+.perm-view-name { font-weight: 500; color: var(--tx-high); white-space: nowrap; }
+.perm-view-row.denied .perm-view-name { color: var(--tx-low); }
+
+/* Edit mode */
+.perm-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 16px 24px;
+}
+.perm-edit-group { display: flex; flex-direction: column; gap: 2px; }
+
+.perm-edit-actions {
+  display: flex; gap: 8px; margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+/* Create form perm grid */
+.perm-section-label {
+  font-size: 12px; font-weight: 600; color: var(--tx-mid);
+  margin: 0 0 10px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.perm-create-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px 24px;
+  margin-bottom: 4px;
+}
+.perm-create-group { display: flex; flex-direction: column; gap: 2px; }
+
+.perm-group-label {
+  font-size: 10.5px; font-weight: 700; color: var(--tx-low);
+  text-transform: uppercase; letter-spacing: 0.07em;
+  margin: 0 0 4px; padding: 0;
 }
 
 .perm-check {
-  display: flex; align-items: center; gap: 7px;
-  padding: 7px 10px; border-radius: 8px;
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-1); cursor: pointer;
-  font-size: 12.5px; color: var(--tx-mid);
-  transition: border-color 0.12s, background 0.12s;
-  user-select: none;
+  display: flex; align-items: flex-start; gap: 7px;
+  padding: 5px 6px; border-radius: 6px;
+  cursor: pointer; font-size: 12.5px; color: var(--tx-mid);
+  transition: background 0.1s; user-select: none;
 }
-.perm-check:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 4%, transparent); }
-.perm-check input[type="checkbox"] { accent-color: var(--accent); width: 14px; height: 14px; }
+.perm-check:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.perm-check input[type="checkbox"] { accent-color: var(--accent); width: 13px; height: 13px; margin-top: 2px; flex-shrink: 0; }
+.perm-check-sm { padding: 4px 6px; }
+
+.perm-check-name { font-weight: 500; color: var(--tx-high); font-size: 12.5px; }
 
 /* ── Spinner (global keyframe) ───────────────────────────────────── */
 :global(.spin) { animation: spin 0.75s linear infinite; }

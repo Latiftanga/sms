@@ -11,6 +11,7 @@ from app.core.security import (
     create_access_token,
     create_refresh_token,
     decode_token,
+    hash_password,
     verify_password,
 )
 from app.models.user import User
@@ -44,6 +45,12 @@ class MeResponse(BaseModel):
     system_role: str
     school_id: str | None
     permissions: dict[str, bool]
+    must_change_password: bool
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -111,4 +118,20 @@ async def me(current_user: CurrentUser, redis: RedisDep, session: SessionDep) ->
         system_role=current_user.system_role,
         school_id=str(current_user.school_id) if current_user.school_id else None,
         permissions=perms,
+        must_change_password=current_user.must_change_password,
     )
+
+
+@router.post("/change-password", status_code=204)
+async def change_password(
+    body: ChangePasswordRequest,
+    current_user: CurrentUser,
+    session: SessionDep,
+) -> None:
+    if not verify_password(body.current_password, current_user.password_hash):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Current password is incorrect")
+    if len(body.new_password) < 8:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Password must be at least 8 characters")
+    current_user.password_hash = hash_password(body.new_password)
+    current_user.must_change_password = False
+    await session.commit()

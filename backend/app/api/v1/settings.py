@@ -4,7 +4,8 @@ from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import CurrentUser, SessionDep
+from app.api.deps import CurrentUser, SessionDep, require
+from app.core.permissions import Permission
 from app.models.academic import AcademicTerm, AcademicYear, Class, LearningArea
 from app.models.school import School
 from app.models.staff import PositionPermission, StaffPosition
@@ -47,7 +48,8 @@ async def get_school(user: CurrentUser, session: SessionDep) -> SchoolResponse:
     return SchoolResponse.model_validate(school)
 
 
-@router.patch("/school", response_model=SchoolResponse)
+@router.patch("/school", response_model=SchoolResponse,
+              dependencies=[require(Permission.MANAGE_SCHOOL_CONFIG)])
 async def update_school(
     body: SchoolProfileUpdate, user: CurrentUser, session: SessionDep
 ) -> SchoolResponse:
@@ -61,7 +63,8 @@ async def update_school(
     return SchoolResponse.model_validate(school)
 
 
-@router.post("/school/logo", response_model=SchoolResponse)
+@router.post("/school/logo", response_model=SchoolResponse,
+             dependencies=[require(Permission.MANAGE_SCHOOL_CONFIG)])
 async def upload_school_logo(
     user: CurrentUser,
     session: SessionDep,
@@ -122,7 +125,8 @@ async def list_academic_years(
     )
 
 
-@router.post("/academic-years", response_model=AcademicYearResponse, status_code=201)
+@router.post("/academic-years", response_model=AcademicYearResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def create_academic_year(
     body: AcademicYearCreate, user: CurrentUser, session: SessionDep
 ):
@@ -142,7 +146,8 @@ async def create_academic_year(
     return AcademicYearResponse.model_validate(year)
 
 
-@router.patch("/academic-years/{year_id}", response_model=AcademicYearResponse)
+@router.patch("/academic-years/{year_id}", response_model=AcademicYearResponse,
+              dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def update_academic_year(
     year_id: UUID, body: AcademicYearUpdate, user: CurrentUser, session: SessionDep
 ):
@@ -160,7 +165,8 @@ async def update_academic_year(
     return AcademicYearResponse.model_validate(year)
 
 
-@router.post("/academic-years/{year_id}/activate", response_model=AcademicYearResponse)
+@router.post("/academic-years/{year_id}/activate", response_model=AcademicYearResponse,
+             dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def activate_academic_year(year_id: UUID, user: CurrentUser, session: SessionDep):
     school_id = _school_id(user)
     # Clear current flag on all years for this school
@@ -178,7 +184,8 @@ async def activate_academic_year(year_id: UUID, user: CurrentUser, session: Sess
     return AcademicYearResponse.model_validate(year)
 
 
-@router.delete("/academic-years/{year_id}", status_code=204)
+@router.delete("/academic-years/{year_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def delete_academic_year(year_id: UUID, user: CurrentUser, session: SessionDep):
     year = await session.scalar(
         select(AcademicYear)
@@ -194,7 +201,8 @@ async def delete_academic_year(year_id: UUID, user: CurrentUser, session: Sessio
 
 # ── Terms ─────────────────────────────────────────────────────────────────────
 
-@router.post("/academic-years/{year_id}/terms", response_model=AcademicTermResponse, status_code=201)
+@router.post("/academic-years/{year_id}/terms", response_model=AcademicTermResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def create_term(
     year_id: UUID, body: AcademicTermCreate, user: CurrentUser, session: SessionDep
 ):
@@ -219,7 +227,8 @@ async def create_term(
     return AcademicTermResponse.model_validate(term)
 
 
-@router.patch("/terms/{term_id}", response_model=AcademicTermResponse)
+@router.patch("/terms/{term_id}", response_model=AcademicTermResponse,
+              dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def update_term(term_id: UUID, body: AcademicTermUpdate, user: CurrentUser, session: SessionDep):
     term = await session.get(AcademicTerm, term_id)
     if not term:
@@ -231,7 +240,8 @@ async def update_term(term_id: UUID, body: AcademicTermUpdate, user: CurrentUser
     return AcademicTermResponse.model_validate(term)
 
 
-@router.post("/terms/{term_id}/activate", response_model=AcademicTermResponse)
+@router.post("/terms/{term_id}/activate", response_model=AcademicTermResponse,
+             dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def activate_term(term_id: UUID, user: CurrentUser, session: SessionDep):
     term = await session.get(AcademicTerm, term_id)
     if not term:
@@ -247,7 +257,8 @@ async def activate_term(term_id: UUID, user: CurrentUser, session: SessionDep):
     return AcademicTermResponse.model_validate(term)
 
 
-@router.delete("/terms/{term_id}", status_code=204)
+@router.delete("/terms/{term_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def delete_term(term_id: UUID, user: CurrentUser, session: SessionDep):
     term = await session.get(AcademicTerm, term_id)
     if not term:
@@ -286,7 +297,8 @@ async def list_learning_areas(
     )
 
 
-@router.post("/learning-areas", response_model=LearningAreaResponse, status_code=201)
+@router.post("/learning-areas", response_model=LearningAreaResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def create_learning_area(
     body: LearningAreaCreate, user: CurrentUser, session: SessionDep
 ):
@@ -299,7 +311,8 @@ async def create_learning_area(
     return LearningAreaResponse.model_validate(la)
 
 
-@router.patch("/learning-areas/{la_id}", response_model=LearningAreaResponse)
+@router.patch("/learning-areas/{la_id}", response_model=LearningAreaResponse,
+              dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def update_learning_area(
     la_id: UUID, body: LearningAreaUpdate, user: CurrentUser, session: SessionDep
 ):
@@ -316,7 +329,8 @@ async def update_learning_area(
     return LearningAreaResponse.model_validate(la)
 
 
-@router.delete("/learning-areas/{la_id}", status_code=204)
+@router.delete("/learning-areas/{la_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def delete_learning_area(la_id: UUID, user: CurrentUser, session: SessionDep):
     la = await session.scalar(
         select(LearningArea)
@@ -363,7 +377,8 @@ async def list_classes(
     )
 
 
-@router.post("/classes", response_model=ClassResponse, status_code=201)
+@router.post("/classes", response_model=ClassResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def create_class(body: ClassCreate, user: CurrentUser, session: SessionDep):
     school_id = _school_id(user)
 
@@ -402,7 +417,8 @@ async def create_class(body: ClassCreate, user: CurrentUser, session: SessionDep
     )
 
 
-@router.patch("/classes/{class_id}", response_model=ClassResponse)
+@router.patch("/classes/{class_id}", response_model=ClassResponse,
+              dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def update_class(
     class_id: UUID, body: ClassUpdate, user: CurrentUser, session: SessionDep
 ):
@@ -423,7 +439,8 @@ async def update_class(
     )
 
 
-@router.delete("/classes/{class_id}", status_code=204)
+@router.delete("/classes/{class_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def delete_class(class_id: UUID, user: CurrentUser, session: SessionDep):
     cls = await session.scalar(
         select(Class)
@@ -462,7 +479,8 @@ async def list_positions(user: CurrentUser, session: SessionDep):
     return [_position_to_response(p) for p in rows]
 
 
-@router.post("/positions", response_model=PositionResponse, status_code=201)
+@router.post("/positions", response_model=PositionResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_USERS)])
 async def create_position(body: PositionCreate, user: CurrentUser, session: SessionDep):
     school_id = _school_id(user)
 
@@ -493,7 +511,8 @@ async def create_position(body: PositionCreate, user: CurrentUser, session: Sess
     return _position_to_response(pos)
 
 
-@router.patch("/positions/{pos_id}", response_model=PositionResponse)
+@router.patch("/positions/{pos_id}", response_model=PositionResponse,
+              dependencies=[require(Permission.MANAGE_USERS)])
 async def update_position(
     pos_id: UUID, body: PositionUpdate, user: CurrentUser, session: SessionDep
 ):
@@ -525,7 +544,8 @@ async def update_position(
     return _position_to_response(pos)
 
 
-@router.delete("/positions/{pos_id}", status_code=204)
+@router.delete("/positions/{pos_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_USERS)])
 async def delete_position(pos_id: UUID, user: CurrentUser, session: SessionDep):
     pos = await session.scalar(
         select(StaffPosition)

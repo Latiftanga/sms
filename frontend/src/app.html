@@ -19,6 +19,22 @@
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">
+    <div id="app-init" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:99999;transition:opacity 0.18s ease">
+      <div class="app-init-spinner"></div>
+    </div>
+    <style>
+      #app-init { background: #F2F0EC; }
+      :root.dark #app-init { background: #141414; }
+      .app-init-spinner {
+        width: 22px; height: 22px;
+        border: 2px solid rgba(0,0,0,0.1);
+        border-top-color: var(--accent, #6366f1);
+        border-radius: 50%;
+        animation: app-init-spin 0.65s linear infinite;
+      }
+      :root.dark .app-init-spinner { border-color: rgba(255,255,255,0.1); border-top-color: var(--accent, #6366f1); }
+      @keyframes app-init-spin { to { transform: rotate(360deg); } }
+    </style>
     <div style="display: contents">%sveltekit.body%</div>
   </body>
 </html>

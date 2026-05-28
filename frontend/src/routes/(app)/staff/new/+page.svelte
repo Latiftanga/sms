@@ -60,16 +60,22 @@
 
   <!-- Page header -->
   <div class="page-top">
-    <button class="back" on:click={() => goto("/staff")}>
-      <ArrowLeft size={14} /> Staff
-    </button>
-    <div class="page-heading">
-      <h1 class="title">Add staff member</h1>
-      <p class="subtitle">Complete the form below. All sections can be edited later from the staff profile.</p>
+    <div class="page-top-left">
+      <button class="back" on:click={() => goto("/staff")}>
+        <ArrowLeft size={14} /> Staff
+      </button>
+      <div class="page-heading">
+        <h1 class="title">Add staff member</h1>
+        <p class="subtitle">Complete the form below. All sections can be edited later from the staff profile.</p>
+      </div>
+    </div>
+    <div class="page-top-actions">
+      <Button type="button" variant="ghost" on:click={() => goto("/staff")}>Cancel</Button>
+      <Button type="submit" form="new-staff-form" loading={saving}>Save staff member</Button>
     </div>
   </div>
 
-  <form on:submit|preventDefault={submit} novalidate>
+  <form id="new-staff-form" on:submit|preventDefault={submit} novalidate>
 
     {#if apiError}
       <div class="api-error" role="alert">{apiError}</div>
@@ -83,7 +89,7 @@
         <!-- Personal Information -->
         <div class="card">
           <div class="card-head">
-            <User size={15} class="card-icon" />
+            <div class="card-hicon"><User size={14} /></div>
             <span>Personal Information</span>
           </div>
           <div class="card-body">
@@ -127,7 +133,7 @@
         <!-- Contact Details -->
         <div class="card">
           <div class="card-head">
-            <Phone size={15} class="card-icon" />
+            <div class="card-hicon"><Phone size={14} /></div>
             <span>Contact Details</span>
           </div>
           <div class="card-body">
@@ -173,7 +179,7 @@
         <!-- Employment -->
         <div class="card">
           <div class="card-head">
-            <Briefcase size={15} class="card-icon" />
+            <div class="card-hicon"><Briefcase size={14} /></div>
             <span>Employment</span>
           </div>
           <div class="card-body">
@@ -206,6 +212,8 @@
                 <option value="HEADTEACHER">Headteacher</option>
                 <option value="ASSISTANT_HEAD">Assistant Head</option>
                 <option value="BURSAR">Bursar</option>
+                <option value="HOUSEMASTER">Housemaster</option>
+                <option value="SENIOR_HOUSEMASTER">Senior Housemaster</option>
               </select>
             </div>
 
@@ -226,7 +234,7 @@
         <!-- GES Details -->
         <div class="card">
           <div class="card-head">
-            <Shield size={15} class="card-icon" />
+            <div class="card-hicon"><Shield size={14} /></div>
             <span>GES Details <span class="optional-tag">optional</span></span>
           </div>
           <div class="card-body">
@@ -260,12 +268,6 @@
       </div>
     </div>
 
-    <!-- Sticky action bar -->
-    <div class="action-bar">
-      <Button type="button" variant="ghost" on:click={() => goto("/staff")}>Cancel</Button>
-      <Button type="submit" loading={saving}>Save staff member</Button>
-    </div>
-
   </form>
 </div>
 
@@ -274,11 +276,17 @@
     display: flex;
     flex-direction: column;
     gap: 24px;
-    padding-bottom: 80px; /* room for sticky bar */
   }
 
   /* ── Page top ─────────────────────────────────── */
-  .page-top { display: flex; flex-direction: column; gap: 6px; }
+  .page-top {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 16px;
+  }
+
+  .page-top-left { display: flex; flex-direction: column; gap: 6px; }
+
+  .page-top-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
 
   .back {
     display: inline-flex; align-items: center; gap: 6px;
@@ -323,14 +331,19 @@
   }
 
   .card-head {
-    display: flex; align-items: center; gap: 8px;
-    padding: 14px 20px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px;
     border-bottom: 1px solid var(--border-subtle);
     font-size: 0.875rem; font-weight: 600; color: var(--tx-high);
     background: var(--surface-1);
   }
 
-  .card-head :global(.card-icon) { color: var(--accent); flex-shrink: 0; }
+  .card-hicon {
+    width: 28px; height: 28px; border-radius: 7px;
+    background: var(--accent-subtle); color: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
 
   .optional-tag {
     font-size: 0.7rem; font-weight: 500;
@@ -366,13 +379,4 @@
     .row-2, .row-3 { grid-template-columns: 1fr; }
   }
 
-  /* ── Sticky action bar ───────────────────────── */
-  .action-bar {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    display: flex; justify-content: flex-end; gap: 10px;
-    padding: 14px 24px;
-    background: var(--surface-0);
-    border-top: 1px solid var(--border-subtle);
-    z-index: 40;
-  }
 </style>

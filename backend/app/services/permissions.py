@@ -2,11 +2,14 @@
 Permission resolver — three-layer resolution:
   1. SUPERADMIN → bypass all checks (hardcoded)
   2. StaffPermission (personal override) → explicit grant/deny per user
-  3. PositionPermission (template) → default for the assigned position
+  3. UserRole → union of PositionPermission across ALL assigned roles
   4. No match → denied
 
+Union semantics: if ANY assigned role grants a permission, it is granted.
+A personal override (granted=False) can still explicitly deny it.
+
 Results are cached in Redis for PERMISSION_CACHE_TTL seconds.
-Cache is invalidated immediately on any StaffPermission write.
+Cache is invalidated immediately on any StaffPermission or UserRole write.
 """
 import json
 import logging
@@ -18,8 +21,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.permissions import ALL_PERMISSIONS, Permission
-from app.models.staff import StaffPermission
-from app.models.user import User
+from app.models.staff import PositionPermission, StaffPermission
+from app.models.user import User, UserRole
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +76,7 @@ async def check_permission(
 
 
 async def invalidate_cache(user_id: str | UUID, redis: Redis) -> None:
-    """Call whenever StaffPermission or User.position_id changes."""
+    """Call whenever StaffPermission or UserRole changes."""
     await redis.delete(_cache_key(user_id))
 
 
@@ -84,9 +87,13 @@ async def invalidate_cache(user_id: str | UUID, redis: Redis) -> None:
 async def _load_from_db(user: User, session: AsyncSession) -> dict[str, bool]:
     """
     Build the full permission map from DB.
-    StaffPermission (personal override) wins over PositionPermission (template).
+
+    Resolution order (highest priority first):
+      1. Personal override (StaffPermission) — explicit grant or deny
+      2. Role union (UserRole → PositionPermission) — if ANY role grants it
+      3. Default deny
     """
-    # 1. Load personal overrides in a single query
+    # 1. Personal overrides — one query
     override_rows = await session.execute(
         select(StaffPermission.permission_key, StaffPermission.granted).where(
             StaffPermission.staff_member_id == user.staff_member_id,
@@ -95,25 +102,24 @@ async def _load_from_db(user: User, session: AsyncSession) -> dict[str, bool]:
     )
     overrides: dict[str, bool] = {row.permission_key: row.granted for row in override_rows}
 
-    # 2. Load position template grants in a single query
-    position_grants: dict[str, bool] = {}
-    if user.position_id:
-        from app.models.staff import PositionPermission
-        pos_rows = await session.execute(
-            select(PositionPermission.permission_key, PositionPermission.granted).where(
-                PositionPermission.position_id == user.position_id
-            )
+    # 2. Union of all role permissions — one JOIN query across all assigned roles
+    role_rows = await session.execute(
+        select(PositionPermission.permission_key, PositionPermission.granted)
+        .join(UserRole, UserRole.role_id == PositionPermission.position_id)
+        .where(UserRole.user_id == user.id)
+    )
+    # Union: once any role grants a key, it stays granted
+    role_grants: dict[str, bool] = {}
+    for row in role_rows:
+        if row.permission_key not in role_grants or row.granted:
+            role_grants[row.permission_key] = row.granted
+
+    # 3. Merge: personal override wins, then role union, then deny
+    return {
+        perm_key: (
+            overrides[perm_key]
+            if perm_key in overrides
+            else role_grants.get(perm_key, False)
         )
-        position_grants = {row.permission_key: row.granted for row in pos_rows}
-
-    # 3. Merge: override wins, then position template, then deny
-    result: dict[str, bool] = {}
-    for perm_key in ALL_PERMISSIONS:
-        if perm_key in overrides:
-            result[perm_key] = overrides[perm_key]
-        elif perm_key in position_grants:
-            result[perm_key] = position_grants[perm_key]
-        else:
-            result[perm_key] = False
-
-    return result
+        for perm_key in ALL_PERMISSIONS
+    }

@@ -43,9 +43,8 @@ function createAuthStore() {
         const { data: user } = await api.get<User>("/auth/me");
         set({ user, loading: false, error: null });
       } catch (err: unknown) {
-        const msg =
-          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
-          "Login failed";
+        const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
+        const msg = typeof detail === "string" ? detail : "Invalid email or password.";
         update((s) => ({ ...s, loading: false, error: msg }));
         throw err;
       }

@@ -41,7 +41,6 @@ def _user_from_cache(d: dict) -> User:
     u.must_change_password = d.get("must_change_password", False)
     u.school_id = _uuid.UUID(d["school_id"]) if d.get("school_id") else None
     u.staff_member_id = _uuid.UUID(d["staff_member_id"]) if d.get("staff_member_id") else None
-    u.position_id = _uuid.UUID(d["position_id"]) if d.get("position_id") else None
     return u
 
 
@@ -91,7 +90,6 @@ async def get_current_user(
                 "must_change_password": user.must_change_password,
                 "school_id": str(user.school_id) if user.school_id else None,
                 "staff_member_id": str(user.staff_member_id) if user.staff_member_id else None,
-                "position_id": str(user.position_id) if user.position_id else None,
             }))
         except Exception:
             pass  # Cache write failure is non-fatal

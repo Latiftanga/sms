@@ -14,6 +14,7 @@
   class="btn btn-{variant} btn-{size}"
   disabled={disabled || loading}
   aria-label={ariaLabel}
+  {...$$restProps}
   on:click
   on:mousedown
 >

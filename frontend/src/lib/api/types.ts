@@ -4,6 +4,7 @@ export interface User {
   system_role: "SUPERADMIN" | "SCHOOL_STAFF" | "STUDENT" | "PARENT";
   school_id: string | null;
   permissions: Record<string, boolean>;
+  must_change_password: boolean;
 }
 
 export interface School {
@@ -69,7 +70,7 @@ export interface PagedResponse<T> {
 // ── Staff ─────────────────────────────────────────────────────────
 
 export type StaffCategory = "TEACHING" | "NON-TEACHING";
-export type StaffDesignation = "TEACHER" | "HEADTEACHER" | "ASSISTANT_HEAD" | "BURSAR";
+export type StaffDesignation = "TEACHER" | "HEADTEACHER" | "ASSISTANT_HEAD" | "BURSAR" | "HOUSEMASTER" | "SENIOR_HOUSEMASTER";
 export type StaffEmploymentType = "PERMANENT" | "CONTRACT" | "VOLUNTEER" | "GES_POSTED";
 export type Gender = "MALE" | "FEMALE" | "OTHER";
 
@@ -128,6 +129,32 @@ export interface AccountCreateResponse {
   user_id: string;
   email: string;
   temp_password: string;
+}
+
+export interface Role {
+  id: string;
+  name: string;
+  code: string;
+  is_system_template: boolean;
+}
+
+export interface UserRole {
+  id: string;
+  role: Role;
+  assigned_at: string;
+}
+
+export interface StaffPermissionsResponse {
+  staff_member_id: string;
+  roles: UserRole[];
+  permissions: Record<string, boolean>;
+  overrides: Array<{
+    permission_key: string;
+    granted: boolean;
+    granted_by: string;
+    granted_at: string;
+    note: string | null;
+  }>;
 }
 
 export interface BulkRowError {

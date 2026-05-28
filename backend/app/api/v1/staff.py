@@ -31,10 +31,11 @@ from uuid import UUID
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy import exists, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import CurrentUser, RedisDep, SessionDep
-from app.core.permissions import ALL_PERMISSIONS
+from app.api.deps import CurrentUser, RedisDep, SessionDep, require
+from app.core.permissions import ALL_PERMISSIONS, Permission
 from app.core.security import hash_password
 from app.models.staff import (
     StaffMember,
@@ -43,26 +44,28 @@ from app.models.staff import (
     StaffPromotion,
     StaffQualification,
 )
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.staff import (
     AccountCreateRequest,
     AccountCreateResponse,
     BulkRowError,
     BulkUploadResponse,
     PermissionOverrideCreate,
-    PromotionUpdate,
-    QualificationUpdate,
     PermissionOverrideResponse,
-    PositionAssignRequest,
     PromotionCreate,
     PromotionResponse,
+    PromotionUpdate,
     QualificationCreate,
     QualificationResponse,
+    QualificationUpdate,
+    RoleAssignRequest,
+    RoleResponse,
     StaffMemberCreate,
     StaffMemberDetail,
     StaffMemberResponse,
     StaffMemberUpdate,
     StaffPermissionsResponse,
+    UserRoleResponse,
 )
 from app.schemas.common import PagedResponse
 from app.services.permissions import invalidate_cache, resolve_all_permissions
@@ -75,9 +78,51 @@ ALLOWED_PHOTO_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
-def _require_admin(user: CurrentUser) -> None:
-    if user.system_role not in ("SUPERADMIN", "SCHOOL_STAFF"):
-        raise HTTPException(status.HTTP_403_FORBIDDEN, "Access denied")
+# Designation → default system role codes assigned at account creation
+_DESIGNATION_TO_ROLE_CODES: dict[str, list[str]] = {
+    "HEADTEACHER":         ["HEADTEACHER"],
+    "ASSISTANT_HEAD":      ["ASSISTANT_HEAD"],
+    "BURSAR":              ["BURSAR"],
+    "HOUSEMASTER":         ["HOUSEMASTER"],
+    "SENIOR_HOUSEMASTER":  ["SENIOR_HOUSEMASTER"],
+}
+
+
+def _default_role_codes(member: StaffMember) -> list[str]:
+    codes = _DESIGNATION_TO_ROLE_CODES.get(member.designation or "")
+    if codes:
+        return codes
+    if member.category == "TEACHING":
+        return ["CLASS_TEACHER"]
+    return []
+
+
+async def _assign_roles_by_codes(
+    user: User, codes: list[str], assigned_by_id: UUID, session: AsyncSession
+) -> None:
+    if not codes:
+        return
+    positions = list(await session.scalars(
+        select(StaffPosition).where(
+            StaffPosition.code.in_(codes),
+            StaffPosition.is_system_template.is_(True),
+        )
+    ))
+    now = datetime.now(UTC)
+    for pos in positions:
+        exists_already = await session.scalar(
+            select(UserRole).where(
+                UserRole.user_id == user.id,
+                UserRole.role_id == pos.id,
+            )
+        )
+        if not exists_already:
+            session.add(UserRole(
+                user_id=user.id,
+                role_id=pos.id,
+                assigned_by=assigned_by_id,
+                assigned_at=now,
+            ))
 
 
 async def _get_member(staff_id: UUID, school_id: UUID, session) -> StaffMember:
@@ -121,7 +166,8 @@ def _gen_temp_password(length: int = 12) -> str:
 
 # ── List ──────────────────────────────────────────────────────────────────────
 
-@router.get("", response_model=PagedResponse[StaffMemberResponse])
+@router.get("", response_model=PagedResponse[StaffMemberResponse],
+            dependencies=[require(Permission.VIEW_STAFF)])
 async def list_staff(
     user: CurrentUser,
     session: SessionDep,
@@ -131,56 +177,74 @@ async def list_staff(
     is_active: bool | None = None,
     search: str | None = None,
 ):
-    _require_admin(user)
     school_id = user.school_id
 
-    q = (
-        select(StaffMember)
-        .where(StaffMember.school_id == school_id)
-        .options(selectinload(StaffMember.promotions))
-    )
+    # Build reusable filter conditions
+    conditions = [StaffMember.school_id == school_id]
     if category:
-        q = q.where(StaffMember.category == category.upper())
+        conditions.append(StaffMember.category == category.upper())
     if is_active is not None:
-        q = q.where(StaffMember.is_active == is_active)
+        conditions.append(StaffMember.is_active == is_active)
     if search:
         term = f"%{search}%"
-        q = q.where(
+        conditions.append(
             StaffMember.first_name.ilike(term)
             | StaffMember.last_name.ilike(term)
             | StaffMember.staff_id.ilike(term)
             | StaffMember.ges_staff_id.ilike(term)
         )
 
-    total = await session.scalar(select(func.count()).select_from(q.subquery()))
-    members = list(await session.scalars(
-        q.order_by(StaffMember.last_name, StaffMember.first_name)
-         .offset(skip)
-         .limit(limit)
+    total = await session.scalar(
+        select(func.count(StaffMember.id)).where(*conditions)
+    )
+
+    # Correlated subquery for current rank — avoids loading full promotion
+    # history for every row via selectinload
+    rank_sq = (
+        select(StaffPromotion.rank)
+        .where(StaffPromotion.staff_member_id == StaffMember.id)
+        .order_by(StaffPromotion.date_promoted.desc())
+        .limit(1)
+        .correlate(StaffMember)
+        .scalar_subquery()
+    )
+
+    rows = list(await session.execute(
+        select(StaffMember, rank_sq.label("current_rank"))
+        .where(*conditions)
+        .order_by(StaffMember.last_name, StaffMember.first_name)
+        .offset(skip)
+        .limit(limit)
     ))
 
-    # batch-check which have accounts
-    ids = [m.id for m in members]
+    # Batch-check which members have login accounts
+    ids = [r[0].id for r in rows]
     linked_ids: set[UUID] = set()
     if ids:
-        rows = await session.scalars(
+        linked_ids = set(await session.scalars(
             select(User.staff_member_id).where(User.staff_member_id.in_(ids))
-        )
-        linked_ids = set(rows)
+        ))
 
-    items = [_to_response(m, has_account=m.id in linked_ids) for m in members]
+    items = [
+        StaffMemberResponse.model_validate({
+            **r[0].__dict__,
+            "current_rank": r[1],
+            "has_account": r[0].id in linked_ids,
+        })
+        for r in rows
+    ]
     return PagedResponse(items=items, total=total or 0, skip=skip, limit=limit)
 
 
 # ── Create ────────────────────────────────────────────────────────────────────
 
-@router.post("", response_model=StaffMemberResponse, status_code=201)
+@router.post("", response_model=StaffMemberResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_STAFF)])
 async def create_staff(
     body: StaffMemberCreate,
     user: CurrentUser,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = StaffMember(school_id=user.school_id, **body.model_dump())
     session.add(member)
     await session.commit()
@@ -190,9 +254,9 @@ async def create_staff(
 
 # ── Detail ────────────────────────────────────────────────────────────────────
 
-@router.get("/{staff_id}", response_model=StaffMemberDetail)
+@router.get("/{staff_id}", response_model=StaffMemberDetail,
+            dependencies=[require(Permission.VIEW_STAFF)])
 async def get_staff(staff_id: UUID, user: CurrentUser, session: SessionDep):
-    _require_admin(user)
 
     # Embed has_account as EXISTS subquery — saves a separate DB round-trip
     has_acct_sq = exists().where(User.staff_member_id == staff_id)
@@ -229,14 +293,14 @@ async def get_staff(staff_id: UUID, user: CurrentUser, session: SessionDep):
 
 # ── Update ────────────────────────────────────────────────────────────────────
 
-@router.patch("/{staff_id}", response_model=StaffMemberResponse)
+@router.patch("/{staff_id}", response_model=StaffMemberResponse,
+              dependencies=[require(Permission.MANAGE_STAFF)])
 async def update_staff(
     staff_id: UUID,
     body: StaffMemberUpdate,
     user: CurrentUser,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
     for field, value in body.model_dump(exclude_unset=True).items():
         setattr(member, field, value)
@@ -247,13 +311,13 @@ async def update_staff(
 
 # ── Soft-delete ───────────────────────────────────────────────────────────────
 
-@router.delete("/{staff_id}", status_code=204)
+@router.delete("/{staff_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_STAFF)])
 async def deactivate_staff(
     staff_id: UUID,
     user: CurrentUser,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
     member.is_active = False
     # Deactivate linked user account too
@@ -265,14 +329,14 @@ async def deactivate_staff(
 
 # ── Photo upload ──────────────────────────────────────────────────────────────
 
-@router.post("/{staff_id}/photo", response_model=StaffMemberResponse)
+@router.post("/{staff_id}/photo", response_model=StaffMemberResponse,
+             dependencies=[require(Permission.MANAGE_STAFF)])
 async def upload_photo(
     staff_id: UUID,
     user: CurrentUser,
     session: SessionDep,
     file: UploadFile = File(...),
 ):
-    _require_admin(user)
     if file.content_type not in ALLOWED_PHOTO_TYPES:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "JPEG, PNG or WebP only")
 
@@ -290,25 +354,21 @@ async def upload_photo(
 
 # ── Account creation ──────────────────────────────────────────────────────────
 
-@router.post("/{staff_id}/account", response_model=AccountCreateResponse, status_code=201)
+@router.post("/{staff_id}/account", response_model=AccountCreateResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_USERS)])
 async def create_account(
     staff_id: UUID,
     body: AccountCreateRequest,
     user: CurrentUser,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
 
-    # Reject if already linked
     existing = await _linked_user(member, session)
     if existing:
         raise HTTPException(status.HTTP_409_CONFLICT, "Staff member already has an account")
 
-    # Reject duplicate email across the school
-    email_taken = await session.scalar(
-        select(User).where(User.email == body.email)
-    )
+    email_taken = await session.scalar(select(User).where(User.email == body.email))
     if email_taken:
         raise HTTPException(status.HTTP_409_CONFLICT, "Email already in use")
 
@@ -324,6 +384,12 @@ async def create_account(
         must_change_password=True,
     )
     session.add(new_user)
+    await session.flush()  # get new_user.id before assigning roles
+
+    # Auto-assign default role(s) from designation/category
+    codes = _default_role_codes(member)
+    await _assign_roles_by_codes(new_user, codes, user.id, session)
+
     await session.commit()
     await session.refresh(new_user)
 
@@ -334,16 +400,59 @@ async def create_account(
     )
 
 
+# ── Admin password reset ──────────────────────────────────────────────────────
+
+@router.post("/{staff_id}/reset-password", response_model=AccountCreateResponse,
+             dependencies=[require(Permission.MANAGE_USERS)])
+async def reset_password(
+    staff_id: UUID,
+    user: CurrentUser,
+    session: SessionDep,
+):
+    member = await _get_member(staff_id, user.school_id, session)
+    linked = await _linked_user(member, session)
+    if not linked:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No account found for this staff member")
+
+    temp_pw = _gen_temp_password()
+    linked.password_hash = hash_password(temp_pw)
+    linked.must_change_password = True
+    await session.commit()
+
+    return AccountCreateResponse(
+        user_id=linked.id,
+        email=linked.email,
+        temp_password=temp_pw,
+    )
+
+
+# ── Reactivate staff ──────────────────────────────────────────────────────────
+
+@router.post("/{staff_id}/reactivate", status_code=204,
+             dependencies=[require(Permission.MANAGE_STAFF)])
+async def reactivate_staff(
+    staff_id: UUID,
+    user: CurrentUser,
+    session: SessionDep,
+):
+    member = await _get_member(staff_id, user.school_id, session)
+    member.is_active = True
+    linked = await _linked_user(member, session)
+    if linked:
+        linked.is_active = True
+    await session.commit()
+
+
 # ── Qualifications ────────────────────────────────────────────────────────────
 
-@router.post("/{staff_id}/qualifications", response_model=QualificationResponse, status_code=201)
+@router.post("/{staff_id}/qualifications", response_model=QualificationResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_STAFF)])
 async def add_qualification(
     staff_id: UUID,
     body: QualificationCreate,
     user: CurrentUser,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
     q = StaffQualification(staff_member_id=member.id, **body.model_dump())
     session.add(q)
@@ -352,7 +461,8 @@ async def add_qualification(
     return QualificationResponse.model_validate(q)
 
 
-@router.patch("/{staff_id}/qualifications/{qual_id}", response_model=QualificationResponse)
+@router.patch("/{staff_id}/qualifications/{qual_id}", response_model=QualificationResponse,
+              dependencies=[require(Permission.MANAGE_STAFF)])
 async def update_qualification(
     staff_id: UUID,
     qual_id: UUID,
@@ -360,7 +470,6 @@ async def update_qualification(
     user: CurrentUser,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
     qual = await session.scalar(
         select(StaffQualification).where(
@@ -377,14 +486,14 @@ async def update_qualification(
     return QualificationResponse.model_validate(qual)
 
 
-@router.delete("/{staff_id}/qualifications/{qual_id}", status_code=204)
+@router.delete("/{staff_id}/qualifications/{qual_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_STAFF)])
 async def remove_qualification(
     staff_id: UUID,
     qual_id: UUID,
     user: CurrentUser,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
     qual = await session.scalar(
         select(StaffQualification).where(
@@ -400,13 +509,13 @@ async def remove_qualification(
 
 # ── Promotions / GES rank history ─────────────────────────────────────────────
 
-@router.get("/{staff_id}/promotions", response_model=list[PromotionResponse])
+@router.get("/{staff_id}/promotions", response_model=list[PromotionResponse],
+            dependencies=[require(Permission.VIEW_STAFF)])
 async def list_promotions(
     staff_id: UUID,
     user: CurrentUser,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
     rows = list(await session.scalars(
         select(StaffPromotion)
@@ -416,14 +525,14 @@ async def list_promotions(
     return [PromotionResponse.model_validate(r) for r in rows]
 
 
-@router.post("/{staff_id}/promotions", response_model=PromotionResponse, status_code=201)
+@router.post("/{staff_id}/promotions", response_model=PromotionResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_PROMOTIONS)])
 async def record_promotion(
     staff_id: UUID,
     body: PromotionCreate,
     user: CurrentUser,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
     row = StaffPromotion(
         staff_member_id=member.id,
@@ -438,7 +547,8 @@ async def record_promotion(
     return PromotionResponse.model_validate(row)
 
 
-@router.patch("/{staff_id}/promotions/{prom_id}", response_model=PromotionResponse)
+@router.patch("/{staff_id}/promotions/{prom_id}", response_model=PromotionResponse,
+              dependencies=[require(Permission.MANAGE_PROMOTIONS)])
 async def update_promotion(
     staff_id: UUID,
     prom_id: UUID,
@@ -446,7 +556,6 @@ async def update_promotion(
     user: CurrentUser,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
     row = await session.scalar(
         select(StaffPromotion).where(
@@ -463,14 +572,14 @@ async def update_promotion(
     return PromotionResponse.model_validate(row)
 
 
-@router.delete("/{staff_id}/promotions/{prom_id}", status_code=204)
+@router.delete("/{staff_id}/promotions/{prom_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_PROMOTIONS)])
 async def remove_promotion(
     staff_id: UUID,
     prom_id: UUID,
     user: CurrentUser,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
     row = await session.scalar(
         select(StaffPromotion).where(
@@ -486,14 +595,14 @@ async def remove_promotion(
 
 # ── Permissions ───────────────────────────────────────────────────────────────
 
-@router.get("/{staff_id}/permissions", response_model=StaffPermissionsResponse)
+@router.get("/{staff_id}/permissions", response_model=StaffPermissionsResponse,
+            dependencies=[require(Permission.MANAGE_USERS)])
 async def get_staff_permissions(
     staff_id: UUID,
     user: CurrentUser,
     redis: RedisDep,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
 
     overrides = list(await session.scalars(
@@ -506,14 +615,38 @@ async def get_staff_permissions(
     linked = await _linked_user(member, session)
     resolved = await resolve_all_permissions(linked, redis, session) if linked else {}
 
+    # Load assigned roles with their role detail
+    role_rows: list[UserRoleResponse] = []
+    if linked:
+        ur_rows = list(await session.scalars(
+            select(UserRole).where(UserRole.user_id == linked.id).options(
+                selectinload(UserRole.role)
+            )
+        ))
+        role_rows = [
+            UserRoleResponse(
+                id=ur.id,
+                role=RoleResponse(
+                    id=ur.role.id,
+                    name=ur.role.name,
+                    code=ur.role.code,
+                    is_system_template=ur.role.is_system_template,
+                ),
+                assigned_at=ur.assigned_at,
+            )
+            for ur in ur_rows
+        ]
+
     return StaffPermissionsResponse(
         staff_member_id=member.id,
+        roles=role_rows,
         permissions=resolved,
         overrides=[PermissionOverrideResponse.model_validate(o) for o in overrides],
     )
 
 
-@router.post("/{staff_id}/permissions", response_model=PermissionOverrideResponse, status_code=201)
+@router.post("/{staff_id}/permissions", response_model=PermissionOverrideResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_USERS)])
 async def set_permission_override(
     staff_id: UUID,
     body: PermissionOverrideCreate,
@@ -521,7 +654,6 @@ async def set_permission_override(
     redis: RedisDep,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
 
     if body.permission_key not in ALL_PERMISSIONS:
@@ -564,7 +696,8 @@ async def set_permission_override(
     return PermissionOverrideResponse.model_validate(override)
 
 
-@router.delete("/{staff_id}/permissions/{perm_key}", status_code=204)
+@router.delete("/{staff_id}/permissions/{perm_key}", status_code=204,
+               dependencies=[require(Permission.MANAGE_USERS)])
 async def remove_permission_override(
     staff_id: UUID,
     perm_key: str,
@@ -572,7 +705,6 @@ async def remove_permission_override(
     redis: RedisDep,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
 
     override = await session.scalar(
@@ -593,24 +725,98 @@ async def remove_permission_override(
         await invalidate_cache(linked.id, redis)
 
 
-# ── Position assignment ───────────────────────────────────────────────────────
+# ── Role assignment (user_role) ───────────────────────────────────────────────
 
-@router.patch("/{staff_id}/position", status_code=204)
-async def assign_position(
+@router.get("/{staff_id}/roles", response_model=list[UserRoleResponse],
+            dependencies=[require(Permission.MANAGE_USERS)])
+async def list_roles(staff_id: UUID, user: CurrentUser, session: SessionDep):
+    member = await _get_member(staff_id, user.school_id, session)
+    linked = await _linked_user(member, session)
+    if not linked:
+        return []
+    rows = list(await session.scalars(
+        select(UserRole).where(UserRole.user_id == linked.id)
+        .options(selectinload(UserRole.role))
+    ))
+    return [
+        UserRoleResponse(
+            id=ur.id,
+            role=RoleResponse(
+                id=ur.role.id, name=ur.role.name,
+                code=ur.role.code, is_system_template=ur.role.is_system_template,
+            ),
+            assigned_at=ur.assigned_at,
+        )
+        for ur in rows
+    ]
+
+
+@router.post("/{staff_id}/roles", response_model=UserRoleResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_USERS)])
+async def assign_role(
     staff_id: UUID,
-    body: PositionAssignRequest,
+    body: RoleAssignRequest,
     user: CurrentUser,
     redis: RedisDep,
     session: SessionDep,
 ):
-    _require_admin(user)
     member = await _get_member(staff_id, user.school_id, session)
-
     linked = await _linked_user(member, session)
     if not linked:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No user account linked to this staff member")
 
-    linked.position_id = UUID(body.position_id) if body.position_id else None
+    role = await session.scalar(select(StaffPosition).where(StaffPosition.id == body.role_id))
+    if not role:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Role not found")
+
+    existing = await session.scalar(
+        select(UserRole).where(UserRole.user_id == linked.id, UserRole.role_id == body.role_id)
+    )
+    if existing:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Role already assigned")
+
+    ur = UserRole(
+        user_id=linked.id,
+        role_id=body.role_id,
+        assigned_by=user.id,
+        assigned_at=datetime.now(UTC),
+    )
+    session.add(ur)
+    await session.commit()
+    await session.refresh(ur)
+    await invalidate_cache(linked.id, redis)
+
+    return UserRoleResponse(
+        id=ur.id,
+        role=RoleResponse(
+            id=role.id, name=role.name,
+            code=role.code, is_system_template=role.is_system_template,
+        ),
+        assigned_at=ur.assigned_at,
+    )
+
+
+@router.delete("/{staff_id}/roles/{user_role_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_USERS)])
+async def remove_role(
+    staff_id: UUID,
+    user_role_id: UUID,
+    user: CurrentUser,
+    redis: RedisDep,
+    session: SessionDep,
+):
+    member = await _get_member(staff_id, user.school_id, session)
+    linked = await _linked_user(member, session)
+    if not linked:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "No user account linked to this staff member")
+
+    ur = await session.scalar(
+        select(UserRole).where(UserRole.id == user_role_id, UserRole.user_id == linked.id)
+    )
+    if not ur:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Role assignment not found")
+
+    await session.delete(ur)
     await session.commit()
     await invalidate_cache(linked.id, redis)
 
@@ -838,13 +1044,13 @@ def _parse_excel(content: bytes) -> list[dict]:
     return [dict(zip(headers, row)) for row in rows[1:]]
 
 
-@router.post("/bulk", response_model=BulkUploadResponse, status_code=201)
+@router.post("/bulk", response_model=BulkUploadResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_STAFF)])
 async def bulk_upload(
     user: CurrentUser,
     session: SessionDep,
     file: UploadFile = File(...),
 ):
-    _require_admin(user)
 
     content = await file.read()
     fname = (file.filename or "").lower()

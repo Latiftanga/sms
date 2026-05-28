@@ -14,10 +14,18 @@
     },
   });
 
+  function dismissInitOverlay() {
+    const el = document.getElementById("app-init");
+    if (!el) return;
+    el.style.opacity = "0";
+    el.addEventListener("transitionend", () => el.remove(), { once: true });
+  }
+
   onMount(async () => {
     // Load school branding first so login page and app both get accent + logo
     await schoolBranding.load();
     await auth.init();
+    dismissInitOverlay();
   });
 </script>
 

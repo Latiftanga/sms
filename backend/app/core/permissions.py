@@ -89,6 +89,14 @@ POSITION_DEFAULTS: dict[str, dict[str, bool]] = {
         Permission.MANAGE_EXEATS: True,
     },
 
+    "HOUSEMASTER": {
+        Permission.VIEW_STUDENTS: True,
+        Permission.MARK_ATTENDANCE: True,
+        Permission.VIEW_ATTENDANCE: True,
+        Permission.MANAGE_EXEATS: True,
+        Permission.NIGHT_ROLL_CALL: True,
+    },
+
     "SENIOR_HOUSEMASTER": {
         Permission.VIEW_STUDENTS: True,
         Permission.MARK_ATTENDANCE: True,
