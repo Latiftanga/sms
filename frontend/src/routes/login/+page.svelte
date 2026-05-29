@@ -50,7 +50,8 @@
     loading = true;
     try {
       await auth.login(email, password);
-      await goto("/dashboard");
+      const user = $auth.user;
+      await goto(user?.must_change_password ? "/change-password" : "/dashboard");
     } catch {
       error = $auth.error ?? "Invalid email or password.";
     } finally {

@@ -59,6 +59,10 @@ function createAuthStore() {
       }
     },
 
+    patchUser(patch: Partial<NonNullable<AuthState["user"]>>): void {
+      update((s) => s.user ? { ...s, user: { ...s.user, ...patch } } : s);
+    },
+
     can(permission: string): boolean {
       const state = get({ subscribe });
       if (!state.user) return false;

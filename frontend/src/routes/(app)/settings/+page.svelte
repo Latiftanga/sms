@@ -10,9 +10,10 @@
   import EmptyState from "$components/ui/EmptyState.svelte";
   import PageHeader from "$components/ui/PageHeader.svelte";
   import {
-    School2, CalendarDays, LayoutGrid, BookOpen, Shield,
-    Plus, Pencil, Trash2, Check, X, ChevronDown,
+    School2, Shield,
+    Pencil, Trash2, Check, X, ChevronDown,
     AlertCircle, Loader2, MapPin, Phone, Palette, ImagePlus,
+    Users, ScrollText, ToggleLeft, ToggleRight, KeyRound, Plus, Search,
   } from "@lucide/svelte";
 
   // ── Types ─────────────────────────────────────────────────────────
@@ -22,22 +23,8 @@
     motto: string | null; accent_color: string; logo_url: string | null;
     education_levels: string[];
   }
-  interface AcademicTerm {
-    id: string; name: string; start_date: string; end_date: string; is_current: boolean;
-  }
-  interface AcademicYear {
-    id: string; name: string; start_date: string; end_date: string;
-    is_current: boolean; terms: AcademicTerm[];
-  }
-  interface LearningArea { id: string; name: string; short_name: string | null; is_active: boolean; }
-  interface SchoolClass {
-    id: string; name: string; level: string; year: number | null;
-    education_level: string; stream: string | null; is_active: boolean;
-    learning_area: LearningArea | null;
-  }
-
   // ── Tab ───────────────────────────────────────────────────────────
-  let tab: "school" | "calendar" | "classes" | "learning_areas" | "positions" = "school";
+  let tab: "school" | "positions" | "users" | "logs" = "school";
 
   // ── Confirm delete ────────────────────────────────────────────────
   async function confirmDelete(title: string, message: string, fn: () => Promise<void>) {
@@ -52,11 +39,6 @@
     return err?.response?.data?.detail ?? "Something went wrong. Try again.";
   }
 
-  const LEVEL_LABELS: Record<string, string> = {
-    EARLY_CHILDHOOD: "Early Childhood", BASIC: "Basic",
-    SHS: "Senior High School", TECHNICAL: "Technical", JHS: "Junior High School",
-  };
-
   // ── School profile ────────────────────────────────────────────────
   let school: SchoolProfile | null = null;
   let schoolLoading = true;
@@ -64,9 +46,6 @@
   let schoolSaving = false;
   let schoolSuccess = false;
   let schoolError = "";
-
-  $: isSHS = school?.education_levels?.includes("SHS") ?? false;
-  $: if (!isSHS && tab === "learning_areas") tab = "school";
 
   async function loadSchool() {
     schoolLoading = true; schoolLoadError = "";
@@ -113,221 +92,6 @@
     finally { logoUploading = false; input.value = ""; }
   }
 
-  // ── Academic years ────────────────────────────────────────────────
-  let years: AcademicYear[] = [];
-  let newYear = { name: "", start_date: "", end_date: "" };
-  let yearErrors: Record<string, string> = {};
-  let addingYear = false;
-  let savingYear = false;
-  let yearApiError = "";
-
-  async function loadYears() {
-    try { const { data } = await api.get("/settings/academic-years"); years = data.items; }
-    catch { years = []; }
-  }
-
-  function validateYear() {
-    const errs: Record<string, string> = {};
-    if (!newYear.name.trim()) errs.name = "Name is required";
-    if (!newYear.start_date) errs.start_date = "Start date is required";
-    if (!newYear.end_date) errs.end_date = "End date is required";
-    if (newYear.start_date && newYear.end_date && newYear.end_date <= newYear.start_date)
-      errs.end_date = "End date must be after start date";
-    return errs;
-  }
-
-  async function createYear() {
-    yearErrors = validateYear();
-    if (Object.keys(yearErrors).length) return;
-    savingYear = true; yearApiError = "";
-    try {
-      await api.post("/settings/academic-years", newYear);
-      newYear = { name: "", start_date: "", end_date: "" };
-      yearErrors = {}; addingYear = false;
-      await loadYears();
-      toast.success("Academic year created");
-    } catch (e) { yearApiError = apiError(e); }
-    finally { savingYear = false; }
-  }
-
-  async function activateYear(id: string) {
-    try { await api.post(`/settings/academic-years/${id}/activate`); await loadYears(); }
-    catch (e) { toast.error(apiError(e)); }
-  }
-
-  async function deleteYear(id: string) {
-    try { await api.delete(`/settings/academic-years/${id}`); await loadYears(); toast.success("Year deleted"); }
-    catch (e) { toast.error(apiError(e)); }
-  }
-
-  // ── Terms ─────────────────────────────────────────────────────────
-  let expandedYear: string | null = null;
-  let newTerm: Record<string, { name: string; start_date: string; end_date: string }> = {};
-  let termErrors: Record<string, Record<string, string>> = {};
-  let addingTermFor: string | null = null;
-  let savingTerm = false;
-  let termApiError = "";
-
-  function validateTerm(yearId: string) {
-    const t = newTerm[yearId] ?? {};
-    const errs: Record<string, string> = {};
-    if (!t.name?.trim()) errs.name = "Name is required";
-    if (!t.start_date) errs.start_date = "Start date is required";
-    if (!t.end_date) errs.end_date = "End date is required";
-    if (t.start_date && t.end_date && t.end_date <= t.start_date)
-      errs.end_date = "End date must be after start date";
-    return errs;
-  }
-
-  async function createTerm(yearId: string) {
-    termErrors[yearId] = validateTerm(yearId);
-    if (Object.keys(termErrors[yearId]).length) return;
-    savingTerm = true; termApiError = "";
-    try {
-      await api.post(`/settings/academic-years/${yearId}/terms`, newTerm[yearId]);
-      newTerm[yearId] = { name: "", start_date: "", end_date: "" };
-      termErrors[yearId] = {}; addingTermFor = null;
-      await loadYears();
-      toast.success("Term created");
-    } catch (e) { termApiError = apiError(e); }
-    finally { savingTerm = false; }
-  }
-
-  async function activateTerm(termId: string) {
-    try { await api.post(`/settings/terms/${termId}/activate`); await loadYears(); }
-    catch (e) { toast.error(apiError(e)); }
-  }
-
-  async function deleteTerm(termId: string) {
-    try { await api.delete(`/settings/terms/${termId}`); await loadYears(); toast.success("Term deleted"); }
-    catch (e) { toast.error(apiError(e)); }
-  }
-
-  // ── Learning areas ────────────────────────────────────────────────
-  const GES_AREAS = [
-    "Science", "General Arts", "Business", "Applied Technology",
-    "Home Economics", "Visual and Performing Arts", "Agriculture",
-    "Languages", "Global Studies", "Engineering", "Biomedical Science",
-    "Manufacturing", "Information Technology", "Computer Science",
-    "Robotics", "Aviation and Aerospace",
-  ];
-  let learningAreas: LearningArea[] = [];
-  let newLA = { name: "", short_name: "" };
-  let laErrors: Record<string, string> = {};
-  let addingLA = false;
-  let savingLA = false;
-  let laApiError = "";
-  let editingLA: string | null = null;
-  let editLAShort = "";
-  let savingLAEdit = false;
-  let laEditError = "";
-
-  async function loadLearningAreas() {
-    try { const { data } = await api.get("/settings/learning-areas"); learningAreas = data.items; }
-    catch { learningAreas = []; }
-  }
-
-  async function createLA() {
-    laErrors = {};
-    if (!newLA.name) laErrors.name = "Please select a learning area";
-    if (Object.keys(laErrors).length) return;
-    savingLA = true; laApiError = "";
-    try {
-      await api.post("/settings/learning-areas", { name: newLA.name, short_name: newLA.short_name || null });
-      newLA = { name: "", short_name: "" }; addingLA = false;
-      await loadLearningAreas();
-      toast.success("Learning area added");
-    } catch (e) { laApiError = apiError(e); }
-    finally { savingLA = false; }
-  }
-
-  async function saveLA(id: string) {
-    savingLAEdit = true; laEditError = "";
-    try {
-      await api.patch(`/settings/learning-areas/${id}`, { short_name: editLAShort || null });
-      editingLA = null;
-      await loadLearningAreas();
-      toast.success("Code updated");
-    } catch (e) { laEditError = apiError(e); }
-    finally { savingLAEdit = false; }
-  }
-
-  async function deleteLA(id: string) {
-    try { await api.delete(`/settings/learning-areas/${id}`); await loadLearningAreas(); toast.success("Learning area removed"); }
-    catch (e) { toast.error(apiError(e)); }
-  }
-
-  // ── Classes ───────────────────────────────────────────────────────
-  const LEVELS = ["Creche", "Nursery", "KG", "Basic", "SHS"];
-  const LEVEL_EDU_MAP: Record<string, string> = {
-    Creche: "EARLY_CHILDHOOD", Nursery: "EARLY_CHILDHOOD", KG: "EARLY_CHILDHOOD",
-    Basic: "BASIC", SHS: "SHS",
-  };
-  const YEAR_BOUNDS: Record<string, [number, number]> = {
-    Nursery: [1, 2], KG: [1, 2], Basic: [1, 9], SHS: [1, 3],
-  };
-
-  // Only show levels the school actually offers
-  $: availableLevels = LEVELS.filter(l =>
-    school?.education_levels?.includes(LEVEL_EDU_MAP[l])
-  );
-  // If selected level is no longer in the available list, reset to first available
-  $: if (availableLevels.length && !availableLevels.includes(newClass.level)) {
-    newClass = { ...newClass, level: availableLevels[0] };
-  }
-
-  let classes: SchoolClass[] = [];
-  let newClass = { level: "Basic", year: 1, learning_area_id: "", stream: "" };
-  let classErrors: Record<string, string> = {};
-  let addingClass = false;
-  let savingClass = false;
-  let classApiError = "";
-
-  $: newClassYears = newClass.level in YEAR_BOUNDS
-    ? Array.from({ length: YEAR_BOUNDS[newClass.level][1] - YEAR_BOUNDS[newClass.level][0] + 1 },
-        (_, i) => i + YEAR_BOUNDS[newClass.level][0])
-    : [];
-
-  $: if (newClass.level === "SHS" && learningAreas.length === 0) loadLearningAreas();
-
-  async function loadClasses() {
-    try { const { data } = await api.get("/settings/classes"); classes = data.items; }
-    catch { classes = []; }
-  }
-
-  function validateClass() {
-    const errs: Record<string, string> = {};
-    if (newClass.level === "SHS" && !newClass.learning_area_id)
-      errs.learning_area_id = "Learning area is required for SHS";
-    return errs;
-  }
-
-  async function createClass() {
-    classErrors = validateClass();
-    if (Object.keys(classErrors).length) return;
-    savingClass = true; classApiError = "";
-    try {
-      const payload: Record<string, unknown> = { level: newClass.level, stream: newClass.stream || null };
-      if (newClass.level !== "Creche") payload.year = Number(newClass.year);
-      if (newClass.level === "SHS") payload.learning_area_id = newClass.learning_area_id;
-      await api.post("/settings/classes", payload);
-      newClass = { level: "Basic", year: 1, learning_area_id: "", stream: "" };
-      classErrors = {}; addingClass = false;
-      await loadClasses();
-      toast.success("Class created");
-    } catch (e) { classApiError = apiError(e); }
-    finally { savingClass = false; }
-  }
-
-  async function deleteClass(id: string) {
-    try { await api.delete(`/settings/classes/${id}`); await loadClasses(); toast.success("Class deleted"); }
-    catch (e) { toast.error(apiError(e)); }
-  }
-
-  $: classGroups = classes.reduce((acc: Record<string, SchoolClass[]>, c) => {
-    (acc[c.education_level] ??= []).push(c);
-    return acc;
-  }, {});
 
   // ── Accent colour ─────────────────────────────────────────────────
   function applyAccent(hex: string) {
@@ -510,12 +274,100 @@
     loadPositions();
   }
 
+  // ── User accounts ─────────────────────────────────────────────────
+  interface UserAccount {
+    id: string;
+    email: string;
+    is_active: boolean;
+    is_verified: boolean;
+    must_change_password: boolean;
+    last_login_at: string | null;
+    staff_name: string | null;
+    roles: string[];
+  }
+
+  let userAccounts: UserAccount[] = [];
+  let usersLoading = false;
+  let usersError = "";
+  let userActionId: string | null = null;
+
+  // ── Filters ───────────────────────────────────────────────────────
+  let filterSearch = "";
+  let filterStatus: "all" | "active" | "inactive" = "all";
+  let filterRole = "";
+
+  $: allRoles = [...new Set(userAccounts.flatMap(u => u.roles))].sort();
+
+  $: filteredUsers = userAccounts.filter(u => {
+    if (filterStatus === "active"   && !u.is_active) return false;
+    if (filterStatus === "inactive" &&  u.is_active) return false;
+    if (filterRole && !u.roles.includes(filterRole)) return false;
+    if (filterSearch) {
+      const q = filterSearch.toLowerCase();
+      if (!(u.staff_name?.toLowerCase().includes(q) || u.email.toLowerCase().includes(q))) return false;
+    }
+    return true;
+  });
+
+  $: activeFilterCount =
+    (filterStatus !== "all" ? 1 : 0) +
+    (filterRole ? 1 : 0) +
+    (filterSearch ? 1 : 0);
+
+  function clearFilters() {
+    filterSearch = "";
+    filterStatus = "all";
+    filterRole = "";
+  }
+
+  async function loadUsers() {
+    usersLoading = true; usersError = "";
+    try {
+      const { data } = await api.get<UserAccount[]>("/settings/users");
+      userAccounts = data;
+    } catch (e) { usersError = apiError(e); }
+    finally { usersLoading = false; }
+  }
+
+  async function toggleUserActive(u: UserAccount) {
+    userActionId = u.id;
+    try {
+      const { data } = await api.patch<UserAccount>(`/settings/users/${u.id}`, { is_active: !u.is_active });
+      userAccounts = userAccounts.map(a => a.id === u.id ? data : a);
+      toast.success(data.is_active ? "Account activated" : "Account deactivated");
+    } catch (e) { toast.error(apiError(e)); }
+    finally { userActionId = null; }
+  }
+
+  async function forcePasswordReset(u: UserAccount) {
+    userActionId = u.id + "_pw";
+    try {
+      const { data } = await api.patch<UserAccount>(`/settings/users/${u.id}`, { must_change_password: true });
+      userAccounts = userAccounts.map(a => a.id === u.id ? data : a);
+      toast.success("User will be prompted to change password on next login");
+    } catch (e) { toast.error(apiError(e)); }
+    finally { userActionId = null; }
+  }
+
+  function formatLastLogin(dt: string | null): string {
+    if (!dt) return "Never";
+    const d = new Date(dt);
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - d.getTime()) / 1000);
+    if (diff < 60) return "Just now";
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+    if (diff < 7 * 86400) return `${Math.floor(diff / 86400)}d ago`;
+    return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+  }
+
+  $: if (tab === "users" && userAccounts.length === 0 && !usersLoading && !usersError) {
+    loadUsers();
+  }
+
   // ── Init ──────────────────────────────────────────────────────────
   onMount(async () => {
     await loadSchool();
-    await loadYears();
-    await loadClasses();
-    await loadLearningAreas();
   });
 </script>
 
@@ -528,19 +380,14 @@
     <button class="tab" class:active={tab === "school"} on:click={() => tab = "school"}>
       <School2 size={14} /><span class="tab-label">School Profile</span>
     </button>
-    <button class="tab" class:active={tab === "calendar"} on:click={() => tab = "calendar"}>
-      <CalendarDays size={14} /><span class="tab-label">Academic Calendar</span>
-    </button>
-    {#if isSHS}
-      <button class="tab" class:active={tab === "learning_areas"} on:click={() => tab = "learning_areas"}>
-        <BookOpen size={14} /><span class="tab-label">Learning Areas</span>
-      </button>
-    {/if}
-    <button class="tab" class:active={tab === "classes"} on:click={() => tab = "classes"}>
-      <LayoutGrid size={14} /><span class="tab-label">Classes</span>
-    </button>
     <button class="tab" class:active={tab === "positions"} on:click={() => tab = "positions"}>
-      <Shield size={14} /><span class="tab-label">Positions</span>
+      <Shield size={14} /><span class="tab-label">Roles</span>
+    </button>
+    <button class="tab" class:active={tab === "users"} on:click={() => tab = "users"}>
+      <Users size={14} /><span class="tab-label">Users</span>
+    </button>
+    <button class="tab" class:active={tab === "logs"} on:click={() => tab = "logs"}>
+      <ScrollText size={14} /><span class="tab-label">Logs</span>
     </button>
   </div>
 
@@ -703,348 +550,11 @@
           </div>
         </form>
       {/if}
-
-
-    <!-- ══ ACADEMIC CALENDAR ══════════════════════════════════════════ -->
-    {:else if tab === "calendar"}
-      <PageHeader title="Academic Calendar" description="Manage academic years and their terms.">
-        <Button on:click={() => { addingYear = !addingYear; yearErrors = {}; yearApiError = ""; }}>
-          <Plus size={13} />{addingYear ? "Cancel" : "Add Year"}
-        </Button>
-      </PageHeader>
-
-      {#if addingYear}
-        <div class="card" style="margin-bottom:14px;">
-          <div class="card-body">
-            <h3 class="card-title" style="margin-bottom:16px;">New Academic Year</h3>
-            <div class="form-grid">
-              <div class="field">
-                <label for="y-name">Year name <span class="req">*</span></label>
-                <input id="y-name" class="input" class:invalid={yearErrors.name}
-                  bind:value={newYear.name} placeholder="2024/2025" />
-                {#if yearErrors.name}<p class="ferr">{yearErrors.name}</p>{/if}
-              </div>
-              <div class="field">
-                <label for="y-start">Start date <span class="req">*</span></label>
-                <input id="y-start" type="date" class="input" class:invalid={yearErrors.start_date}
-                  bind:value={newYear.start_date} />
-                {#if yearErrors.start_date}<p class="ferr">{yearErrors.start_date}</p>{/if}
-              </div>
-              <div class="field">
-                <label for="y-end">End date <span class="req">*</span></label>
-                <input id="y-end" type="date" class="input" class:invalid={yearErrors.end_date}
-                  bind:value={newYear.end_date} />
-                {#if yearErrors.end_date}<p class="ferr">{yearErrors.end_date}</p>{/if}
-              </div>
-            </div>
-            {#if yearApiError}<div class="api-err"><AlertCircle size={13} />{yearApiError}</div>{/if}
-            <div class="actions">
-              <Button on:click={createYear} loading={savingYear}>
-                {savingYear ? "Creating…" : "Create year"}
-              </Button>
-              <Button variant="ghost" on:click={() => { addingYear = false; yearErrors = {}; }}>Cancel</Button>
-            </div>
-          </div>
-        </div>
-      {/if}
-
-      {#if years.length === 0 && !addingYear}
-        <EmptyState message="No academic years yet.">
-          <svelte:fragment slot="icon"><CalendarDays size={28} /></svelte:fragment>
-          <Button on:click={() => addingYear = true}><Plus size={13} />Add your first year</Button>
-        </EmptyState>
-      {/if}
-
-      {#each years as year}
-        <div class="year-card" class:is-current={year.is_current}>
-          <div class="year-head">
-            <div class="year-head-l">
-              <button class="expand-btn"
-                on:click={() => expandedYear = expandedYear === year.id ? null : year.id}
-                aria-expanded={expandedYear === year.id}>
-                <ChevronDown size={14} class="chevron {expandedYear === year.id ? 'open' : ''}" />
-              </button>
-              <div>
-                <div class="year-name">{year.name}</div>
-                <div class="year-dates">{year.start_date} – {year.end_date}</div>
-              </div>
-            </div>
-            <div class="year-head-r">
-              {#if year.is_current}
-                <Badge variant="ok" size="sm">Current</Badge>
-              {:else}
-                <Button variant="link" on:click={() => activateYear(year.id)}>Set current</Button>
-              {/if}
-              <span class="pill">{year.terms?.length ?? 0} term{year.terms?.length !== 1 ? "s" : ""}</span>
-              <Button
-                variant="icon"
-                ariaLabel="Delete year"
-                disabled={year.is_current}
-                on:click={() => confirmDelete(
-                  "Delete academic year?",
-                  `"${year.name}" and all its terms will be permanently removed.`,
-                  () => deleteYear(year.id)
-                )}
-              ><Trash2 size={13} /></Button>
-            </div>
-          </div>
-
-          {#if expandedYear === year.id}
-            <div class="terms-panel">
-              {#if year.terms?.length > 0}
-                {#each year.terms as term}
-                  <div class="term-row">
-                    <div class="term-l">
-                      <span class="tdot" class:active={term.is_current}></span>
-                      <span class="term-name">{term.name}</span>
-                      <span class="term-dates">{term.start_date} – {term.end_date}</span>
-                    </div>
-                    <div class="term-r">
-                      {#if term.is_current}
-                        <Badge variant="ok" size="sm">Current</Badge>
-                      {:else}
-                        <Button variant="link" on:click={() => activateTerm(term.id)}>Set current</Button>
-                      {/if}
-                      <Button
-                        variant="icon"
-                        ariaLabel="Delete term"
-                        disabled={term.is_current}
-                        on:click={() => confirmDelete(
-                          "Delete term?",
-                          `"${term.name}" will be permanently removed.`,
-                          () => deleteTerm(term.id)
-                        )}
-                      ><Trash2 size={12} /></Button>
-                    </div>
-                  </div>
-                {/each}
-              {:else}
-                <p class="terms-empty">No terms added yet.</p>
-              {/if}
-
-              {#if addingTermFor === year.id}
-                <div class="term-form">
-                  <div class="form-grid">
-                    <div class="field">
-                      <label for="t-name-{year.id}">Term name <span class="req">*</span></label>
-                      <input id="t-name-{year.id}" class="input" class:invalid={termErrors[year.id]?.name}
-                        bind:value={newTerm[year.id].name} placeholder="Term 1" />
-                      {#if termErrors[year.id]?.name}<p class="ferr">{termErrors[year.id].name}</p>{/if}
-                    </div>
-                    <div class="field">
-                      <label for="t-start-{year.id}">Start date <span class="req">*</span></label>
-                      <input id="t-start-{year.id}" type="date" class="input" class:invalid={termErrors[year.id]?.start_date}
-                        bind:value={newTerm[year.id].start_date} />
-                      {#if termErrors[year.id]?.start_date}<p class="ferr">{termErrors[year.id].start_date}</p>{/if}
-                    </div>
-                    <div class="field">
-                      <label for="t-end-{year.id}">End date <span class="req">*</span></label>
-                      <input id="t-end-{year.id}" type="date" class="input" class:invalid={termErrors[year.id]?.end_date}
-                        bind:value={newTerm[year.id].end_date} />
-                      {#if termErrors[year.id]?.end_date}<p class="ferr">{termErrors[year.id].end_date}</p>{/if}
-                    </div>
-                  </div>
-                  {#if termApiError}<div class="api-err"><AlertCircle size={13} />{termApiError}</div>{/if}
-                  <div class="actions">
-                    <Button on:click={() => createTerm(year.id)} loading={savingTerm}>
-                      {savingTerm ? "Saving…" : "Save term"}
-                    </Button>
-                    <Button variant="ghost" on:click={() => { addingTermFor = null; termErrors = {}; }}>Cancel</Button>
-                  </div>
-                </div>
-              {:else}
-                <button class="add-term-btn" on:click={() => {
-                  addingTermFor = year.id;
-                  newTerm[year.id] = { name: "", start_date: "", end_date: "" };
-                  termErrors[year.id] = {};
-                }}>
-                  <Plus size={12} /> Add term
-                </button>
-              {/if}
-            </div>
-          {/if}
-        </div>
-      {/each}
-
-
-    <!-- ══ CLASSES ════════════════════════════════════════════════════ -->
-    {:else if tab === "classes"}
-      <PageHeader title="Classes" description="Define the class structure offered at your school.">
-        <Button on:click={() => { addingClass = !addingClass; classErrors = {}; classApiError = ""; }}>
-          <Plus size={13} />{addingClass ? "Cancel" : "Add Class"}
-        </Button>
-      </PageHeader>
-
-      {#if addingClass}
-        <div class="card" style="margin-bottom:14px;">
-          <div class="card-body">
-            <h3 class="card-title" style="margin-bottom:16px;">New Class</h3>
-            <div class="class-form-grid">
-              <div class="field">
-                <label for="c-level">Level</label>
-                <select id="c-level" class="input" bind:value={newClass.level}>
-                  {#each availableLevels as l}<option>{l}</option>{/each}
-                </select>
-              </div>
-              {#if newClass.level !== "Creche"}
-                <div class="field">
-                  <label for="c-year">Year</label>
-                  <select id="c-year" class="input" bind:value={newClass.year}>
-                    {#each newClassYears as y}<option value={y}>{y}</option>{/each}
-                  </select>
-                </div>
-              {/if}
-              {#if newClass.level === "SHS"}
-                <div class="field">
-                  <label for="c-la">Learning Area <span class="req">*</span></label>
-                  <select id="c-la" class="input" class:invalid={classErrors.learning_area_id}
-                    bind:value={newClass.learning_area_id}>
-                    <option value="">— select —</option>
-                    {#each learningAreas as la}<option value={la.id}>{la.name}</option>{/each}
-                  </select>
-                  {#if classErrors.learning_area_id}<p class="ferr">{classErrors.learning_area_id}</p>{/if}
-                </div>
-              {/if}
-              <div class="field">
-                <label for="c-stream">Stream <span class="opt">(optional)</span></label>
-                <input id="c-stream" class="input" bind:value={newClass.stream} placeholder="A, Gold, Blue…" />
-              </div>
-            </div>
-            {#if classApiError}<div class="api-err"><AlertCircle size={13} />{classApiError}</div>{/if}
-            <div class="actions">
-              <Button on:click={createClass} loading={savingClass}>
-                {savingClass ? "Creating…" : "Create class"}
-              </Button>
-              <Button variant="ghost" on:click={() => { addingClass = false; classErrors = {}; }}>Cancel</Button>
-            </div>
-          </div>
-        </div>
-      {/if}
-
-      {#if classes.length === 0 && !addingClass}
-        <EmptyState message="No classes configured yet.">
-          <svelte:fragment slot="icon"><LayoutGrid size={28} /></svelte:fragment>
-          <Button on:click={() => addingClass = true}><Plus size={13} />Add your first class</Button>
-        </EmptyState>
-      {/if}
-
-      {#each Object.entries(classGroups) as [level, group]}
-        <div class="class-section">
-          <div class="section-label">
-            <span>{LEVEL_LABELS[level] ?? level}</span>
-            <span class="pill">{group.length}</span>
-          </div>
-          <div class="class-grid">
-            {#each group as cls}
-              <div class="class-chip" class:inactive={!cls.is_active}>
-                <span class="chip-name">{cls.name}</span>
-                {#if !cls.is_active}<span class="warn-dot" title="Inactive"></span>{/if}
-                <button class="chip-del" aria-label="Delete {cls.name}"
-                  on:click={() => confirmDelete(
-                    "Delete class?",
-                    `"${cls.name}" will be permanently removed.`,
-                    () => deleteClass(cls.id)
-                  )}
-                ><X size={11} /></button>
-              </div>
-            {/each}
-          </div>
-        </div>
-      {/each}
-
-
-    <!-- ══ LEARNING AREAS ══════════════════════════════════════════════ -->
-    {:else if tab === "learning_areas"}
-      <PageHeader title="Learning Areas" description="GES programmes offered at SHS. Short codes appear in class names.">
-        <Button on:click={() => { addingLA = !addingLA; laErrors = {}; laApiError = ""; }}>
-          <Plus size={13} />{addingLA ? "Cancel" : "Add Area"}
-        </Button>
-      </PageHeader>
-
-      {#if addingLA}
-        <div class="card" style="margin-bottom:14px;">
-          <div class="card-body">
-            <h3 class="card-title" style="margin-bottom:16px;">New Learning Area</h3>
-            <div class="form-grid">
-              <div class="field">
-                <label for="la-name">Learning Area <span class="req">*</span></label>
-                <select id="la-name" class="input" class:invalid={laErrors.name} bind:value={newLA.name}>
-                  <option value="">— select —</option>
-                  {#each GES_AREAS.filter(a => !learningAreas.find((l) => l.name === a)) as a}
-                    <option>{a}</option>
-                  {/each}
-                </select>
-                {#if laErrors.name}<p class="ferr">{laErrors.name}</p>{/if}
-              </div>
-              <div class="field">
-                <label for="la-code">Short Code <span class="opt">(optional)</span></label>
-                <input id="la-code" class="input" bind:value={newLA.short_name} placeholder="SCI, ART, BUS…" />
-                <p class="hint">Used in class names e.g. "SHS 2 SCI A"</p>
-              </div>
-            </div>
-            {#if laApiError}<div class="api-err"><AlertCircle size={13} />{laApiError}</div>{/if}
-            <div class="actions">
-              <Button on:click={createLA} loading={savingLA}>
-                {savingLA ? "Adding…" : "Add learning area"}
-              </Button>
-              <Button variant="ghost" on:click={() => { addingLA = false; laErrors = {}; }}>Cancel</Button>
-            </div>
-          </div>
-        </div>
-      {/if}
-
-      {#if learningAreas.length === 0 && !addingLA}
-        <EmptyState message="No learning areas configured yet.">
-          <svelte:fragment slot="icon"><BookOpen size={28} /></svelte:fragment>
-          <Button on:click={() => addingLA = true}><Plus size={13} />Add first learning area</Button>
-        </EmptyState>
-      {:else if learningAreas.length > 0}
-        <div class="card">
-          {#each learningAreas as la, i}
-            <div class="la-row" class:border-t={i > 0}>
-              <div class="la-main">
-                <span class="la-name">{la.name}</span>
-                {#if editingLA !== la.id}
-                  <span class="la-code">{la.short_name ?? "No code"}</span>
-                {:else}
-                  <div>
-                    <input class="input" style="width:110px;"
-                      bind:value={editLAShort} placeholder="e.g. ART" />
-                    {#if laEditError}<p class="ferr">{laEditError}</p>{/if}
-                  </div>
-                {/if}
-              </div>
-              <div class="la-actions">
-                {#if editingLA === la.id}
-                  <Button variant="icon" ariaLabel="Save code" on:click={() => saveLA(la.id)} loading={savingLAEdit}>
-                    <Check size={13} />
-                  </Button>
-                  <Button variant="icon" ariaLabel="Cancel edit" on:click={() => { editingLA = null; laEditError = ""; }}>
-                    <X size={13} />
-                  </Button>
-                {:else}
-                  <Button variant="icon" ariaLabel="Edit code"
-                    on:click={() => { editingLA = la.id; editLAShort = la.short_name ?? ""; laEditError = ""; }}>
-                    <Pencil size={13} />
-                  </Button>
-                  <Button variant="icon" ariaLabel="Delete {la.name}"
-                    on:click={() => confirmDelete(
-                      "Remove learning area?",
-                      `"${la.name}" will be removed. Classes using it will retain their existing data.`,
-                      () => deleteLA(la.id)
-                    )}
-                  ><Trash2 size={13} /></Button>
-                {/if}
-              </div>
-            </div>
-          {/each}
-        </div>
-      {/if}
     {/if}
 
     <!-- ══ POSITIONS ═════════════════════════════════════════════════ -->
     {#if tab === "positions"}
-      <PageHeader title="Staff Positions" description="Define roles and the default permissions they grant.">
+      <PageHeader title="Roles" description="Define staff roles and the default permissions they grant.">
         <Button on:click={() => { addingPos = !addingPos; posApiError = ""; newPos = { name: "", code: "" }; newPosPerms = []; }}>
           <Plus size={13} />{addingPos ? "Cancel" : "New Position"}
         </Button>
@@ -1097,7 +607,7 @@
       {#if posLoading}
         <div class="pos-loading"><Spinner /></div>
       {:else if posError}
-        <div class="api-err"><AlertCircle size={13} />{posError}</div>
+        <div class="api-err" style="margin-bottom:14px;"><AlertCircle size={13} />{posError}</div>
       {:else if positions.length === 0 && !addingPos}
         <EmptyState message="No positions defined yet. Add one to get started.">
           <svelte:fragment slot="icon"><Shield size={28} /></svelte:fragment>
@@ -1223,6 +733,159 @@
           {/each}
         </div>
       {/if}
+    {/if}
+
+    <!-- ══ USERS ═══════════════════════════════════════════════════════ -->
+    {#if tab === "users"}
+      <PageHeader title="User Accounts" description="All staff accounts in your school. Manage access and account status.">
+        <Button on:click={loadUsers} variant="ghost">
+          <Loader2 size={13} class={usersLoading ? "spin" : ""} />Refresh
+        </Button>
+      </PageHeader>
+
+      {#if usersLoading}
+        <div class="pos-loading"><Spinner /></div>
+      {:else if usersError}
+        <div class="api-err"><AlertCircle size={13} />{usersError}
+          <Button variant="link" on:click={loadUsers} style="margin-left:8px;">Retry</Button>
+        </div>
+      {:else}
+        <!-- Filter bar -->
+        <div class="user-filters">
+          <div class="uf-search">
+            <Search size={13} class="uf-search-icon" />
+            <input
+              class="uf-input"
+              placeholder="Search by name or email…"
+              bind:value={filterSearch}
+            />
+            {#if filterSearch}
+              <button class="uf-clear-btn" on:click={() => filterSearch = ""} aria-label="Clear search">
+                <X size={12} />
+              </button>
+            {/if}
+          </div>
+
+          <div class="uf-selects">
+            <select class="uf-select" bind:value={filterStatus}>
+              <option value="all">All status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+
+            <select class="uf-select" bind:value={filterRole}>
+              <option value="">All roles</option>
+              {#each allRoles as role}
+                <option value={role}>{role}</option>
+              {/each}
+            </select>
+          </div>
+
+          {#if activeFilterCount > 0}
+            <button class="uf-reset" on:click={clearFilters}>
+              <X size={11} /> Clear {activeFilterCount} filter{activeFilterCount !== 1 ? "s" : ""}
+            </button>
+          {/if}
+        </div>
+
+        <!-- Results summary -->
+        {#if userAccounts.length > 0}
+          <p class="user-count">
+            {filteredUsers.length} of {userAccounts.length} account{userAccounts.length !== 1 ? "s" : ""}
+            {activeFilterCount > 0 ? "match filters" : "total"}
+          </p>
+        {/if}
+
+        {#if filteredUsers.length === 0 && userAccounts.length === 0}
+          <EmptyState message="No user accounts found.">
+            <svelte:fragment slot="icon"><Users size={28} /></svelte:fragment>
+          </EmptyState>
+        {:else if filteredUsers.length === 0}
+          <EmptyState message="No accounts match the current filters.">
+            <svelte:fragment slot="icon"><Search size={28} /></svelte:fragment>
+            <Button variant="ghost" on:click={clearFilters}><X size={13} />Clear filters</Button>
+          </EmptyState>
+        {:else}
+        <div class="user-list">
+          {#each filteredUsers as u (u.id)}
+            <div class="user-row" class:inactive={!u.is_active}>
+              <!-- Avatar + Identity -->
+              <div class="user-id">
+                <div class="user-avatar" class:av-inactive={!u.is_active}>
+                  {(u.staff_name ?? u.email).charAt(0).toUpperCase()}
+                </div>
+                <div class="user-meta">
+                  <span class="user-name">{u.staff_name ?? "—"}</span>
+                  <span class="user-email">{u.email}</span>
+                </div>
+              </div>
+
+              <!-- Role pills -->
+              <div class="user-roles">
+                {#if u.roles.length === 0}
+                  <span class="no-role">No role</span>
+                {:else}
+                  {#each u.roles as role}
+                    <span class="role-pill">{role}</span>
+                  {/each}
+                {/if}
+              </div>
+
+              <!-- Status + last login -->
+              <div class="user-status-col">
+                {#if u.is_active}
+                  <Badge variant="ok" size="sm">Active</Badge>
+                {:else}
+                  <Badge variant="warn" size="sm">Inactive</Badge>
+                {/if}
+                {#if u.must_change_password}
+                  <span class="pw-flag" title="Must change password on next login">
+                    <KeyRound size={11} /> Pwd reset
+                  </span>
+                {/if}
+              </div>
+
+              <!-- Last login -->
+              <div class="user-login">{formatLastLogin(u.last_login_at)}</div>
+
+              <!-- Actions -->
+              <div class="user-actions">
+                <button class="icon-act" title={u.is_active ? "Deactivate account" : "Activate account"}
+                  disabled={userActionId === u.id}
+                  on:click={() => toggleUserActive(u)}>
+                  {#if userActionId === u.id}
+                    <Loader2 size={13} class="spin" />
+                  {:else if u.is_active}
+                    <ToggleRight size={15} style="color:var(--ok-text)" />
+                  {:else}
+                    <ToggleLeft size={15} style="color:var(--tx-low)" />
+                  {/if}
+                </button>
+                <button class="icon-act" title="Force password change on next login"
+                  disabled={userActionId === u.id + "_pw" || u.must_change_password}
+                  on:click={() => forcePasswordReset(u)}>
+                  {#if userActionId === u.id + "_pw"}
+                    <Loader2 size={13} class="spin" />
+                  {:else}
+                    <KeyRound size={13} />
+                  {/if}
+                </button>
+              </div>
+            </div>
+          {/each}
+        </div>
+        {/if}
+      {/if}
+    {/if}
+
+    <!-- ══ LOGS ════════════════════════════════════════════════════════ -->
+    {#if tab === "logs"}
+      <PageHeader title="Activity Logs" description="Audit trail of administrative actions in your school." />
+      <div class="logs-placeholder">
+        <ScrollText size={32} style="opacity:.25;margin-bottom:12px;" />
+        <p class="lp-title">Activity logs coming soon</p>
+        <p class="lp-desc">This section will show a timestamped record of logins, account changes, and data edits.</p>
+      </div>
     {/if}
 
   </div><!-- /content -->
@@ -1475,184 +1138,6 @@ select.input {
 /* ── Page header (used by non-form tabs) ─────────────────────────── */
 :global(.page-head) { margin-bottom: 20px; }
 
-/* ── Academic Calendar ───────────────────────────────────────────── */
-.year-card {
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px;
-  background: var(--surface-1);
-  margin-bottom: 10px;
-  overflow: hidden;
-}
-.year-card.is-current { border-color: color-mix(in srgb, var(--accent) 35%, var(--border-subtle)); }
-
-.year-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 12px 14px;
-}
-.year-head-l { display: flex; align-items: center; gap: 10px; }
-.year-head-r { display: flex; align-items: center; gap: 8px; }
-
-.year-name  { font-size: 13.5px; font-weight: 600; color: var(--tx-high); }
-.year-dates { font-size: 11.5px; color: var(--tx-low); margin-top: 1px; }
-
-.expand-btn {
-  width: 26px; height: 26px;
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--tx-low);
-  cursor: pointer;
-  transition: background 0.1s;
-  flex-shrink: 0;
-}
-.expand-btn:hover { background: var(--surface-2); }
-:global(.chevron) { transition: transform 0.18s ease; }
-:global(.chevron.open) { transform: rotate(180deg); }
-
-.pill {
-  font-size: 11px;
-  font-weight: 500;
-  padding: 2px 7px;
-  border-radius: 5px;
-  background: var(--surface-2);
-  color: var(--tx-low);
-  border: 1px solid var(--border-subtle);
-}
-
-.terms-panel {
-  border-top: 1px solid var(--border-subtle);
-  padding: 8px 14px 12px;
-  background: var(--surface-0);
-}
-
-.term-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--border-subtle);
-}
-.term-row:last-child { border-bottom: none; }
-
-.term-l { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.term-r { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-
-.tdot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: var(--border-strong);
-  flex-shrink: 0;
-  transition: background 0.12s;
-}
-.tdot.active { background: var(--ok-dot); }
-
-.term-name  { font-size: 13px; font-weight: 500; color: var(--tx-high); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.term-dates { font-size: 11.5px; color: var(--tx-low); white-space: nowrap; }
-
-.terms-empty { font-size: 12.5px; color: var(--tx-low); padding: 10px 0; margin: 0; }
-
-.term-form {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed var(--border-subtle);
-}
-
-.add-term-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 0;
-  margin-top: 8px;
-  border: none;
-  background: transparent;
-  color: var(--accent);
-  font-size: 12.5px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.1s;
-}
-.add-term-btn:hover { opacity: 0.75; }
-
-/* ── Classes ─────────────────────────────────────────────────────── */
-.class-form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-  gap: 14px;
-}
-
-.class-section { margin-bottom: 18px; }
-
-.section-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  color: var(--tx-low);
-  margin-bottom: 8px;
-}
-
-.class-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.class-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 8px 5px 11px;
-  border-radius: 8px;
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-1);
-  font-size: 12.5px;
-  font-weight: 500;
-  color: var(--tx-high);
-  transition: border-color 0.1s, box-shadow 0.1s;
-}
-.class-chip:hover { border-color: var(--border-strong); box-shadow: var(--shadow-xs); }
-.class-chip.inactive { opacity: 0.55; }
-
-.chip-name { white-space: nowrap; }
-
-.chip-del {
-  width: 18px; height: 18px;
-  border-radius: 4px;
-  border: none;
-  background: transparent;
-  color: var(--tx-low);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: background 0.1s, color 0.1s;
-  flex-shrink: 0;
-}
-.chip-del:hover { background: var(--err-bg); color: var(--err-text); }
-
-.warn-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--warn-dot); }
-
-/* ── Learning Areas ──────────────────────────────────────────────── */
-.la-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 10px 18px;
-}
-.border-t { border-top: 1px solid var(--border-subtle); }
-
-.la-main { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
-.la-name { font-size: 13.5px; font-weight: 500; color: var(--tx-high); }
-.la-code { font-size: 12px; color: var(--tx-low); background: var(--surface-2); padding: 2px 7px; border-radius: 4px; }
-.la-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-
 /* ── Positions ────────────────────────────────────────────────────── */
 .pos-loading { display: flex; justify-content: center; padding: 40px; }
 .pos-list { display: flex; flex-direction: column; gap: 8px; }
@@ -1782,4 +1267,198 @@ select.input {
 /* ── Spinner (global keyframe) ───────────────────────────────────── */
 :global(.spin) { animation: spin 0.75s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── User filters ────────────────────────────────────────────────── */
+.user-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.uf-search {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+  max-width: 340px;
+  display: flex;
+  align-items: center;
+}
+:global(.uf-search-icon) {
+  position: absolute;
+  left: 10px;
+  color: var(--tx-low);
+  pointer-events: none;
+}
+.uf-input {
+  width: 100%;
+  height: 32px;
+  padding: 0 30px 0 30px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface-0);
+  color: var(--tx-high);
+  font-size: 12.5px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.14s, box-shadow 0.14s;
+}
+.uf-input::placeholder { color: var(--tx-placeholder); }
+.uf-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.uf-clear-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--tx-low);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  border-radius: 3px;
+  transition: color 0.1s;
+}
+.uf-clear-btn:hover { color: var(--tx-mid); }
+
+.uf-selects {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.uf-select {
+  height: 32px;
+  padding: 0 26px 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface-0);
+  color: var(--tx-mid);
+  font-size: 12.5px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.14s;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2396938B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+.uf-select:focus { border-color: var(--accent); }
+
+.uf-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: var(--surface-1);
+  color: var(--tx-low);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
+}
+.uf-reset:hover { background: var(--surface-2); color: var(--tx-mid); }
+
+.user-count {
+  font-size: 11.5px;
+  color: var(--tx-low);
+  margin: 0 0 10px;
+}
+
+/* ── User list ───────────────────────────────────────────────────── */
+.user-list { display: flex; flex-direction: column; gap: 1px; }
+
+.user-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-1);
+  margin-bottom: 6px;
+  transition: background 0.1s;
+}
+.user-row:hover { background: var(--surface-0); }
+.user-row.inactive { opacity: 0.65; }
+
+.user-id { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+.user-avatar {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+}
+.user-avatar.av-inactive {
+  background: var(--surface-2);
+  color: var(--tx-low);
+  border-color: var(--border-subtle);
+}
+
+.user-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.user-name  { font-size: 13px; font-weight: 600; color: var(--tx-high); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-email { font-size: 11.5px; color: var(--tx-low); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.user-roles { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; }
+
+.role-pill {
+  font-size: 10.5px; font-weight: 600;
+  padding: 2px 8px; border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--tx-mid);
+  border: 1px solid var(--border-subtle);
+  white-space: nowrap;
+}
+.no-role { font-size: 11.5px; color: var(--tx-low); font-style: italic; }
+
+.user-status-col { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+.pw-flag {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-size: 10px; font-weight: 600; color: var(--warn-dot);
+  background: color-mix(in srgb, var(--warn-dot) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn-dot) 20%, transparent);
+  padding: 1px 6px; border-radius: 8px;
+}
+
+.user-login { font-size: 11.5px; color: var(--tx-low); white-space: nowrap; text-align: right; }
+
+.user-actions { display: flex; gap: 2px; flex-shrink: 0; }
+
+@media (max-width: 700px) {
+  .user-row { grid-template-columns: 1fr auto auto; }
+  .user-roles { display: none; }
+  .user-login { display: none; }
+}
+
+/* ── Logs placeholder ────────────────────────────────────────────── */
+.logs-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface-1);
+  text-align: center;
+  color: var(--tx-low);
+}
+.lp-title { font-size: 14px; font-weight: 600; color: var(--tx-mid); margin: 0 0 6px; }
+.lp-desc  { font-size: 12.5px; color: var(--tx-low); margin: 0; max-width: 380px; line-height: 1.6; }
 </style>

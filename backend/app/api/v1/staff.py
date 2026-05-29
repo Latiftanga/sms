@@ -24,10 +24,10 @@ Routes:
 """
 import io
 import secrets
-import string
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from uuid import UUID
 
+import httpx
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy import exists, func, select
@@ -35,6 +35,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, RedisDep, SessionDep, require
+from app.core.config import settings
 from app.core.permissions import ALL_PERMISSIONS, Permission
 from app.core.security import hash_password
 from app.models.staff import (
@@ -47,7 +48,7 @@ from app.models.staff import (
 from app.models.user import User, UserRole
 from app.schemas.staff import (
     AccountCreateRequest,
-    AccountCreateResponse,
+    InviteResponse,
     BulkRowError,
     BulkUploadResponse,
     PermissionOverrideCreate,
@@ -159,9 +160,7 @@ def _to_response(member: StaffMember, has_account: bool = False) -> StaffMemberR
     })
 
 
-def _gen_temp_password(length: int = 12) -> str:
-    alphabet = string.ascii_letters + string.digits + "!@#$"
-    return "".join(secrets.choice(alphabet) for _ in range(length))
+
 
 
 # ── List ──────────────────────────────────────────────────────────────────────
@@ -258,11 +257,15 @@ async def create_staff(
             dependencies=[require(Permission.VIEW_STAFF)])
 async def get_staff(staff_id: UUID, user: CurrentUser, session: SessionDep):
 
-    # Embed has_account as EXISTS subquery — saves a separate DB round-trip
     has_acct_sq = exists().where(User.staff_member_id == staff_id)
+    invite_pending_sq = exists().where(
+        User.staff_member_id == staff_id,
+        User.invite_token.isnot(None),
+        User.is_active.is_(False),
+    )
 
     result = await session.execute(
-        select(StaffMember, has_acct_sq)
+        select(StaffMember, has_acct_sq, invite_pending_sq)
         .where(
             StaffMember.id == staff_id,
             StaffMember.school_id == user.school_id,
@@ -276,11 +279,12 @@ async def get_staff(staff_id: UUID, user: CurrentUser, session: SessionDep):
     if not row:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Staff member not found")
 
-    member, has_account = row
+    member, has_account, invite_pending = row
     detail = StaffMemberDetail.model_validate({
         **member.__dict__,
         "current_rank": _current_rank(member.promotions),
         "has_account": has_account,
+        "invite_pending": invite_pending,
         "qualifications": [QualificationResponse.model_validate(q) for q in member.qualifications],
         "promotions": sorted(
             [PromotionResponse.model_validate(p) for p in member.promotions],
@@ -352,57 +356,81 @@ async def upload_photo(
     return _to_response(member)
 
 
-# ── Account creation ──────────────────────────────────────────────────────────
+# ── Invite ────────────────────────────────────────────────────────────────────
 
-@router.post("/{staff_id}/account", response_model=AccountCreateResponse, status_code=201,
+async def _send_invite_sms(phone: str, invite_token: str) -> None:
+    invite_url = f"{settings.FRONTEND_URL}/invite/{invite_token}"
+    msg = f"You've been invited to TTEK SIS. Set up your account: {invite_url}"
+    async with httpx.AsyncClient(timeout=8) as client:
+        resp = await client.post(
+            "https://api.africastalking.com/version1/messaging",
+            headers={"apiKey": settings.AT_API_KEY or "", "Accept": "application/json"},
+            data={"username": settings.AT_USERNAME, "to": phone, "message": msg, "from": settings.AT_SENDER_ID},
+        )
+        resp.raise_for_status()
+
+
+@router.post("/{staff_id}/invite", response_model=InviteResponse, status_code=201,
              dependencies=[require(Permission.MANAGE_USERS)])
-async def create_account(
+async def send_invite(
     staff_id: UUID,
     body: AccountCreateRequest,
     user: CurrentUser,
     session: SessionDep,
 ):
     member = await _get_member(staff_id, user.school_id, session)
-
     existing = await _linked_user(member, session)
-    if existing:
-        raise HTTPException(status.HTTP_409_CONFLICT, "Staff member already has an account")
 
-    email_taken = await session.scalar(select(User).where(User.email == body.email))
-    if email_taken:
+    if existing and existing.is_active:
+        raise HTTPException(status.HTTP_409_CONFLICT, "Staff member already has an active account")
+
+    # Ensure email isn't taken by a different user
+    email_owner = await session.scalar(select(User).where(User.email == body.email))
+    if email_owner and (existing is None or email_owner.id != existing.id):
         raise HTTPException(status.HTTP_409_CONFLICT, "Email already in use")
 
-    temp_pw = _gen_temp_password()
-    new_user = User(
-        email=body.email,
-        password_hash=hash_password(temp_pw),
-        system_role="SCHOOL_STAFF",
-        school_id=user.school_id,
-        staff_member_id=member.id,
-        is_active=True,
-        is_verified=True,
-        must_change_password=True,
-    )
-    session.add(new_user)
-    await session.flush()  # get new_user.id before assigning roles
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.now(UTC) + timedelta(days=7)
 
-    # Auto-assign default role(s) from designation/category
-    codes = _default_role_codes(member)
-    await _assign_roles_by_codes(new_user, codes, user.id, session)
+    if existing:
+        # Resend: refresh token on the pending account
+        existing.email = str(body.email)
+        existing.invite_token = token
+        existing.invite_expires_at = expires_at
+    else:
+        new_user = User(
+            email=str(body.email),
+            password_hash=hash_password(secrets.token_hex(32)),  # unreachable placeholder
+            system_role="SCHOOL_STAFF",
+            school_id=user.school_id,
+            staff_member_id=member.id,
+            is_active=False,
+            is_verified=False,
+            must_change_password=False,
+            invite_token=token,
+            invite_expires_at=expires_at,
+        )
+        session.add(new_user)
+        await session.flush()
+        codes = _default_role_codes(member)
+        await _assign_roles_by_codes(new_user, codes, user.id, session)
 
     await session.commit()
-    await session.refresh(new_user)
 
-    return AccountCreateResponse(
-        user_id=new_user.id,
-        email=new_user.email,
-        temp_password=temp_pw,
-    )
+    sms_sent = False
+    if member.phone and settings.AT_API_KEY:
+        try:
+            await _send_invite_sms(member.phone, token)
+            sms_sent = True
+        except Exception:
+            pass
+
+    return InviteResponse(invite_token=token, email=str(body.email), sms_sent=sms_sent)
 
 
-# ── Admin password reset ──────────────────────────────────────────────────────
+# ── Admin password reset — sends a new invite link ───────────────────────────
 
-@router.post("/{staff_id}/reset-password", response_model=AccountCreateResponse,
+@router.post("/{staff_id}/reset-password", response_model=InviteResponse,
              dependencies=[require(Permission.MANAGE_USERS)])
 async def reset_password(
     staff_id: UUID,
@@ -414,16 +442,23 @@ async def reset_password(
     if not linked:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No account found for this staff member")
 
-    temp_pw = _gen_temp_password()
-    linked.password_hash = hash_password(temp_pw)
-    linked.must_change_password = True
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.now(UTC) + timedelta(days=7)
+    linked.is_active = False
+    linked.is_verified = False
+    linked.invite_token = token
+    linked.invite_expires_at = expires_at
     await session.commit()
 
-    return AccountCreateResponse(
-        user_id=linked.id,
-        email=linked.email,
-        temp_password=temp_pw,
-    )
+    sms_sent = False
+    if member.phone and settings.AT_API_KEY:
+        try:
+            await _send_invite_sms(member.phone, token)
+            sms_sent = True
+        except Exception:
+            pass
+
+    return InviteResponse(invite_token=token, email=linked.email, sms_sent=sms_sent)
 
 
 # ── Reactivate staff ──────────────────────────────────────────────────────────

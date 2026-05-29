@@ -4,12 +4,9 @@
   import { auth, isAuthenticated, currentUser } from "$stores/auth";
   import { schoolBranding } from "$stores/school";
   import { Avatar, Toaster, ConfirmDialog } from "$components";
-  import {
-    LayoutDashboard, Users, ClipboardCheck, BarChart2,
-    CalendarDays, CreditCard, Users2, Settings2,
-    PanelLeft, Bell, Sun, Moon, Monitor, LogOut,
-  } from "@lucide/svelte";
+  import { PanelLeft, Bell, Sun, Moon, Monitor, LogOut } from "@lucide/svelte";
   import { onMount } from "svelte";
+  import { NAV, type NavGroup } from "$lib/config/nav";
 
   // ── Sidebar state ──────────────────────────────────────────────
   let collapsed = false;
@@ -38,7 +35,6 @@
   onMount(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     systemDark = mq.matches;
-    // Updating systemDark triggers the reactive $: block below automatically
     const handler = (e: MediaQueryListEvent) => { systemDark = e.matches; };
     mq.addEventListener("change", handler);
 
@@ -56,7 +52,6 @@
     };
   });
 
-  // Reactive: re-runs whenever themeMode or systemDark changes
   $: isDark = themeMode === "dark" || (themeMode === "system" && systemDark);
   $: if (typeof document !== "undefined") {
     document.documentElement.classList.toggle("dark", isDark);
@@ -80,37 +75,42 @@
     goto("/login");
   }
 
-  // ── Nav ────────────────────────────────────────────────────────
+  // ── Routing ────────────────────────────────────────────────────
   $: currentPath = $page.url.pathname;
-
   function active(path: string) {
     return currentPath === path || currentPath.startsWith(path + "/");
   }
-
   $: pageTitle = currentPath.split("/").filter(Boolean)[0]?.replace(/-/g, " ") ?? "Dashboard";
 
-  // ── Role-based nav ─────────────────────────────────────────────
-  $: isSuperAdmin   = $currentUser?.system_role === "SUPERADMIN";
-  $: isSchoolStaff  = $currentUser?.system_role === "SCHOOL_STAFF";
-  // Read directly from $currentUser.permissions so Svelte tracks the store
-  // subscription and re-evaluates when auth loads (isSuperAdmin stays false
-  // for SCHOOL_STAFF so the indirect chain via auth.can() wouldn't fire).
-  $: canViewStudents  = isSuperAdmin || $currentUser?.permissions?.view_students === true;
-  $: canViewFees      = isSuperAdmin || $currentUser?.permissions?.view_fees === true;
-  $: canViewStaff     = isSuperAdmin || $currentUser?.permissions?.view_staff === true;
-  $: canManageStaff   = isSuperAdmin || $currentUser?.permissions?.manage_staff === true;
+  // ── Auth guards ────────────────────────────────────────────────
+  $: isSuperAdmin = $currentUser?.system_role === "SUPERADMIN";
 
-  // Auth guard
-  $: if (!$auth.loading && !$isAuthenticated) {
-    goto("/login");
+  $: if (!$auth.loading && !$isAuthenticated) goto("/login");
+  $: if (!$auth.loading && $auth.user?.must_change_password) goto("/change-password");
+
+  // ── Dynamic nav ────────────────────────────────────────────────
+  // Permissions are a flat Record<string, boolean> from /auth/me.
+  // canSee returns true when the user holds ANY of the listed keys,
+  // or when no keys are required (always-visible items like Dashboard).
+  // SUPERADMIN bypasses all checks.
+  $: perms = ($currentUser?.permissions ?? {}) as Record<string, boolean>;
+
+  function canSee(anyPermission: string[] | undefined): boolean {
+    if (isSuperAdmin) return true;
+    if (!anyPermission?.length) return true;
+    return anyPermission.some(k => perms[k] === true);
   }
 
-  // Force password change
-  $: if (!$auth.loading && $auth.user?.must_change_password) {
-    goto("/change-password");
-  }
+  // Rebuild visible groups whenever permissions or role changes.
+  // Groups with zero visible items are dropped entirely (no phantom dividers).
+  $: visibleGroups = NAV
+    .map((group: NavGroup) => ({
+      ...group,
+      items: group.items.filter(item => canSee(item.anyPermission)),
+    }))
+    .filter(group => group.items.length > 0);
 
-  // Only dynamic/positional properties — static styles live in the CSS block
+  // ── Sidebar dimensions ─────────────────────────────────────────
   $: sidebarStyle = mobile
     ? `position:fixed;top:var(--topbar-h);left:0;height:calc(100% - var(--topbar-h));width:var(--sidebar-w);transform:translateX(${mobileOpen ? "0" : "-100%"});transition:transform 0.22s ease;z-index:50;`
     : `position:relative;width:${collapsed ? "54px" : "var(--sidebar-w)"};transition:width 0.2s ease;z-index:20;`;
@@ -186,82 +186,29 @@
         {/if}
       </div>
 
-      <!-- Nav -->
+      <!-- Nav — rendered from $lib/config/nav.ts, filtered by user permissions -->
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
       <nav class="sidebar-nav" on:click={() => { if (mobile) mobileOpen = false; }}>
 
-        <!-- Overview -->
-        <div class="nav-section">
-          {#if !collapsed || mobile}
-            <span class="nav-section-label">Overview</span>
+        {#each visibleGroups as group, gi}
+          {#if gi > 0}
+            <div class="nav-divider"></div>
           {/if}
-          <a href="/dashboard" class="nav-item" class:active={active("/dashboard")}>
-            <LayoutDashboard size={15} style="flex-shrink:0; opacity:{active('/dashboard') ? '1' : '.6'}" />
-            {#if !collapsed || mobile}<span>Dashboard</span>{/if}
-          </a>
-        </div>
 
-        <!-- Academic -->
-        <div class="nav-section">
-          {#if !collapsed || mobile}
-            <span class="nav-section-label">Academic</span>
-          {/if}
-          {#if canViewStudents}
-            <a href="/students" class="nav-item" class:active={active("/students")}>
-              <Users size={15} style="flex-shrink:0; opacity:{active('/students') ? '1' : '.6'}" />
-              {#if !collapsed || mobile}<span>Students</span>{/if}
-            </a>
-          {/if}
-          <a href="/attendance" class="nav-item" class:active={active("/attendance")}>
-            <ClipboardCheck size={15} style="flex-shrink:0; opacity:{active('/attendance') ? '1' : '.6'}" />
-            {#if !collapsed || mobile}<span>Attendance</span>{/if}
-          </a>
-          {#if !collapsed || mobile}
-            <div class="nav-item-disabled">
-              <BarChart2 size={15} style="flex-shrink:0; opacity:.35" />
-              <span style="flex:1;">Assessments</span>
-              <span class="coming-badge">soon</span>
-            </div>
-          {/if}
-        </div>
-
-        <!-- Finance -->
-        {#if canViewFees}
-          <div class="nav-section">
-            {#if !collapsed || mobile}
-              <span class="nav-section-label">Finance</span>
-            {/if}
-            <a href="/fees" class="nav-item" class:active={active("/fees")}>
-              <CreditCard size={15} style="flex-shrink:0; opacity:{active('/fees') ? '1' : '.6'}" />
-              {#if !collapsed || mobile}<span>Fees Ledger</span>{/if}
-            </a>
+          <div class="nav-group">
+            {#each group.items as item (item.href)}
+              <a href={item.href} class="nav-item" class:active={active(item.href)}>
+                <svelte:component
+                  this={item.icon}
+                  size={15}
+                  style="flex-shrink:0; opacity:{active(item.href) ? '1' : '.6'}"
+                />
+                {#if !collapsed || mobile}<span>{item.label}</span>{/if}
+              </a>
+            {/each}
           </div>
-        {/if}
-
-        <!-- Admin -->
-        {#if canViewStaff}
-          <div class="nav-section">
-            {#if !collapsed || mobile}
-              <span class="nav-section-label">Admin</span>
-            {/if}
-            <a href="/staff" class="nav-item" class:active={active("/staff")}>
-              <Users2 size={15} style="flex-shrink:0; opacity:{active('/staff') ? '1' : '.6'}" />
-              {#if !collapsed || mobile}<span>Staff</span>{/if}
-            </a>
-          </div>
-        {/if}
-
-        <!-- Settings — always visible -->
-        <div class="nav-section">
-          {#if !collapsed || mobile}
-            <span class="nav-section-label">System</span>
-          {/if}
-          <a href="/settings" class="nav-item" class:active={active("/settings")}>
-            <Settings2 size={15} style="flex-shrink:0; opacity:{active('/settings') ? '1' : '.6'}" />
-            {#if !collapsed || mobile}<span>Settings</span>{/if}
-          </a>
-        </div>
+        {/each}
 
       </nav>
 
@@ -380,21 +327,18 @@
   .sidebar-nav {
     flex: 1;
     overflow-y: auto;
-    padding: 8px 6px 4px;
+    padding: 6px 6px 4px;
     scrollbar-width: none;
   }
   .sidebar-nav::-webkit-scrollbar { display: none; }
 
-  .nav-section { margin-bottom: 4px; }
+  .nav-group { display: flex; flex-direction: column; }
 
-  .nav-section-label {
-    display: block;
-    font-size: 9.5px;
-    font-weight: 600;
-    letter-spacing: 0.09em;
-    text-transform: uppercase;
-    color: var(--tx-low);
-    padding: 6px 10px 3px;
+  .nav-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 5px 10px;
+    flex-shrink: 0;
   }
 
   .nav-item {
@@ -410,7 +354,6 @@
     white-space: nowrap;
     overflow: hidden;
     transition: background 0.12s, color 0.12s, box-shadow 0.12s;
-    position: relative;
   }
 
   .nav-item:hover {
@@ -428,35 +371,14 @@
   .sidebar.collapsed .nav-item {
     padding: 7px 0;
     justify-content: center;
-    border-radius: 7px;
   }
 
   .sidebar.collapsed .nav-item.active {
-    /* no left-border indicator when collapsed — icon color conveys active state */
     box-shadow: none;
   }
 
-  .nav-item-disabled {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 10px;
-    border-radius: 7px;
-    color: var(--tx-low);
-    font-size: 13px;
-    white-space: nowrap;
-    overflow: hidden;
-    cursor: default;
-  }
-
-  .coming-badge {
-    font-size: 9px;
-    font-weight: 600;
-    padding: 1px 5px;
-    border-radius: 4px;
-    background: var(--border-subtle);
-    color: var(--tx-low);
-    margin-left: auto;
+  .sidebar.collapsed .nav-divider {
+    margin: 5px 8px;
   }
 
   /* Sidebar user footer */

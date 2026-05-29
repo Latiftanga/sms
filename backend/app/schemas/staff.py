@@ -158,18 +158,19 @@ class StaffMemberResponse(IDSchema, TimestampSchema):
 class StaffMemberDetail(StaffMemberResponse):
     qualifications: list[QualificationResponse] = []
     promotions: list[PromotionResponse] = []
+    invite_pending: bool = False
 
 
-# ── Account creation ──────────────────────────────────────────────────────────
+# ── Account / Invite ──────────────────────────────────────────────────────────
 
 class AccountCreateRequest(OrmBase):
     email: EmailStr
 
 
-class AccountCreateResponse(OrmBase):
-    user_id: UUID
+class InviteResponse(OrmBase):
+    invite_token: str
     email: str
-    temp_password: str  # shown once only
+    sms_sent: bool = False
 
 
 # ── Bulk upload ───────────────────────────────────────────────────────────────

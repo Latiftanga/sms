@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     SECRET_KEY: str
     DEBUG: bool = False
+    FRONTEND_URL: str = "http://localhost:5173"
 
     # ── Database ──────────────────────────────────────────────────
     DATABASE_URL: str

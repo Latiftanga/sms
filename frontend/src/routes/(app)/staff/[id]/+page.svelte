@@ -8,10 +8,10 @@
   import {
     ArrowLeft, Pencil, Save, X, UserCheck, Upload,
     GraduationCap, TrendingUp, Shield, Plus, Trash2,
-    Check, AlertCircle, Copy, Eye, EyeOff, Loader2, Camera,
+    Check, AlertCircle, Copy, Loader2, Camera,
     User, Briefcase, Phone, Info,
   } from "@lucide/svelte";
-  import type { StaffMemberDetail, Qualification, Promotion, AccountCreateResponse, UserRole, StaffPermissionsResponse, Role } from "$api/types";
+  import type { StaffMemberDetail, Qualification, Promotion, InviteResponse, UserRole, StaffPermissionsResponse, Role } from "$api/types";
   import type { PageData } from "./+page";
   import { confirmDialog } from "$stores/confirm";
   import { auth } from "$lib/stores/auth";
@@ -317,72 +317,59 @@
     }
   }
 
-  // ── Account creation ──────────────────────────────────────────────
-  let creatingAccount = false;
-  let accountEmail = "";
-  let accountCreating = false;
-  let accountError = "";
-  let accountResult: AccountCreateResponse | null = null;
-  let tempPwVisible = false;
-  let copied = false;
+  // ── Invite flow ───────────────────────────────────────────────────
+  let showInviteForm = false;
+  let inviteSending = false;
+  let inviteEmail = "";
+  let inviteError = "";
+  let inviteResult: InviteResponse | null = null;
+  let inviteCopied = false;
 
-  function openAccountForm() {
-    accountEmail = member?.personal_email ?? "";
-    accountError = ""; accountResult = null; tempPwVisible = false;
-    creatingAccount = true;
+  $: inviteUrl = inviteResult ? `${window.location.origin}/invite/${inviteResult.invite_token}` : "";
+
+  function openInviteForm() {
+    inviteEmail = member?.personal_email ?? "";
+    inviteError = ""; inviteResult = null;
+    showInviteForm = true;
   }
-  function closeAccountForm() { creatingAccount = false; accountResult = null; accountError = ""; }
+  function closeInviteForm() { showInviteForm = false; inviteResult = null; inviteError = ""; }
 
-  async function createAccount() {
-    if (!accountEmail) { accountError = "Email is required."; return; }
-    accountCreating = true; accountError = "";
+  async function sendInvite() {
+    if (!inviteEmail) { inviteError = "Email is required."; return; }
+    inviteSending = true; inviteError = "";
     try {
-      const { data } = await api.post<AccountCreateResponse>(`/staff/${staffId}/account`, { email: accountEmail });
-      accountResult = data;
-      member = { ...member!, has_account: true };
-      toast.success("Account created");
+      const { data } = await api.post<InviteResponse>(`/staff/${staffId}/invite`, { email: inviteEmail });
+      inviteResult = data;
+      member = { ...member!, has_account: true, invite_pending: true };
+      toast.success("Invite sent");
     } catch (e) {
-      accountError = apiError(e);
+      inviteError = apiError(e);
     } finally {
-      accountCreating = false;
+      inviteSending = false;
     }
   }
 
-  async function copyTempPw() {
-    if (!accountResult) return;
-    await navigator.clipboard.writeText(accountResult.temp_password);
-    copied = true;
-    setTimeout(() => copied = false, 2000);
+  async function copyInviteLink() {
+    await navigator.clipboard.writeText(inviteUrl);
+    inviteCopied = true;
+    setTimeout(() => inviteCopied = false, 2500);
   }
 
-  // ── Admin password reset ──────────────────────────────────────────
-  let resetResult: AccountCreateResponse | null = null;
-  let resetting = false;
-  let resetPwVisible = false;
-  let resetCopied = false;
+  // ── Resend invite ─────────────────────────────────────────────────
+  let reshowInviteForm = false;
 
-  async function resetPassword() {
-    const ok = await confirmDialog.show({
-      title: "Reset password",
-      message: "A new temporary password will be generated. The staff member will be required to change it on next login.",
-      variant: "danger",
-      confirmLabel: "Reset password",
-    });
-    if (!ok) return;
-    resetting = true;
+  async function resendInvite() {
+    if (!inviteEmail) return;
+    reshowInviteForm = true; inviteError = "";
     try {
-      const { data } = await api.post<AccountCreateResponse>(`/staff/${staffId}/reset-password`);
-      resetResult = data;
-      toast.success("Password reset");
-    } catch (e) { toast.error(apiError(e)); }
-    finally { resetting = false; }
-  }
-
-  async function copyResetPw() {
-    if (!resetResult) return;
-    await navigator.clipboard.writeText(resetResult.temp_password);
-    resetCopied = true;
-    setTimeout(() => resetCopied = false, 2000);
+      const { data } = await api.post<InviteResponse>(`/staff/${staffId}/invite`, { email: inviteEmail });
+      inviteResult = data;
+      toast.success("Invite resent");
+    } catch (e) {
+      inviteError = apiError(e);
+    } finally {
+      reshowInviteForm = false;
+    }
   }
 
   // ── Reactivate staff ──────────────────────────────────────────────
@@ -545,8 +532,8 @@
           </Button>
         {/if}
         {#if !member.has_account && canManageUsers}
-          <Button variant="ghost" size="sm" on:click={openAccountForm}>
-            <UserCheck size={13} /> Create Account
+          <Button variant="ghost" size="sm" on:click={openInviteForm}>
+            <UserCheck size={13} /> Send Invite
           </Button>
         {/if}
         {#if !editing && canManageStaff}
@@ -986,79 +973,80 @@
         <div class="card-header">
           <div class="card-hicon"><UserCheck size={14} /></div>
           <span class="card-title">Login Account</span>
-          {#if !member.has_account && !creatingAccount && canManageUsers}
-            <Button size="sm" on:click={openAccountForm}><UserCheck size={13} /> Create Account</Button>
+          {#if !member.has_account && canManageUsers}
+            <Button size="sm" on:click={openInviteForm}><UserCheck size={13} /> Send Invite</Button>
+          {/if}
+          {#if member.invite_pending && !inviteResult && canManageUsers}
+            <Button variant="ghost" size="sm" on:click={openInviteForm}>Resend</Button>
           {/if}
         </div>
         <div class="card-body">
 
         <!-- No account yet -->
-        {#if !member.has_account && !creatingAccount}
+        {#if !member.has_account && !showInviteForm}
           <div class="account-status warn">
             <AlertCircle size={16} />
-            No login account yet. Create one to give this staff member access to the system.
+            No login account yet. Send an invite so {member.first_name} can set their own password.
           </div>
         {/if}
 
-        <!-- Create account form -->
-        {#if creatingAccount && !accountResult}
+        <!-- Invite form -->
+        {#if showInviteForm && !inviteResult}
           <div class="inline-form">
-            {#if accountError}<p class="inline-form-error">{accountError}</p>{/if}
+            {#if inviteError}<p class="inline-form-error">{inviteError}</p>{/if}
             <div class="role-preview-row">
               {#if defaultRoleLabel}
                 <Info size={13} class="role-preview-icon" />
-                <span>This account will be assigned the <strong>{defaultRoleLabel}</strong> role.</span>
+                <span>Account will be assigned the <strong>{defaultRoleLabel}</strong> role.</span>
               {:else}
                 <AlertCircle size={13} class="role-preview-icon warn" />
-                <span>No default role for this designation — assign one manually after creating.</span>
+                <span>No default role for this designation — assign one manually after they join.</span>
               {/if}
             </div>
-            <p class="hint">A temporary password will be generated. The staff member must change it on first login.</p>
+            <p class="hint">{member.first_name} will receive a secure link to set their own password. The link expires in 7 days.</p>
             <div class="inline-form-row">
               <div class="field">
-                <label for="ac-email">Login email <span class="req">*</span></label>
-                <input id="ac-email" class="input" type="email" bind:value={accountEmail} placeholder="staff@school.edu.gh" />
+                <label for="inv-email">Login email <span class="req">*</span></label>
+                <input id="inv-email" class="input" type="email" bind:value={inviteEmail} placeholder="staff@school.edu.gh" />
               </div>
             </div>
             <div class="inline-form-actions">
-              <Button variant="ghost" size="sm" on:click={closeAccountForm}>Cancel</Button>
-              <Button size="sm" loading={accountCreating} on:click={createAccount}>Create Account</Button>
+              <Button variant="ghost" size="sm" on:click={closeInviteForm}>Cancel</Button>
+              <Button size="sm" loading={inviteSending} on:click={sendInvite}>Send Invite</Button>
             </div>
           </div>
         {/if}
 
-        <!-- Account created result -->
-        {#if accountResult}
-          <div class="inline-form created-panel">
-            <div class="created-header">
-              <Check size={18} class="created-check" />
-              <strong>Account created!</strong>
+        <!-- Invite sent result -->
+        {#if inviteResult}
+          <div class="invite-sent-panel">
+            <div class="invite-sent-header">
+              <Check size={16} class="invite-check" />
+              <strong>Invite sent{inviteResult.sms_sent ? ` via SMS to ${member.phone}` : ""}!</strong>
             </div>
-            <p class="hint">
-              Share these credentials with <strong>{member.first_name}</strong>. The password must be changed on first login.
-            </p>
-            <dl class="creds">
-              <dt>Email</dt>
-              <dd>{accountResult.email}</dd>
-              <dt>Temporary password</dt>
-              <dd class="pw-row">
-                <span class="mono">{tempPwVisible ? accountResult.temp_password : "•".repeat(accountResult.temp_password.length)}</span>
-                <button class="icon-btn" on:click={() => tempPwVisible = !tempPwVisible} title={tempPwVisible ? "Hide" : "Show"}>
-                  {#if tempPwVisible}<EyeOff size={13} />{:else}<Eye size={13} />{/if}
-                </button>
-                <button class="icon-btn" on:click={copyTempPw} title="Copy">
-                  {#if copied}<Check size={13} class="copy-ok" />{:else}<Copy size={13} />{/if}
-                </button>
-              </dd>
-            </dl>
+            <p class="hint">Share this link with <strong>{member.first_name}</strong>. It expires in 7 days.</p>
+            <div class="invite-link-row">
+              <span class="invite-link-text">{inviteUrl}</span>
+              <button class="icon-btn" on:click={copyInviteLink} title="Copy link">
+                {#if inviteCopied}<Check size={13} class="copy-ok" />{:else}<Copy size={13} />{/if}
+              </button>
+            </div>
             <div class="inline-form-actions">
-              <Button size="sm" on:click={closeAccountForm}>Done</Button>
+              <Button size="sm" on:click={closeInviteForm}>Done</Button>
             </div>
           </div>
         {/if}
 
-        <!-- ── Roles & permissions (only when account exists) ── -->
-        {#if member.has_account}
+        <!-- Pending invite state -->
+        {#if member.invite_pending && !inviteResult && !showInviteForm}
+          <div class="invite-pending-panel">
+            <Loader2 size={14} class="pending-spin" />
+            <span>Invite sent — waiting for <strong>{member.first_name}</strong> to set their password.</span>
+          </div>
+        {/if}
+
+        <!-- ── Roles & permissions (only when account is active) ── -->
+        {#if member.has_account && !member.invite_pending}
           {#if permsLoading}
             <div class="perms-loading"><Loader2 size={14} class="spin" /> Loading roles…</div>
           {:else if staffPerms}
@@ -1121,43 +1109,18 @@
 
           {/if}
 
-            <!-- Reset password -->
+            <!-- Reset: resend invite -->
             {#if canManageUsers}
               <div class="reset-pw-section">
-                {#if resetResult}
-                  <div class="inline-form" style="margin-top:0;">
-                    <div class="created-header">
-                      <Check size={16} class="created-check" />
-                      <strong>New temporary password</strong>
-                    </div>
-                    <p class="hint">Share this with {member.first_name}. They must change it on next login.</p>
-                    <dl class="creds">
-                      <dt>Temporary password</dt>
-                      <dd class="pw-row">
-                        <span class="mono">{resetPwVisible ? resetResult.temp_password : "•".repeat(resetResult.temp_password.length)}</span>
-                        <button class="icon-btn" on:click={() => resetPwVisible = !resetPwVisible}>
-                          {#if resetPwVisible}<EyeOff size={13} />{:else}<Eye size={13} />{/if}
-                        </button>
-                        <button class="icon-btn" on:click={copyResetPw}>
-                          {#if resetCopied}<Check size={13} class="copy-ok" />{:else}<Copy size={13} />{/if}
-                        </button>
-                      </dd>
-                    </dl>
-                    <div class="inline-form-actions">
-                      <Button size="sm" variant="ghost" on:click={() => resetResult = null}>Done</Button>
-                    </div>
+                <div class="reset-pw-row">
+                  <div>
+                    <p class="reset-pw-label">Resend invite</p>
+                    <p class="reset-pw-hint">Send a new invite link if the staff member lost or never received the original.</p>
                   </div>
-                {:else}
-                  <div class="reset-pw-row">
-                    <div>
-                      <p class="reset-pw-label">Reset password</p>
-                      <p class="reset-pw-hint">Generate a new temporary password and require the staff member to change it on next login.</p>
-                    </div>
-                    <Button variant="ghost" size="sm" loading={resetting} on:click={resetPassword}>
-                      Reset
-                    </Button>
-                  </div>
-                {/if}
+                  <Button variant="ghost" size="sm" loading={reshowInviteForm} on:click={() => { inviteEmail = member.personal_email ?? ""; openInviteForm(); }}>
+                    Resend
+                  </Button>
+                </div>
               </div>
             {/if}
 
@@ -1494,25 +1457,41 @@
     border: 1px solid color-mix(in srgb, #ef4444 20%, transparent);
   }
 
-  /* ── Account created ─────────────────────────── */
-  .created-header {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 1rem; color: var(--tx-high);
+  /* ── Invite panels ───────────────────────────── */
+  .invite-sent-panel {
+    display: flex; flex-direction: column; gap: 10px;
+    padding: 14px 16px; border-radius: 10px;
+    background: color-mix(in srgb, #10b981 6%, var(--surface-1));
+    border: 1px solid color-mix(in srgb, #10b981 25%, transparent);
   }
-  .created-header :global(.created-check) { color: #10b981; }
-
-  .creds {
-    display: grid; grid-template-columns: 120px 1fr;
-    gap: 8px 12px; margin: 0;
-    background: var(--surface-1); padding: 14px 16px;
-    border-radius: 8px; border: 1px solid var(--border-subtle);
-    font-size: 0.875rem;
+  .invite-sent-header {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 0.9375rem; color: var(--tx-high);
   }
-  .creds dt { color: var(--tx-low); font-weight: 500; }
-  .creds dd { margin: 0; color: var(--tx-high); }
+  .invite-sent-header :global(.invite-check) { color: #10b981; }
 
-  .pw-row { display: flex; align-items: center; gap: 6px; }
-  .pw-row .mono { font-family: monospace; letter-spacing: 0.04em; }
+  .invite-link-row {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface-0); border: 1px solid var(--border-subtle);
+    border-radius: 7px; padding: 8px 10px;
+  }
+  .invite-link-text {
+    flex: 1; font-size: 0.75rem; color: var(--tx-mid);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    font-family: monospace;
+  }
+
+  .invite-pending-panel {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; border-radius: 8px;
+    background: color-mix(in srgb, var(--accent) 5%, var(--surface-1));
+    border: 1px solid color-mix(in srgb, var(--accent) 15%, transparent);
+    font-size: 0.875rem; color: var(--tx-mid);
+  }
+  .invite-pending-panel :global(.pending-spin) {
+    color: var(--accent); flex-shrink: 0;
+    animation: spin 1.2s linear infinite;
+  }
 
   .icon-btn :global(.copy-ok) { color: #10b981; }
 

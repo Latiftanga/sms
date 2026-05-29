@@ -68,7 +68,15 @@ api.interceptors.response.use(
         clearAccessToken();
         await offlineDb.attendanceQueue.clear();
         await offlineDb.scoreQueue.clear();
-        if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+        // Don't hard-redirect when the original request was /auth/me — that just
+        // means "no session yet" and the auth store handles it gracefully. Only
+        // redirect when a previously-authenticated request loses its session mid-use.
+        const isAuthInit = original?.url === "/auth/me";
+        if (
+          typeof window !== "undefined" &&
+          !isAuthInit &&
+          !window.location.pathname.startsWith("/login")
+        ) {
           window.location.href = "/login";
         }
         return Promise.reject(refreshError);

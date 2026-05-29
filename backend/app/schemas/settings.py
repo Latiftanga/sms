@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from uuid import UUID
 
 from pydantic import field_validator, model_validator
@@ -131,6 +131,23 @@ class ClassResponse(IDSchema, TimestampSchema):
     learning_area: LearningAreaResponse | None = None
     name: str                   # computed on the model
 
+
+class ClassTeacherInfo(OrmBase):
+    staff_member_id: UUID
+    staff_name: str
+
+
+class ClassDetailResponse(ClassResponse):
+    class_teacher: ClassTeacherInfo | None = None
+    student_count: int = 0
+    current_year_id: UUID | None = None
+    current_year_name: str | None = None
+
+
+class ClassTeacherAssign(OrmBase):
+    staff_member_id: UUID
+
+
 # ── School profile (PATCH) ────────────────────────────────────────────────────
 
 class SchoolProfileUpdate(OrmBase):
@@ -152,3 +169,21 @@ class SchoolProfileUpdate(OrmBase):
 
 # Rebuild forward reference
 AcademicYearResponse.model_rebuild()
+
+
+# ── User accounts (System Control tab) ───────────────────────────────────────
+
+class UserAccountResponse(OrmBase):
+    id: UUID
+    email: str
+    is_active: bool
+    is_verified: bool
+    must_change_password: bool
+    last_login_at: datetime | None
+    staff_name: str | None
+    roles: list[str]
+
+
+class UserAccountUpdate(OrmBase):
+    is_active: bool | None = None
+    must_change_password: bool | None = None

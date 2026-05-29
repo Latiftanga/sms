@@ -4,6 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Request, Response, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, RedisDep, SessionDep
 from app.core.config import settings
@@ -134,4 +135,53 @@ async def change_password(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Password must be at least 8 characters")
     current_user.password_hash = hash_password(body.new_password)
     current_user.must_change_password = False
+    await session.commit()
+
+
+# ── Invite flow ───────────────────────────────────────────────────────────────
+
+class InviteInfoResponse(BaseModel):
+    staff_name: str
+    email: str
+
+
+class AcceptInviteRequest(BaseModel):
+    password: str
+
+
+@router.get("/invite/{token}", response_model=InviteInfoResponse)
+async def get_invite_info(token: str, session: SessionDep) -> InviteInfoResponse:
+    user = await session.scalar(
+        select(User)
+        .where(User.invite_token == token)
+        .options(selectinload(User.staff_member))
+    )
+    if not user:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Invalid or expired invite link")
+    if not user.invite_expires_at or datetime.now(UTC) > user.invite_expires_at:
+        raise HTTPException(status.HTTP_410_GONE, "Invite link has expired — ask your admin to resend it")
+
+    name = (
+        f"{user.staff_member.first_name} {user.staff_member.last_name}"
+        if user.staff_member else ""
+    )
+    return InviteInfoResponse(staff_name=name, email=user.email)
+
+
+@router.post("/invite/{token}", status_code=204)
+async def accept_invite(token: str, body: AcceptInviteRequest, session: SessionDep) -> None:
+    user = await session.scalar(select(User).where(User.invite_token == token))
+    if not user:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Invalid invite link")
+    if not user.invite_expires_at or datetime.now(UTC) > user.invite_expires_at:
+        raise HTTPException(status.HTTP_410_GONE, "This invite has expired — ask your admin to resend it")
+    if len(body.password) < 8:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Password must be at least 8 characters")
+
+    user.password_hash = hash_password(body.password)
+    user.is_active = True
+    user.is_verified = True
+    user.invite_token = None
+    user.invite_expires_at = None
+    user.must_change_password = False
     await session.commit()

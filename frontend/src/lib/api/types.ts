@@ -123,12 +123,13 @@ export interface Promotion {
 export interface StaffMemberDetail extends StaffMember {
   qualifications: Qualification[];
   promotions: Promotion[];
+  invite_pending: boolean;
 }
 
-export interface AccountCreateResponse {
-  user_id: string;
+export interface InviteResponse {
+  invite_token: string;
   email: string;
-  temp_password: string;
+  sms_sent: boolean;
 }
 
 export interface Role {

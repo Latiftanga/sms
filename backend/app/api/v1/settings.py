@@ -6,16 +6,20 @@ from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, SessionDep, require
 from app.core.permissions import Permission
-from app.models.academic import AcademicTerm, AcademicYear, Class, LearningArea
+from app.models.academic import AcademicTerm, AcademicYear, Class, ClassTeacher, LearningArea
+from app.models.student import StudentClassEnrollment
 from app.models.school import School
-from app.models.staff import PositionPermission, StaffPosition
+from app.models.staff import PositionPermission, StaffMember, StaffPosition
+from app.models.user import User, UserRole
 from app.schemas.common import PagedResponse
 from app.schemas.settings import (
     AcademicTermCreate, AcademicTermResponse, AcademicTermUpdate,
     AcademicYearCreate, AcademicYearResponse, AcademicYearUpdate,
-    ClassCreate, ClassResponse, ClassUpdate,
+    ClassCreate, ClassDetailResponse, ClassResponse, ClassTeacherAssign,
+    ClassTeacherInfo, ClassUpdate,
     LearningAreaCreate, LearningAreaResponse, LearningAreaUpdate,
     SchoolProfileUpdate, EDUCATION_LEVEL_MAP,
+    UserAccountResponse, UserAccountUpdate,
 )
 from app.schemas.school import SchoolResponse
 from app.schemas.staff import PositionCreate, PositionUpdate, PositionResponse
@@ -452,6 +456,154 @@ async def delete_class(class_id: UUID, user: CurrentUser, session: SessionDep):
     await session.commit()
 
 
+# ── Class detail ──────────────────────────────────────────────────────────────
+
+async def _class_detail(
+    class_id: UUID, school_id: UUID, session: SessionDep
+) -> ClassDetailResponse:
+    cls = await session.scalar(
+        select(Class)
+        .where(Class.id == class_id, Class.school_id == school_id)
+        .options(selectinload(Class.learning_area))
+    )
+    if not cls:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Class not found")
+
+    current_year = await session.scalar(
+        select(AcademicYear).where(
+            AcademicYear.school_id == school_id, AcademicYear.is_current.is_(True)
+        )
+    )
+
+    class_teacher: ClassTeacherInfo | None = None
+    student_count = 0
+
+    if current_year:
+        ct = await session.scalar(
+            select(ClassTeacher).where(
+                ClassTeacher.class_id == class_id,
+                ClassTeacher.academic_year_id == current_year.id,
+            )
+        )
+        if ct:
+            staff = await session.get(StaffMember, ct.staff_member_id)
+            if staff:
+                class_teacher = ClassTeacherInfo(
+                    staff_member_id=staff.id,
+                    staff_name=staff.full_name,
+                )
+
+        student_count = await session.scalar(
+            select(func.count(StudentClassEnrollment.id)).where(
+                StudentClassEnrollment.class_id == class_id,
+                StudentClassEnrollment.academic_year_id == current_year.id,
+                StudentClassEnrollment.status == "ACTIVE",
+            )
+        ) or 0
+
+    return ClassDetailResponse(
+        id=cls.id,
+        created_at=cls.created_at,
+        updated_at=cls.updated_at,
+        education_level=cls.education_level,
+        level=cls.level,
+        year=cls.year,
+        stream=cls.stream,
+        is_active=cls.is_active,
+        learning_area=(
+            LearningAreaResponse.model_validate(cls.learning_area)
+            if cls.learning_area else None
+        ),
+        name=cls.name,
+        class_teacher=class_teacher,
+        student_count=student_count,
+        current_year_id=current_year.id if current_year else None,
+        current_year_name=current_year.name if current_year else None,
+    )
+
+
+@router.get("/classes/{class_id}/detail", response_model=ClassDetailResponse)
+async def get_class_detail(class_id: UUID, user: CurrentUser, session: SessionDep):
+    return await _class_detail(class_id, _school_id(user), session)
+
+
+@router.put("/classes/{class_id}/teacher", response_model=ClassDetailResponse,
+            dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
+async def assign_class_teacher(
+    class_id: UUID, body: ClassTeacherAssign, user: CurrentUser, session: SessionDep
+):
+    school_id = _school_id(user)
+
+    cls = await session.scalar(
+        select(Class).where(Class.id == class_id, Class.school_id == school_id)
+    )
+    if not cls:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Class not found")
+
+    staff = await session.scalar(
+        select(StaffMember).where(
+            StaffMember.id == body.staff_member_id,
+            StaffMember.school_id == school_id,
+            StaffMember.is_active.is_(True),
+        )
+    )
+    if not staff:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Staff member not found")
+
+    current_year = await session.scalar(
+        select(AcademicYear).where(
+            AcademicYear.school_id == school_id, AcademicYear.is_current.is_(True)
+        )
+    )
+    if not current_year:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "No current academic year set. Go to Academic Calendar and mark a year as current.",
+        )
+
+    existing = await session.scalar(
+        select(ClassTeacher).where(
+            ClassTeacher.class_id == class_id,
+            ClassTeacher.academic_year_id == current_year.id,
+        )
+    )
+    if existing:
+        existing.staff_member_id = body.staff_member_id
+    else:
+        session.add(ClassTeacher(
+            class_id=class_id,
+            staff_member_id=body.staff_member_id,
+            academic_year_id=current_year.id,
+        ))
+
+    await session.commit()
+    return await _class_detail(class_id, school_id, session)
+
+
+@router.delete("/classes/{class_id}/teacher", status_code=204,
+               dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
+async def remove_class_teacher(class_id: UUID, user: CurrentUser, session: SessionDep):
+    school_id = _school_id(user)
+
+    current_year = await session.scalar(
+        select(AcademicYear).where(
+            AcademicYear.school_id == school_id, AcademicYear.is_current.is_(True)
+        )
+    )
+    if not current_year:
+        return  # nothing to remove
+
+    ct = await session.scalar(
+        select(ClassTeacher).where(
+            ClassTeacher.class_id == class_id,
+            ClassTeacher.academic_year_id == current_year.id,
+        )
+    )
+    if ct:
+        await session.delete(ct)
+        await session.commit()
+
+
 # ── Staff Positions ───────────────────────────────────────────────────────────
 
 def _position_to_response(pos: StaffPosition) -> PositionResponse:
@@ -557,3 +709,64 @@ async def delete_position(pos_id: UUID, user: CurrentUser, session: SessionDep):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Cannot delete system positions")
     await session.delete(pos)
     await session.commit()
+
+
+# ── User Accounts (System Control) ───────────────────────────────────────────
+
+def _user_to_response(u: User) -> UserAccountResponse:
+    staff_name: str | None = None
+    if u.staff_member:
+        staff_name = u.staff_member.full_name
+    roles = [ur.role.name for ur in (u.user_roles or []) if ur.role]
+    return UserAccountResponse(
+        id=u.id,
+        email=u.email,
+        is_active=u.is_active,
+        is_verified=u.is_verified,
+        must_change_password=u.must_change_password,
+        last_login_at=u.last_login_at,
+        staff_name=staff_name,
+        roles=roles,
+    )
+
+
+@router.get("/users", response_model=list[UserAccountResponse],
+            dependencies=[require(Permission.MANAGE_USERS)])
+async def list_school_users(user: CurrentUser, session: SessionDep):
+    school_id = _school_id(user)
+    rows = await session.scalars(
+        select(User)
+        .where(User.school_id == school_id)
+        .options(
+            selectinload(User.staff_member),
+            selectinload(User.user_roles).selectinload(UserRole.role),
+        )
+        .order_by(User.created_at.desc())
+    )
+    return [_user_to_response(u) for u in rows]
+
+
+@router.patch("/users/{target_user_id}", response_model=UserAccountResponse,
+              dependencies=[require(Permission.MANAGE_USERS)])
+async def update_school_user(
+    target_user_id: UUID, body: UserAccountUpdate, user: CurrentUser, session: SessionDep
+):
+    target = await session.scalar(
+        select(User)
+        .where(User.id == target_user_id, User.school_id == _school_id(user))
+        .options(
+            selectinload(User.staff_member),
+            selectinload(User.user_roles).selectinload(UserRole.role),
+        )
+    )
+    if not target:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
+    if target.id == user.id:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Cannot modify your own account here")
+    if body.is_active is not None:
+        target.is_active = body.is_active
+    if body.must_change_password is not None:
+        target.must_change_password = body.must_change_password
+    await session.commit()
+    await session.refresh(target, ["staff_member", "user_roles"])
+    return _user_to_response(target)
