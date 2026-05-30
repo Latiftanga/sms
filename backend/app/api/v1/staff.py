@@ -928,7 +928,7 @@ def _border_hex(hex_color: str, strength: float = 0.25) -> str:
     return _tint_hex(hex_color, strength)
 
 
-@router.get("/bulk/template")
+@router.get("/bulk/template", dependencies=[require(Permission.MANAGE_STAFF)])
 async def download_template(user: CurrentUser, session: SessionDep):
     """Return a formatted Excel template with dropdown validations."""
     import openpyxl

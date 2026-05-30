@@ -104,7 +104,8 @@ async def upload_school_logo(
 
 # ── Academic Years ────────────────────────────────────────────────────────────
 
-@router.get("/academic-years", response_model=PagedResponse[AcademicYearResponse])
+@router.get("/academic-years", response_model=PagedResponse[AcademicYearResponse],
+            dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def list_academic_years(
     user: CurrentUser,
     session: SessionDep,
@@ -277,7 +278,8 @@ async def delete_term(term_id: UUID, user: CurrentUser, session: SessionDep):
 
 # ── Learning Areas (SHS only) ─────────────────────────────────────────────────
 
-@router.get("/learning-areas", response_model=PagedResponse[LearningAreaResponse])
+@router.get("/learning-areas", response_model=PagedResponse[LearningAreaResponse],
+            dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def list_learning_areas(
     user: CurrentUser,
     session: SessionDep,
@@ -350,7 +352,8 @@ async def delete_learning_area(la_id: UUID, user: CurrentUser, session: SessionD
 
 # ── Classes ───────────────────────────────────────────────────────────────────
 
-@router.get("/classes", response_model=PagedResponse[ClassResponse])
+@router.get("/classes", response_model=PagedResponse[ClassResponse],
+            dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def list_classes(
     user: CurrentUser,
     session: SessionDep,
@@ -531,7 +534,8 @@ async def _class_detail(
     )
 
 
-@router.get("/classes/{class_id}/detail", response_model=ClassDetailResponse)
+@router.get("/classes/{class_id}/detail", response_model=ClassDetailResponse,
+            dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def get_class_detail(class_id: UUID, user: CurrentUser, session: SessionDep):
     return await _class_detail(class_id, _school_id(user), session)
 
@@ -624,7 +628,8 @@ async def _get_class_owned(class_id: UUID, school_id: UUID, session: SessionDep)
     return cls
 
 
-@router.get("/classes/{class_id}/subjects", response_model=list[ClassSubjectResponse])
+@router.get("/classes/{class_id}/subjects", response_model=list[ClassSubjectResponse],
+            dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def list_class_subjects(class_id: UUID, user: CurrentUser, session: SessionDep):
     await _get_class_owned(class_id, _school_id(user), session)
     rows = list(await session.scalars(
@@ -748,7 +753,8 @@ def _position_to_response(pos: StaffPosition) -> PositionResponse:
     )
 
 
-@router.get("/positions", response_model=list[PositionResponse])
+@router.get("/positions", response_model=list[PositionResponse],
+            dependencies=[require(Permission.MANAGE_USERS)])
 async def list_positions(user: CurrentUser, session: SessionDep):
     school_id = _school_id(user)
     rows = list(await session.scalars(
