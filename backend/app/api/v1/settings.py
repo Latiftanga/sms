@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, SessionDep, require
 from app.core.permissions import Permission
-from app.models.academic import AcademicTerm, AcademicYear, Class, ClassSubject, ClassTeacher, LearningArea
+from app.models.academic import AcademicTerm, AcademicYear, Class, ClassSubject, ClassTeacher, LearningArea, SubjectTeacher
 from app.models.student import StudentClassEnrollment
 from app.models.school import School
 from app.models.staff import PositionPermission, StaffMember, StaffPosition
@@ -19,6 +19,7 @@ from app.schemas.settings import (
     ClassCreate, ClassDetailResponse, ClassResponse, ClassTeacherAssign,
     ClassTeacherInfo, ClassUpdate,
     ClassSubjectCreate, ClassSubjectUpdate, ClassSubjectResponse,
+    SubjectTeacherInfo, SubjectTeacherAssign,
     LearningAreaCreate, LearningAreaResponse, LearningAreaUpdate,
     SchoolProfileUpdate, EDUCATION_LEVEL_MAP,
     UserAccountResponse, UserAccountUpdate,
@@ -512,6 +513,36 @@ async def _class_detail(
         .order_by(ClassSubject.subject_name)
     ))
 
+    # Load subject teachers for the current year (one query for all subjects)
+    subject_teachers_by_subject: dict[UUID, list[SubjectTeacherInfo]] = {s.id: [] for s in subjects}
+    if current_year and subjects:
+        subject_ids = [s.id for s in subjects]
+        st_rows = await session.execute(
+            select(SubjectTeacher, StaffMember)
+            .join(StaffMember, StaffMember.id == SubjectTeacher.staff_member_id)
+            .where(
+                SubjectTeacher.class_subject_id.in_(subject_ids),
+                SubjectTeacher.academic_year_id == current_year.id,
+                SubjectTeacher.is_active.is_(True),
+            )
+        )
+        for st, staff in st_rows:
+            subject_teachers_by_subject[st.class_subject_id].append(
+                SubjectTeacherInfo(
+                    id=st.id,
+                    staff_member_id=staff.id,
+                    staff_name=staff.full_name,
+                )
+            )
+
+    def _subject_response(s: ClassSubject) -> ClassSubjectResponse:
+        return ClassSubjectResponse(
+            id=s.id, created_at=s.created_at, updated_at=s.updated_at,
+            subject_name=s.subject_name, subject_code=s.subject_code,
+            is_core=s.is_core, is_active=s.is_active,
+            teachers=subject_teachers_by_subject.get(s.id, []),
+        )
+
     return ClassDetailResponse(
         id=cls.id,
         created_at=cls.created_at,
@@ -530,7 +561,7 @@ async def _class_detail(
         student_count=student_count,
         current_year_id=current_year.id if current_year else None,
         current_year_name=current_year.name if current_year else None,
-        subjects=[ClassSubjectResponse.model_validate(s) for s in subjects],
+        subjects=[_subject_response(s) for s in subjects],
     )
 
 
@@ -738,6 +769,100 @@ async def delete_class_subject(
             status.HTTP_409_CONFLICT,
             "Subject has student registrations and cannot be deleted. Deactivate it instead.",
         )
+
+
+# ── Subject Teachers ─────────────────────────────────────────────────────────
+
+@router.post(
+    "/classes/{class_id}/subjects/{subject_id}/teachers",
+    response_model=SubjectTeacherInfo,
+    status_code=201,
+    dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)],
+)
+async def assign_subject_teacher(
+    class_id: UUID,
+    subject_id: UUID,
+    body: SubjectTeacherAssign,
+    user: CurrentUser,
+    session: SessionDep,
+):
+    school_id = _school_id(user)
+    await _get_class_owned(class_id, school_id, session)
+
+    subj = await session.scalar(
+        select(ClassSubject).where(
+            ClassSubject.id == subject_id, ClassSubject.class_id == class_id
+        )
+    )
+    if not subj:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Subject not found")
+
+    current_year = await session.scalar(
+        select(AcademicYear).where(
+            AcademicYear.school_id == school_id, AcademicYear.is_current.is_(True)
+        )
+    )
+    if not current_year:
+        raise HTTPException(status.HTTP_409_CONFLICT, "No active academic year")
+
+    staff = await session.scalar(
+        select(StaffMember).where(
+            StaffMember.id == body.staff_member_id, StaffMember.school_id == school_id
+        )
+    )
+    if not staff:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Staff member not found")
+
+    existing = await session.scalar(
+        select(SubjectTeacher).where(
+            SubjectTeacher.class_subject_id == subject_id,
+            SubjectTeacher.staff_member_id == body.staff_member_id,
+            SubjectTeacher.academic_year_id == current_year.id,
+        )
+    )
+    if existing:
+        # Reactivate if previously deactivated
+        existing.is_active = True
+        await session.commit()
+        return SubjectTeacherInfo(
+            id=existing.id,
+            staff_member_id=staff.id,
+            staff_name=staff.full_name,
+        )
+
+    st = SubjectTeacher(
+        class_subject_id=subject_id,
+        staff_member_id=body.staff_member_id,
+        academic_year_id=current_year.id,
+    )
+    session.add(st)
+    await session.commit()
+    await session.refresh(st)
+    return SubjectTeacherInfo(id=st.id, staff_member_id=staff.id, staff_name=staff.full_name)
+
+
+@router.delete(
+    "/classes/{class_id}/subjects/{subject_id}/teachers/{st_id}",
+    status_code=204,
+    dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)],
+)
+async def remove_subject_teacher(
+    class_id: UUID, subject_id: UUID, st_id: UUID,
+    user: CurrentUser, session: SessionDep,
+):
+    await _get_class_owned(class_id, _school_id(user), session)
+
+    st = await session.scalar(
+        select(SubjectTeacher).where(
+            SubjectTeacher.id == st_id,
+            SubjectTeacher.class_subject_id == subject_id,
+        )
+    )
+    if not st:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Assignment not found")
+
+    await session.delete(st)
+    await session.commit()
 
 
 # ── Staff Positions ───────────────────────────────────────────────────────────

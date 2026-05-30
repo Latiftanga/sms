@@ -182,11 +182,22 @@ class ClassSubjectUpdate(OrmBase):
         return v
 
 
+class SubjectTeacherInfo(OrmBase):
+    id: UUID
+    staff_member_id: UUID
+    staff_name: str
+
+
 class ClassSubjectResponse(IDSchema, TimestampSchema):
     subject_name: str
     subject_code: str
     is_core: bool
     is_active: bool
+    teachers: list[SubjectTeacherInfo] = []
+
+
+class SubjectTeacherAssign(OrmBase):
+    staff_member_id: UUID
 
 
 class ClassDetailResponse(ClassResponse):

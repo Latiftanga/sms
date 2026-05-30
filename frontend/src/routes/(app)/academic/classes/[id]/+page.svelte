@@ -16,9 +16,11 @@
 
   // ── Types ─────────────────────────────────────────────────────────
   interface ClassTeacher { staff_member_id: string; staff_name: string; }
+  interface SubjectTeacherInfo { id: string; staff_member_id: string; staff_name: string; }
   interface ClassSubject {
     id: string; subject_name: string; subject_code: string;
     is_core: boolean; is_active: boolean;
+    teachers: SubjectTeacherInfo[];
   }
   interface ClassDetail {
     id: string; name: string; level: string; year: number | null;
@@ -251,6 +253,61 @@
       toast.success("Subject removed");
     } catch (e) { toast.error(apiError(e)); }
     finally { deletingSubject = null; }
+  }
+
+  // ── Subject teacher assignment ────────────────────────────────────
+  let assigningSubjectTeacher: string | null = null; // subject ID
+  let selectedSubjectStaffId = "";
+  let savingSubjectTeacher = false;
+  let removingSubjectTeacher: string | null = null; // SubjectTeacher record ID
+
+  function openAssignSubjectTeacher(s: ClassSubject) {
+    assigningSubjectTeacher = s.id;
+    selectedSubjectStaffId = s.teachers[0]?.staff_member_id ?? "";
+    if (staffList.length === 0) loadStaff();
+  }
+
+  async function saveSubjectTeacher(subjectId: string) {
+    if (!selectedSubjectStaffId) return;
+    savingSubjectTeacher = true;
+    try {
+      const { data } = await api.post<SubjectTeacherInfo>(
+        `/settings/classes/${$page.params.id}/subjects/${subjectId}/teachers`,
+        { staff_member_id: selectedSubjectStaffId },
+      );
+      cls = {
+        ...cls!,
+        subjects: cls!.subjects.map(s =>
+          s.id === subjectId
+            ? { ...s, teachers: s.teachers.some(t => t.id === data.id) ? s.teachers : [...s.teachers, data] }
+            : s
+        ),
+      };
+      assigningSubjectTeacher = null;
+      toast.success("Subject teacher assigned");
+    } catch (e) { toast.error(apiError(e)); }
+    finally { savingSubjectTeacher = false; }
+  }
+
+  async function removeSubjectTeacher(subjectId: string, stId: string, staffName: string) {
+    const ok = await confirmDialog.show({
+      title: "Remove subject teacher?",
+      message: `${staffName} will no longer teach this subject this academic year.`,
+      variant: "danger", confirmLabel: "Remove",
+    });
+    if (!ok) return;
+    removingSubjectTeacher = stId;
+    try {
+      await api.delete(`/settings/classes/${$page.params.id}/subjects/${subjectId}/teachers/${stId}`);
+      cls = {
+        ...cls!,
+        subjects: cls!.subjects.map(s =>
+          s.id === subjectId ? { ...s, teachers: s.teachers.filter(t => t.id !== stId) } : s
+        ),
+      };
+      toast.success("Subject teacher removed");
+    } catch (e) { toast.error(apiError(e)); }
+    finally { removingSubjectTeacher = null; }
   }
 
   $: filteredStaff = staffSearch
@@ -616,6 +673,7 @@
             <span>Subject</span>
             <span>Code</span>
             <span>Type</span>
+            <span>Teacher</span>
             <span></span>
           </div>
           {#each cls.subjects as s (s.id)}
@@ -634,6 +692,7 @@
                     on:keydown={e => e.key === "Enter" && saveSubjectEdit(s)}
                   />
                 </div>
+                <span></span>
                 <span></span>
                 <span class="subj-actions">
                   <button class="tact-btn" on:click={() => saveSubjectEdit(s)} disabled={savingSubjectEdit} title="Save">
@@ -662,6 +721,41 @@
                     {/if}
                   </button>
                 </span>
+
+                <!-- Teacher cell -->
+                <span class="subj-teacher-cell">
+                  {#if assigningSubjectTeacher === s.id}
+                    <div class="subj-teacher-pick">
+                      <select class="subj-teacher-select" bind:value={selectedSubjectStaffId}>
+                        <option value="">— pick teacher —</option>
+                        {#each staffList as st}
+                          <option value={st.id}>{st.first_name} {st.last_name}</option>
+                        {/each}
+                      </select>
+                      <button class="tact-btn" on:click={() => saveSubjectTeacher(s.id)} disabled={savingSubjectTeacher || !selectedSubjectStaffId} title="Save">
+                        {#if savingSubjectTeacher}<Loader2 size={11} class="spin" />{:else}<Check size={11} />{/if}
+                      </button>
+                      <button class="tact-btn" on:click={() => assigningSubjectTeacher = null} title="Cancel"><X size={11} /></button>
+                    </div>
+                  {:else if s.teachers.length > 0}
+                    <div class="subj-teacher-list">
+                      {#each s.teachers as t}
+                        <span class="subj-teacher-name">
+                          {t.staff_name}
+                          <button class="subj-teacher-remove" on:click={() => removeSubjectTeacher(s.id, t.id, t.staff_name)} disabled={removingSubjectTeacher === t.id} title="Remove">
+                            {#if removingSubjectTeacher === t.id}<Loader2 size={9} class="spin" />{:else}<X size={9} />{/if}
+                          </button>
+                        </span>
+                      {/each}
+                      <button class="subj-assign-link" on:click={() => openAssignSubjectTeacher(s)}>+ Add</button>
+                    </div>
+                  {:else}
+                    <button class="subj-assign-link unassigned" on:click={() => openAssignSubjectTeacher(s)}>
+                      Assign
+                    </button>
+                  {/if}
+                </span>
+
                 <span class="subj-actions">
                   <button class="tact-btn" on:click={() => openEditSubject(s)} title="Edit name / code">
                     <Pencil size={12} />
@@ -1107,7 +1201,7 @@
 .subj-list { }
 .subj-list-head {
   display: grid;
-  grid-template-columns: 1fr 90px 100px 88px;
+  grid-template-columns: 1fr 80px 90px minmax(120px,1fr) 88px;
   padding: 8px 16px;
   background: var(--surface-2);
   border-bottom: 1px solid var(--border-subtle);
@@ -1116,7 +1210,7 @@
 }
 .subj-row {
   display: grid;
-  grid-template-columns: 1fr 90px 100px 88px;
+  grid-template-columns: 1fr 80px 90px minmax(120px,1fr) 88px;
   padding: 0 16px;
   align-items: center;
   min-height: 42px;
@@ -1152,6 +1246,34 @@
 }
 .type-pill:hover:not(:disabled) { opacity: 0.75; }
 .subj-actions { display: flex; align-items: center; justify-content: flex-end; gap: 1px; }
+
+/* Subject teacher cell */
+.subj-teacher-cell { display: flex; align-items: center; min-width: 0; }
+.subj-teacher-list { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.subj-teacher-name {
+  display: flex; align-items: center; gap: 3px;
+  font-size: 0.75rem; color: var(--tx-mid);
+  background: var(--bg-subtle); border-radius: 4px; padding: 2px 6px;
+  white-space: nowrap;
+}
+.subj-teacher-remove {
+  display: flex; align-items: center; border: none; background: none;
+  cursor: pointer; color: var(--tx-low); padding: 0; line-height: 1;
+}
+.subj-teacher-remove:hover:not(:disabled) { color: #dc2626; }
+.subj-assign-link {
+  font-size: 0.72rem; padding: 2px 8px;
+  border: 1px dashed var(--border-subtle); border-radius: 4px;
+  background: none; cursor: pointer; color: var(--tx-low); white-space: nowrap;
+}
+.subj-assign-link:hover { border-color: var(--accent); color: var(--accent); }
+.subj-assign-link.unassigned { color: var(--tx-low); }
+.subj-teacher-pick { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.subj-teacher-select {
+  flex: 1; min-width: 0; font-size: 0.78rem; padding: 3px 6px;
+  border: 1px solid var(--border-subtle); border-radius: 4px;
+  background: var(--bg-card); color: var(--tx-high);
+}
 
 /* Inline subject edit */
 .subj-edit-fields {
