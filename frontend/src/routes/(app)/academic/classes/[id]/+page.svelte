@@ -374,10 +374,10 @@
 
   {:else if cls}
 
-    <!-- ── Hero header ──────────────────────────────────────────────── -->
-    <div class="hero" class:hero-inactive={!cls.is_active}>
-      <div class="hero-body">
-        <div class="hero-tags">
+    <!-- ── Page header ──────────────────────────────────────────────── -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <div class="page-header-tags">
           <span class="edu-tag edu-{cls.education_level.toLowerCase()}">{EDU_LABELS[cls.education_level] ?? cls.education_level}</span>
           {#if cls.current_year_name}
             <span class="year-tag"><CalendarDays size={11} />{cls.current_year_name}</span>
@@ -388,38 +388,89 @@
             <span class="inactive-tag">Inactive</span>
           {/if}
         </div>
-        <h1 class="hero-title">{cls.name}</h1>
+        <h1 class="page-title">{cls.name}</h1>
         {#if cls.learning_area}
-          <p class="hero-sub"><BookOpen size={12} />{cls.learning_area.name}{cls.learning_area.short_name ? ` · ${cls.learning_area.short_name}` : ""}</p>
+          <p class="page-sub"><BookOpen size={12} />{cls.learning_area.name}{cls.learning_area.short_name ? ` · ${cls.learning_area.short_name}` : ""}</p>
         {/if}
-      </div>
-
-      <!-- Quick stats -->
-      <div class="hero-stats">
-        <div class="hstat">
-          <span class="hstat-val">{cls.student_count}</span>
-          <span class="hstat-label">Students</span>
-        </div>
-        <div class="hstat-div"></div>
-        <div class="hstat">
-          <span class="hstat-val">{cls.class_teacher ? "Assigned" : "—"}</span>
-          <span class="hstat-label">Class Teacher</span>
-        </div>
-        <div class="hstat-div"></div>
-        <div class="hstat">
-          <span class="hstat-val">{cls.stream ?? "None"}</span>
-          <span class="hstat-label">Stream</span>
-        </div>
       </div>
     </div>
 
-    <!-- ── Layout ───────────────────────────────────────────────────── -->
-    <div class="layout">
+    <!-- ── Card stack ────────────────────────────────────────────────── -->
+    <div class="stack">
 
-      <!-- ══ Main column ════════════════════════════════════════════ -->
-      <div class="main-col">
+      <!-- ① Class Details -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon"><GraduationCap size={15} /></div>
+          <div class="card-head-text"><span class="card-title">Class Details</span></div>
+        </div>
+        <div class="card-body no-pad">
 
-        <!-- Class Teacher -->
+          <div class="info-row">
+            <span class="info-label">Level</span>
+            <span class="info-val">{cls.level}{cls.year ? ` ${cls.year}` : ""}</span>
+          </div>
+
+          {#if cls.learning_area}
+            <div class="info-row">
+              <span class="info-label">Programme</span>
+              <span class="info-val">{cls.learning_area.name}</span>
+            </div>
+          {/if}
+
+          <div class="info-row">
+            <span class="info-label">Stream</span>
+            {#if editingStream}
+              <div class="stream-edit">
+                <input class="stream-inp" bind:value={streamValue} placeholder="A, Gold, Blue…"
+                  on:keydown={e => e.key === "Enter" && saveStream()} />
+                <button class="iact ok" on:click={saveStream} disabled={savingStream} title="Save">
+                  {#if savingStream}<Loader2 size={12} class="spin" />{:else}<Check size={12} />{/if}
+                </button>
+                <button class="iact" on:click={() => { editingStream = false; streamValue = cls?.stream ?? ""; }} title="Cancel">
+                  <X size={12} />
+                </button>
+              </div>
+            {:else}
+              <div class="info-val-row">
+                {#if cls.stream}
+                  <span class="info-val">{cls.stream}</span>
+                {:else}
+                  <span class="info-val info-muted">None</span>
+                {/if}
+                <button class="iact" on:click={() => { editingStream = true; streamValue = cls?.stream ?? ""; }} title="Edit stream">
+                  <Pencil size={12} />
+                </button>
+              </div>
+            {/if}
+          </div>
+
+          <div class="info-row info-row-last">
+            <span class="info-label">Status</span>
+            <div class="status-toggle">
+              {#if cls.is_active}
+                <span class="sdot active"></span><span class="sval">Active</span>
+              {:else}
+                <span class="sdot inactive"></span><span class="sval muted">Inactive</span>
+              {/if}
+              <button class="toggle-status" class:is-active={cls.is_active}
+                on:click={toggleActive} disabled={togglingActive}
+                title={cls.is_active ? "Deactivate class" : "Activate class"}>
+                {#if togglingActive}
+                  <Loader2 size={13} class="spin" />
+                {:else if cls.is_active}
+                  <ToggleRight size={18} />
+                {:else}
+                  <ToggleLeft size={18} />
+                {/if}
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ② Class Teacher -->
         <div class="card">
           <!-- Single-row display: icon · label · teacher (or unassigned) · action -->
           <div class="teacher-row">
@@ -508,120 +559,8 @@
           {/if}
         </div>
 
-        <!-- Students -->
-        <div class="card">
-          <div class="card-head">
-            <div class="card-icon"><Users size={15} /></div>
-            <div class="card-head-text">
-              <span class="card-title">Students</span>
-              <span class="card-sub">Enrolled in {cls.current_year_name ?? "the current academic year"}</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="enroll-row">
-              <div class="enroll-count">
-                <span class="enroll-num">{cls.student_count}</span>
-                <span class="enroll-word">student{cls.student_count !== 1 ? "s" : ""} enrolled</span>
-              </div>
-              <p class="enroll-hint">
-                Enroll and manage students from the <strong>Students</strong> module.
-              </p>
-            </div>
-          </div>
-        </div>
-
-      </div><!-- /main-col -->
-
-      <!-- ══ Sidebar ════════════════════════════════════════════════ -->
-      <div class="side-col">
-
-        <div class="card">
-          <div class="card-head">
-            <div class="card-icon"><GraduationCap size={15} /></div>
-            <div class="card-head-text">
-              <span class="card-title">Class Details</span>
-            </div>
-          </div>
-          <div class="card-body no-pad">
-
-            <div class="info-row">
-              <span class="info-label">Level</span>
-              <span class="info-val">{cls.level}{cls.year ? ` ${cls.year}` : ""}</span>
-            </div>
-
-            {#if cls.learning_area}
-              <div class="info-row">
-                <span class="info-label">Programme</span>
-                <span class="info-val">{cls.learning_area.name}</span>
-              </div>
-            {/if}
-
-            <div class="info-row">
-              <span class="info-label">Stream</span>
-              {#if editingStream}
-                <div class="stream-edit">
-                  <input
-                    class="stream-inp"
-                    bind:value={streamValue}
-                    placeholder="A, Gold, Blue…"
-                    on:keydown={e => e.key === "Enter" && saveStream()}
-                  />
-                  <button class="iact ok" on:click={saveStream} disabled={savingStream} title="Save">
-                    {#if savingStream}<Loader2 size={12} class="spin" />{:else}<Check size={12} />{/if}
-                  </button>
-                  <button class="iact" on:click={() => { editingStream = false; streamValue = cls?.stream ?? ""; }} title="Cancel">
-                    <X size={12} />
-                  </button>
-                </div>
-              {:else}
-                <div class="info-val-row">
-                  {#if cls.stream}
-                    <span class="info-val">{cls.stream}</span>
-                  {:else}
-                    <span class="info-val info-muted">None</span>
-                  {/if}
-                  <button class="iact" on:click={() => { editingStream = true; streamValue = cls?.stream ?? ""; }} title="Edit stream">
-                    <Pencil size={12} />
-                  </button>
-                </div>
-              {/if}
-            </div>
-
-            <div class="info-row info-row-last">
-              <span class="info-label">Status</span>
-              <div class="status-toggle">
-                {#if cls.is_active}
-                  <span class="sdot active"></span><span class="sval">Active</span>
-                {:else}
-                  <span class="sdot inactive"></span><span class="sval muted">Inactive</span>
-                {/if}
-                <button
-                  class="toggle-status"
-                  class:is-active={cls.is_active}
-                  on:click={toggleActive}
-                  disabled={togglingActive}
-                  title={cls.is_active ? "Deactivate class" : "Activate class"}
-                >
-                  {#if togglingActive}
-                    <Loader2 size={13} class="spin" />
-                  {:else if cls.is_active}
-                    <ToggleRight size={18} />
-                  {:else}
-                    <ToggleLeft size={18} />
-                  {/if}
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-      </div><!-- /side-col -->
-
-    </div><!-- /layout -->
-
-    <!-- ── Subjects ────────────────────────────────────────────────── -->
-    <div class="card subj-card">
+      <!-- ③ Subjects -->
+      <div class="card">
       <div class="card-head">
         <div class="card-icon"><BookMarked size={15} /></div>
         <div class="card-head-text">
@@ -818,7 +757,31 @@
           {/each}
         </div>
       {/if}
-    </div>
+    </div><!-- /subjects card -->
+
+      <!-- ④ Students -->
+      <div class="card">
+        <div class="card-head">
+          <div class="card-icon"><Users size={15} /></div>
+          <div class="card-head-text">
+            <span class="card-title">Students</span>
+            <span class="card-sub">Enrolled in {cls.current_year_name ?? "the current academic year"}</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="enroll-row">
+            <div class="enroll-count">
+              <span class="enroll-num">{cls.student_count}</span>
+              <span class="enroll-word">student{cls.student_count !== 1 ? "s" : ""} enrolled</span>
+            </div>
+            <p class="enroll-hint">
+              Enroll and manage students from the <strong>Students</strong> module.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /stack -->
 
   {/if}
 </div>
@@ -851,20 +814,29 @@
 }
 .err-state p { margin: 0; font-size: 13.5px; }
 
-/* ── Hero ────────────────────────────────────────────────────────── */
-.hero {
-  background: var(--surface-1);
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  padding: 22px 24px;
-  margin-bottom: 20px;
+/* ── Page header ─────────────────────────────────────────────────── */
+.page-header {
   display: flex; align-items: flex-start; justify-content: space-between;
-  gap: 20px; flex-wrap: wrap;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
 }
-.hero-inactive { opacity: 0.75; }
+.page-header-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.page-header-tags {
+  display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 4px;
+}
+.page-title {
+  font-size: 1.75rem; font-weight: 800;
+  color: var(--tx-high); margin: 0;
+  line-height: 1.15; letter-spacing: -0.02em;
+}
+.page-sub {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; color: var(--tx-low); margin: 0;
+}
 
-.hero-body { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+/* ── Card stack ──────────────────────────────────────────────────── */
+.stack { display: flex; flex-direction: column; gap: 16px; }
 
+/* ── Tag styles (reused from old hero) ───────────────────────────── */
 .hero-tags {
   display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
   margin-bottom: 4px;
@@ -897,45 +869,7 @@
   border: 1px solid var(--border-subtle);
 }
 
-.hero-title {
-  font-size: 2rem; font-weight: 800;
-  color: var(--tx-high); margin: 0;
-  line-height: 1.1; letter-spacing: -0.025em;
-}
 
-.hero-sub {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 13px; color: var(--tx-low); margin: 0; margin-top: 2px;
-}
-
-/* Hero stats */
-.hero-stats {
-  display: flex; align-items: center; gap: 0;
-  background: var(--surface-0);
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px; overflow: hidden;
-  flex-shrink: 0; align-self: center;
-}
-.hstat {
-  display: flex; flex-direction: column; align-items: center;
-  padding: 12px 20px; gap: 2px; min-width: 80px;
-}
-.hstat-val { font-size: 15px; font-weight: 700; color: var(--tx-high); white-space: nowrap; }
-.hstat-label { font-size: 10.5px; color: var(--tx-low); text-transform: uppercase; letter-spacing: 0.05em; }
-.hstat-div { width: 1px; background: var(--border-subtle); align-self: stretch; }
-
-/* ── Layout ──────────────────────────────────────────────────────── */
-.layout {
-  display: grid;
-  grid-template-columns: 1fr 260px;
-  gap: 16px;
-  align-items: start;
-}
-@media (max-width: 700px) {
-  .layout { grid-template-columns: 1fr; }
-  .hero-stats { align-self: flex-start; }
-  .hstat { padding: 10px 14px; min-width: 60px; }
-}
 
 /* ── Cards ───────────────────────────────────────────────────────── */
 .card {
