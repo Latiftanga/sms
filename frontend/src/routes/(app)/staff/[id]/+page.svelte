@@ -463,6 +463,16 @@
   ];
 
   let savingPerms: Set<string> = new Set();
+  let addingOverride = false;
+  let newOverridePerm = "";
+  let newOverrideGranted = true;
+
+  async function saveNewOverride() {
+    if (!newOverridePerm) return;
+    await setOverride(newOverridePerm, newOverrideGranted);
+    addingOverride = false;
+    newOverridePerm = "";
+  }
 
   async function setOverride(key: string, granted: boolean) {
     savingPerms = new Set([...savingPerms, key]);
@@ -1127,52 +1137,84 @@
               {/if}
             </div>
 
-            <!-- Permission overrides -->
+            <!-- Effective permissions — granted only, compact chips -->
             <div class="perms-section">
-              <div class="perms-section-header">
-                <p class="perms-label">Permissions</p>
-                {#if staffPerms.overrides.length > 0}
-                  <span class="overrides-badge">{staffPerms.overrides.length} override{staffPerms.overrides.length > 1 ? "s" : ""}</span>
-                {/if}
-              </div>
-              <p class="perms-hint">Effective permissions come from assigned roles. Grant or deny individual keys to override the role.</p>
-
-              {#each PERM_GROUPS as group}
-                <div class="perm-group">
-                  <p class="perm-group-label">{group.label}</p>
-                  {#each group.keys as key}
-                    {@const effective = staffPerms.permissions[key] ?? false}
-                    {@const override = staffPerms.overrides.find(o => o.permission_key === key)}
-                    {@const saving = savingPerms.has(key)}
-                    <div class="perm-row2">
-                      <span class="perm-dot2" class:active={effective}></span>
-                      <span class="perm-key2">{key.replace(/_/g, " ")}</span>
-                      {#if override}
-                        <span class="perm-override-badge" class:grant={override.granted} class:deny={!override.granted}>
-                          {override.granted ? "Granted" : "Denied"}
-                        </span>
-                        {#if canManageUsers}
-                          <button class="perm-clear-btn" disabled={saving} on:click={() => clearOverride(key)}>
-                            {saving ? "…" : "Clear"}
-                          </button>
-                        {/if}
-                      {:else if canManageUsers}
-                        <div class="perm-actions">
-                          <button class="perm-act-btn grant" disabled={saving} on:click={() => setOverride(key, true)}>
-                            + Grant
-                          </button>
-                          <button class="perm-act-btn deny" disabled={saving} on:click={() => setOverride(key, false)}>
-                            − Deny
-                          </button>
-                        </div>
-                      {:else}
-                        <span class="perm-inherited">{effective ? "Granted" : "Denied"} by role</span>
-                      {/if}
-                    </div>
+              <p class="perms-label">Effective Permissions</p>
+              {@const grantedKeys = Object.entries(staffPerms.permissions).filter(([,v]) => v).map(([k]) => k)}
+              {#if grantedKeys.length === 0}
+                <p class="perms-empty">No permissions — assign a role above.</p>
+              {:else}
+                <div class="perm-chips-wrap">
+                  {#each grantedKeys as key}
+                    {@const hasOverride = staffPerms.overrides.some(o => o.permission_key === key && o.granted)}
+                    <span class="eff-chip" class:overridden={hasOverride} title={hasOverride ? "Personal override" : "From role"}>
+                      {key.replace(/_/g, " ")}
+                    </span>
                   {/each}
                 </div>
-              {/each}
+              {/if}
             </div>
+
+            <!-- Personal overrides — only shown when relevant -->
+            {@const overrideKeys = new Set(staffPerms.overrides.map(o => o.permission_key))}
+            {#if staffPerms.overrides.length > 0 || addingOverride}
+              <div class="perms-section">
+                <div class="perms-section-header">
+                  <p class="perms-label">Personal Overrides</p>
+                  {#if staffPerms.overrides.length > 0}
+                    <span class="overrides-badge">{staffPerms.overrides.length}</span>
+                  {/if}
+                </div>
+                <p class="perms-hint">These override the role's defaults for this person only.</p>
+
+                {#each staffPerms.overrides as ov}
+                  {@const saving = savingPerms.has(ov.permission_key)}
+                  <div class="perm-row2">
+                    <span class="perm-key2">{ov.permission_key.replace(/_/g, " ")}</span>
+                    <span class="perm-override-badge" class:grant={ov.granted} class:deny={!ov.granted}>
+                      {ov.granted ? "Granted" : "Denied"}
+                    </span>
+                    {#if canManageUsers}
+                      <button class="perm-clear-btn" disabled={saving} on:click={() => clearOverride(ov.permission_key)}>
+                        {saving ? "…" : "Clear"}
+                      </button>
+                    {/if}
+                  </div>
+                {/each}
+
+                {#if addingOverride}
+                  <div class="add-override-form">
+                    <select class="input input-sm" bind:value={newOverridePerm}>
+                      <option value="">— Pick a permission —</option>
+                      {#each PERM_GROUPS as group}
+                        <optgroup label={group.label}>
+                          {#each group.keys.filter(k => !overrideKeys.has(k)) as key}
+                            <option value={key}>{key.replace(/_/g, " ")}</option>
+                          {/each}
+                        </optgroup>
+                      {/each}
+                    </select>
+                    <div class="add-override-actions">
+                      <button class="perm-act-btn grant" class:selected={newOverrideGranted}
+                        on:click={() => newOverrideGranted = true}>+ Grant</button>
+                      <button class="perm-act-btn deny" class:selected={!newOverrideGranted}
+                        on:click={() => newOverrideGranted = false}>− Deny</button>
+                      <Button size="sm" disabled={!newOverridePerm} loading={savingPerms.has(newOverridePerm)}
+                        on:click={saveNewOverride}>Save</Button>
+                      <Button variant="ghost" size="sm" on:click={() => { addingOverride = false; newOverridePerm = ""; }}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                {/if}
+              </div>
+            {/if}
+
+            {#if canManageUsers && !addingOverride}
+              <button class="add-override-btn" on:click={() => { addingOverride = true; newOverridePerm = ""; newOverrideGranted = true; }}>
+                + Add permission override
+              </button>
+            {/if}
 
           {/if}
 
@@ -1669,37 +1711,36 @@
   .perms-hint {
     margin: 0; font-size: 0.78rem; color: var(--tx-low); line-height: 1.4;
   }
+  .perms-empty {
+    margin: 0; font-size: 0.8125rem; color: var(--tx-low); font-style: italic;
+  }
   .overrides-badge {
-    font-size: 0.7rem; font-weight: 600; padding: 1px 7px;
-    border-radius: 10px; background: #fef3c7; color: #92400e;
+    font-size: 0.7rem; font-weight: 700; padding: 1px 7px;
+    border-radius: 10px; background: #fef3c7; color: #92400e; min-width: 20px; text-align: center;
   }
-  .perm-group {
-    display: flex; flex-direction: column; gap: 1px;
-    border: 1px solid var(--border-subtle); border-radius: 6px;
-    overflow: hidden;
+  .perm-chips-wrap {
+    display: flex; flex-wrap: wrap; gap: 5px;
   }
-  .perm-group-label {
-    margin: 0; padding: 5px 10px;
-    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.06em; color: var(--tx-low);
-    background: var(--bg-subtle);
+  .eff-chip {
+    font-size: 0.72rem; padding: 3px 9px; border-radius: 10px;
+    background: #dcfce7; color: #166534; text-transform: capitalize;
+    border: 1px solid #bbf7d0;
+  }
+  .eff-chip.overridden {
+    background: #d1fae5; border-color: #6ee7b7; font-weight: 600;
+    box-shadow: 0 0 0 1px #10b981 inset;
   }
   .perm-row2 {
     display: flex; align-items: center; gap: 8px;
-    padding: 5px 10px; font-size: 0.8125rem;
+    padding: 5px 0; font-size: 0.8125rem;
     border-top: 1px solid var(--border-subtle);
   }
-  .perm-dot2 {
-    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
-    background: var(--border-subtle);
-  }
-  .perm-dot2.active { background: #10b981; }
+  .perm-row2:first-of-type { border-top: none; }
   .perm-key2 {
     flex: 1; color: var(--tx-mid); text-transform: capitalize;
   }
   .perm-override-badge {
-    font-size: 0.7rem; font-weight: 600; padding: 2px 8px;
-    border-radius: 10px;
+    font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 10px;
   }
   .perm-override-badge.grant { background: #dcfce7; color: #166534; }
   .perm-override-badge.deny  { background: #fee2e2; color: #991b1b; }
@@ -1710,21 +1751,31 @@
   }
   .perm-clear-btn:hover:not(:disabled) { background: var(--bg-subtle); }
   .perm-clear-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .perm-actions {
-    display: flex; gap: 4px;
+  .add-override-btn {
+    align-self: flex-start; font-size: 0.78rem; padding: 4px 10px;
+    border: 1px dashed var(--border-subtle); border-radius: 6px;
+    background: transparent; color: var(--tx-low); cursor: pointer;
+  }
+  .add-override-btn:hover { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  .add-override-form {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 10px; background: var(--bg-subtle); border-radius: 6px; margin-top: 4px;
+  }
+  .input-sm { padding: 5px 8px; font-size: 0.8125rem; }
+  .add-override-actions {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
   }
   .perm-act-btn {
-    font-size: 0.7rem; padding: 2px 8px;
+    font-size: 0.72rem; padding: 3px 10px;
     border: 1px solid var(--border-subtle); border-radius: 4px;
     background: transparent; cursor: pointer; color: var(--tx-low);
   }
+  .perm-act-btn.selected { font-weight: 600; }
+  .perm-act-btn.grant.selected { border-color: #10b981; color: #166534; background: #dcfce7; }
+  .perm-act-btn.deny.selected  { border-color: #f87171; color: #991b1b; background: #fee2e2; }
   .perm-act-btn:hover:not(:disabled) { background: var(--bg-subtle); }
-  .perm-act-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-  .perm-act-btn.grant:hover:not(:disabled) { border-color: #10b981; color: #166534; background: #dcfce7; }
-  .perm-act-btn.deny:hover:not(:disabled)  { border-color: #f87171; color: #991b1b; background: #fee2e2; }
-  .perm-inherited {
-    font-size: 0.72rem; color: var(--tx-low);
-  }
+  .perm-act-btn.grant:hover:not(:disabled) { border-color: #10b981; color: #166534; }
+  .perm-act-btn.deny:hover:not(:disabled)  { border-color: #f87171; color: #991b1b; }
 
   /* ── Reset password ──────────────────────────────────────────── */
   .reset-pw-section {
