@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { api } from "$api/client";
+  import { auth } from "$stores/auth";
   import { toast } from "$stores/toast";
   import { confirmDialog } from "$stores/confirm";
   import { schoolBranding } from "$stores/school";
@@ -23,8 +24,14 @@
     motto: string | null; accent_color: string; logo_url: string | null;
     education_levels: string[];
   }
+  // ── Permissions ───────────────────────────────────────────────────
+  $: isSuperAdmin   = $auth.user?.system_role === "SUPERADMIN";
+  $: canSchool      = isSuperAdmin || $auth.user?.permissions?.manage_school_config === true;
+  $: canUsers       = isSuperAdmin || $auth.user?.permissions?.manage_users === true;
+
   // ── Tab ───────────────────────────────────────────────────────────
   let tab: "school" | "positions" | "users" | "logs" = "school";
+  $: if (!canSchool && canUsers && tab === "school") tab = "positions";
 
   // ── Confirm delete ────────────────────────────────────────────────
   async function confirmDelete(title: string, message: string, fn: () => Promise<void>) {
@@ -377,18 +384,24 @@
 
   <!-- ── Tab bar ───────────────────────────────────────────────────── -->
   <div class="tabs-bar">
-    <button class="tab" class:active={tab === "school"} on:click={() => tab = "school"}>
-      <School2 size={14} /><span class="tab-label">School Profile</span>
-    </button>
-    <button class="tab" class:active={tab === "positions"} on:click={() => tab = "positions"}>
-      <Shield size={14} /><span class="tab-label">Roles</span>
-    </button>
-    <button class="tab" class:active={tab === "users"} on:click={() => tab = "users"}>
-      <Users size={14} /><span class="tab-label">Users</span>
-    </button>
-    <button class="tab" class:active={tab === "logs"} on:click={() => tab = "logs"}>
-      <ScrollText size={14} /><span class="tab-label">Logs</span>
-    </button>
+    {#if canSchool}
+      <button class="tab" class:active={tab === "school"} on:click={() => tab = "school"}>
+        <School2 size={14} /><span class="tab-label">School Profile</span>
+      </button>
+    {/if}
+    {#if canUsers}
+      <button class="tab" class:active={tab === "positions"} on:click={() => tab = "positions"}>
+        <Shield size={14} /><span class="tab-label">Roles</span>
+      </button>
+      <button class="tab" class:active={tab === "users"} on:click={() => tab = "users"}>
+        <Users size={14} /><span class="tab-label">Users</span>
+      </button>
+    {/if}
+    {#if canSchool || canUsers}
+      <button class="tab" class:active={tab === "logs"} on:click={() => tab = "logs"}>
+        <ScrollText size={14} /><span class="tab-label">Logs</span>
+      </button>
+    {/if}
   </div>
 
   <!-- ── Content ───────────────────────────────────────────────────── -->

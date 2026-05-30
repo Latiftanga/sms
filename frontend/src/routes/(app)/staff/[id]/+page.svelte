@@ -449,6 +449,41 @@
     } catch (e) { toast.error(apiError(e)); }
   }
 
+  // ── Permission overrides ─────────────────────────────────────────
+  const PERM_GROUPS: { label: string; keys: string[] }[] = [
+    { label: "Students",     keys: ["view_students", "enroll_students", "transfer_students"] },
+    { label: "Staff",        keys: ["view_staff", "manage_staff", "manage_promotions"] },
+    { label: "Academics",    keys: ["view_scores", "enter_scores", "approve_scores", "manage_timetable"] },
+    { label: "Attendance",   keys: ["mark_attendance", "view_attendance"] },
+    { label: "Reports",      keys: ["generate_reports", "revoke_documents"] },
+    { label: "Fees",         keys: ["view_fees", "record_payments", "manage_fee_structure", "waive_fees"] },
+    { label: "Communication",keys: ["send_sms", "send_announcements"] },
+    { label: "Houses",       keys: ["manage_houses", "manage_exeats", "night_roll_call"] },
+    { label: "Settings",     keys: ["manage_school_config", "manage_academic_structure", "manage_users", "view_analytics"] },
+  ];
+
+  let savingPerms: Set<string> = new Set();
+
+  async function setOverride(key: string, granted: boolean) {
+    savingPerms = new Set([...savingPerms, key]);
+    try {
+      await api.post(`/staff/${staffId}/permissions`, { permission_key: key, granted });
+      await loadPerms();
+      toast.success(granted ? `${key.replace(/_/g, " ")} granted` : `${key.replace(/_/g, " ")} denied`);
+    } catch (e) { toast.error(apiError(e)); }
+    finally { savingPerms = new Set([...savingPerms].filter(k => k !== key)); }
+  }
+
+  async function clearOverride(key: string) {
+    savingPerms = new Set([...savingPerms, key]);
+    try {
+      await api.delete(`/staff/${staffId}/permissions/${key}`);
+      await loadPerms();
+      toast.success(`Override removed — ${key.replace(/_/g, " ")} now follows role`);
+    } catch (e) { toast.error(apiError(e)); }
+    finally { savingPerms = new Set([...savingPerms].filter(k => k !== key)); }
+  }
+
   // ── Account role preview ──────────────────────────────────────────
   const DESIG_ROLE_LABEL: Record<string, string> = {
     HEADTEACHER: "Headteacher", ASSISTANT_HEAD: "Assistant Headteacher",
@@ -1092,20 +1127,52 @@
               {/if}
             </div>
 
-            <!-- Effective permissions -->
-            {#if Object.keys(staffPerms.permissions).length > 0}
-              <div class="perms-section">
-                <p class="perms-label">Effective Permissions</p>
-                <div class="perms-grid">
-                  {#each Object.entries(staffPerms.permissions) as [key, granted]}
-                    <div class="perm-row" class:granted class:denied={!granted}>
-                      <span class="perm-dot"></span>
-                      <span class="perm-key">{key.replace(/_/g, " ")}</span>
+            <!-- Permission overrides -->
+            <div class="perms-section">
+              <div class="perms-section-header">
+                <p class="perms-label">Permissions</p>
+                {#if staffPerms.overrides.length > 0}
+                  <span class="overrides-badge">{staffPerms.overrides.length} override{staffPerms.overrides.length > 1 ? "s" : ""}</span>
+                {/if}
+              </div>
+              <p class="perms-hint">Effective permissions come from assigned roles. Grant or deny individual keys to override the role.</p>
+
+              {#each PERM_GROUPS as group}
+                <div class="perm-group">
+                  <p class="perm-group-label">{group.label}</p>
+                  {#each group.keys as key}
+                    {@const effective = staffPerms.permissions[key] ?? false}
+                    {@const override = staffPerms.overrides.find(o => o.permission_key === key)}
+                    {@const saving = savingPerms.has(key)}
+                    <div class="perm-row2">
+                      <span class="perm-dot2" class:active={effective}></span>
+                      <span class="perm-key2">{key.replace(/_/g, " ")}</span>
+                      {#if override}
+                        <span class="perm-override-badge" class:grant={override.granted} class:deny={!override.granted}>
+                          {override.granted ? "Granted" : "Denied"}
+                        </span>
+                        {#if canManageUsers}
+                          <button class="perm-clear-btn" disabled={saving} on:click={() => clearOverride(key)}>
+                            {saving ? "…" : "Clear"}
+                          </button>
+                        {/if}
+                      {:else if canManageUsers}
+                        <div class="perm-actions">
+                          <button class="perm-act-btn grant" disabled={saving} on:click={() => setOverride(key, true)}>
+                            + Grant
+                          </button>
+                          <button class="perm-act-btn deny" disabled={saving} on:click={() => setOverride(key, false)}>
+                            − Deny
+                          </button>
+                        </div>
+                      {:else}
+                        <span class="perm-inherited">{effective ? "Granted" : "Denied"} by role</span>
+                      {/if}
                     </div>
                   {/each}
                 </div>
-              </div>
-            {/if}
+              {/each}
+            </div>
 
           {/if}
 
@@ -1594,6 +1661,70 @@
     color: var(--tx-mid); text-transform: capitalize;
   }
   .perm-row.denied .perm-key { color: var(--tx-low); }
+
+  /* ── Permission overrides ────────────────────────────────────── */
+  .perms-section-header {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .perms-hint {
+    margin: 0; font-size: 0.78rem; color: var(--tx-low); line-height: 1.4;
+  }
+  .overrides-badge {
+    font-size: 0.7rem; font-weight: 600; padding: 1px 7px;
+    border-radius: 10px; background: #fef3c7; color: #92400e;
+  }
+  .perm-group {
+    display: flex; flex-direction: column; gap: 1px;
+    border: 1px solid var(--border-subtle); border-radius: 6px;
+    overflow: hidden;
+  }
+  .perm-group-label {
+    margin: 0; padding: 5px 10px;
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--tx-low);
+    background: var(--bg-subtle);
+  }
+  .perm-row2 {
+    display: flex; align-items: center; gap: 8px;
+    padding: 5px 10px; font-size: 0.8125rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .perm-dot2 {
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    background: var(--border-subtle);
+  }
+  .perm-dot2.active { background: #10b981; }
+  .perm-key2 {
+    flex: 1; color: var(--tx-mid); text-transform: capitalize;
+  }
+  .perm-override-badge {
+    font-size: 0.7rem; font-weight: 600; padding: 2px 8px;
+    border-radius: 10px;
+  }
+  .perm-override-badge.grant { background: #dcfce7; color: #166534; }
+  .perm-override-badge.deny  { background: #fee2e2; color: #991b1b; }
+  .perm-clear-btn {
+    font-size: 0.72rem; padding: 2px 8px;
+    border: 1px solid var(--border-subtle); border-radius: 4px;
+    background: transparent; color: var(--tx-low); cursor: pointer;
+  }
+  .perm-clear-btn:hover:not(:disabled) { background: var(--bg-subtle); }
+  .perm-clear-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .perm-actions {
+    display: flex; gap: 4px;
+  }
+  .perm-act-btn {
+    font-size: 0.7rem; padding: 2px 8px;
+    border: 1px solid var(--border-subtle); border-radius: 4px;
+    background: transparent; cursor: pointer; color: var(--tx-low);
+  }
+  .perm-act-btn:hover:not(:disabled) { background: var(--bg-subtle); }
+  .perm-act-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .perm-act-btn.grant:hover:not(:disabled) { border-color: #10b981; color: #166534; background: #dcfce7; }
+  .perm-act-btn.deny:hover:not(:disabled)  { border-color: #f87171; color: #991b1b; background: #fee2e2; }
+  .perm-inherited {
+    font-size: 0.72rem; color: var(--tx-low);
+  }
 
   /* ── Reset password ──────────────────────────────────────────── */
   .reset-pw-section {
