@@ -1138,9 +1138,9 @@
             </div>
 
             <!-- Effective permissions — granted only, compact chips -->
+            {@const grantedKeys = Object.entries(staffPerms.permissions).filter(([,v]) => v).map(([k]) => k)}
             <div class="perms-section">
               <p class="perms-label">Effective Permissions</p>
-              {@const grantedKeys = Object.entries(staffPerms.permissions).filter(([,v]) => v).map(([k]) => k)}
               {#if grantedKeys.length === 0}
                 <p class="perms-empty">No permissions — assign a role above.</p>
               {:else}
