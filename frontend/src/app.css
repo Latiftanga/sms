@@ -135,6 +135,7 @@
   background: var(--surface-0);
   color: var(--tx-high);
   font-size: 13px;
+  color-scheme: inherit;
   font-family: inherit;
   outline: none;
   box-sizing: border-box;

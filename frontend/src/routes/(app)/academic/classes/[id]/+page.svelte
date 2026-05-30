@@ -1132,6 +1132,7 @@
   background: var(--surface-1); color: var(--tx-high);
   font-size: 13px; font-family: inherit; outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
+  color-scheme: inherit;
 }
 .subj-inp::placeholder { color: var(--tx-placeholder); }
 .subj-inp:focus {
@@ -1245,6 +1246,7 @@
   flex: 1; min-width: 0; font-size: 0.78rem; padding: 3px 6px;
   border: 1px solid var(--border-subtle); border-radius: 4px;
   background: var(--bg-card); color: var(--tx-high);
+  color-scheme: inherit;
 }
 
 /* Inline subject edit */
