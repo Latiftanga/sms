@@ -1245,7 +1245,7 @@
 .subj-teacher-select {
   flex: 1; min-width: 0; font-size: 0.78rem; padding: 3px 6px;
   border: 1px solid var(--border-subtle); border-radius: 4px;
-  background: var(--bg-card); color: var(--tx-high);
+  background: var(--surface-1); color: var(--tx-high);
   color-scheme: inherit;
 }
 

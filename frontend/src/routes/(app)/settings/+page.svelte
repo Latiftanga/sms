@@ -1185,7 +1185,7 @@ select.input {
 .mode-option {
   display: flex; align-items: flex-start; gap: 10px;
   padding: 12px 14px; border-radius: 8px; cursor: pointer;
-  border: 1px solid var(--border-subtle); background: var(--bg-card);
+  border: 1px solid var(--border-subtle); background: var(--surface-1);
   transition: border-color 0.15s;
 }
 .mode-option input[type="radio"] { margin-top: 3px; flex-shrink: 0; accent-color: var(--accent); }
