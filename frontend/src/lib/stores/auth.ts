@@ -24,11 +24,26 @@ function createAuthStore() {
     subscribe,
 
     async init(): Promise<void> {
+      // If user is already loaded, skip — prevents double-init from layout remounts.
+      const current = get({ subscribe });
+      if (!current.loading && current.user) return;
+
       try {
         const { data } = await api.get<User>("/auth/me");
         set({ user: data, loading: false, error: null });
       } catch {
         set({ user: null, loading: false, error: null });
+      }
+    },
+
+    // Silent, non-destructive refresh — keeps permissions current without wiping
+    // the user out on transient errors (network blip, 5xx, etc.).
+    async refresh(): Promise<void> {
+      try {
+        const { data } = await api.get<User>("/auth/me");
+        update((s) => s.user ? { ...s, user: data } : s);
+      } catch {
+        // Silently swallow — don't clear user on background refresh failure.
       }
     },
 

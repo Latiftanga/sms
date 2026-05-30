@@ -26,6 +26,21 @@
     await schoolBranding.load();
     await auth.init();
     dismissInitOverlay();
+
+    // Refresh permissions silently every 12 minutes so they stay current across
+    // the 15-minute access-token window without ever wiping the nav on failure.
+    const interval = setInterval(() => auth.refresh(), 12 * 60 * 1000);
+
+    // Also refresh when the user returns to this tab after being away.
+    function onVisibilityChange() {
+      if (document.visibilityState === "visible") auth.refresh();
+    }
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+    };
   });
 </script>
 
