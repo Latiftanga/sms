@@ -32,10 +32,7 @@
     current_year_name: string | null;
     subjects: ClassSubject[];
   }
-  interface StaffOption {
-    id: string; first_name: string; last_name: string;
-    designation: string | null;
-  }
+  interface StaffOption { id: string; full_name: string; staff_id: string | null; }
 
   const EDU_LABELS: Record<string, string> = {
     EARLY_CHILDHOOD: "Early Childhood", BASIC: "Basic",
@@ -81,10 +78,8 @@
   async function loadStaff() {
     staffLoading = true;
     try {
-      const { data } = await api.get("/staff", {
-        params: { category: "TEACHING", is_active: true, limit: 200 },
-      });
-      staffList = data.items ?? [];
+      const { data } = await api.get<StaffOption[]>("/settings/teaching-staff");
+      staffList = data;
     } catch { staffList = []; }
     finally { staffLoading = false; }
   }
@@ -346,14 +341,10 @@
   }
 
   $: filteredStaff = staffSearch
-    ? staffList.filter(s =>
-        `${s.first_name} ${s.last_name}`.toLowerCase().includes(staffSearch.toLowerCase())
-      )
+    ? staffList.filter(s => s.full_name.toLowerCase().includes(staffSearch.toLowerCase()))
     : staffList;
 
-  $: selectedStaffName = staffList.find(s => s.id === selectedStaffId)
-    ? `${staffList.find(s => s.id === selectedStaffId)!.first_name} ${staffList.find(s => s.id === selectedStaffId)!.last_name}`
-    : "";
+  $: selectedStaffName = staffList.find(s => s.id === selectedStaffId)?.full_name ?? "";
 
   onMount(load);
 </script>
@@ -493,11 +484,8 @@
                       aria-selected={selectedStaffId === s.id}
                       on:click={() => { selectedStaffId = s.id; saveError = ""; }}
                     >
-                      <span class="staff-av">{s.first_name.charAt(0)}</span>
-                      <span class="staff-name">{s.first_name} {s.last_name}</span>
-                      {#if s.designation}
-                        <span class="staff-desig">{s.designation.replace(/_/g, " ").toLowerCase()}</span>
-                      {/if}
+                      <span class="staff-av">{s.full_name.charAt(0)}</span>
+                      <span class="staff-name">{s.full_name}</span>
                       {#if selectedStaffId === s.id}
                         <Check size={13} style="color:var(--accent);flex-shrink:0;margin-left:auto;" />
                       {/if}
@@ -690,7 +678,7 @@
             <select id="steacher" class="subj-inp" bind:value={newSubjectTeacherId}>
               <option value="">— Assign later —</option>
               {#each staffList as st}
-                <option value={st.id}>{st.first_name} {st.last_name}</option>
+                <option value={st.id}>{st.full_name}</option>
               {/each}
             </select>
           </div>
@@ -776,7 +764,7 @@
                       <select class="subj-teacher-select" bind:value={selectedSubjectStaffId}>
                         <option value="">— pick teacher —</option>
                         {#each staffList as st}
-                          <option value={st.id}>{st.first_name} {st.last_name}</option>
+                          <option value={st.id}>{st.full_name}</option>
                         {/each}
                       </select>
                       <button class="tact-btn" on:click={() => saveSubjectTeacher(s.id)} disabled={savingSubjectTeacher || !selectedSubjectStaffId} title="Save">

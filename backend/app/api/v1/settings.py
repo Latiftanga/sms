@@ -12,7 +12,7 @@ from app.models.student import StudentClassEnrollment
 from app.models.school import School
 from app.models.staff import PositionPermission, StaffMember, StaffPosition
 from app.models.user import User, UserRole
-from app.schemas.common import PagedResponse
+from app.schemas.common import OrmBase, PagedResponse
 from app.schemas.settings import (
     AcademicTermCreate, AcademicTermResponse, AcademicTermUpdate,
     AcademicYearCreate, AcademicYearResponse, AcademicYearUpdate,
@@ -928,6 +928,33 @@ async def remove_subject_teacher(
 
     await session.delete(st)
     await session.commit()
+
+
+# ── Teaching staff list (for subject/class teacher assignment) ────────────────
+
+class TeachingStaffItem(OrmBase):
+    id: UUID
+    full_name: str
+    staff_id: str | None = None
+
+
+@router.get("/teaching-staff", response_model=list[TeachingStaffItem],
+            dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
+async def list_teaching_staff(user: CurrentUser, session: SessionDep):
+    """Minimal list of active teaching staff for assignment dropdowns."""
+    rows = await session.scalars(
+        select(StaffMember)
+        .where(
+            StaffMember.school_id == _school_id(user),
+            StaffMember.category == "TEACHING",
+            StaffMember.is_active.is_(True),
+        )
+        .order_by(StaffMember.last_name, StaffMember.first_name)
+    )
+    return [
+        TeachingStaffItem(id=m.id, full_name=m.full_name, staff_id=m.staff_id)
+        for m in rows
+    ]
 
 
 # ── Staff Positions ───────────────────────────────────────────────────────────
