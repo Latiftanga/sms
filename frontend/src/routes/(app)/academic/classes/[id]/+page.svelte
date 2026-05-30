@@ -181,13 +181,17 @@
   $: selectedSchoolSubject = schoolSubjects.find(s => s.id === selectedSchoolSubjectId) ?? null;
   $: if (selectedSchoolSubject) newSubjectCode = selectedSchoolSubject.code ?? "";
 
+  let newSubjectTeacherId = "";
+
   function openAddSubject() {
     addingSubject = true;
     selectedSchoolSubjectId = "";
     newSubjectCode = "";
     newSubjectIsCore = true;
+    newSubjectTeacherId = "";
     subjectApiError = "";
     loadSchoolSubjects();
+    if (staffList.length === 0) loadStaff();
   }
 
   async function addSubject() {
@@ -204,8 +208,20 @@
           is_core: newSubjectIsCore,
         },
       );
-      cls = { ...cls!, subjects: [...(cls!.subjects), data].sort((a, b) => a.subject_name.localeCompare(b.subject_name)) };
-      selectedSchoolSubjectId = ""; newSubjectCode = ""; addingSubject = false;
+
+      // Optionally assign the teacher in the same step
+      if (newSubjectTeacherId) {
+        try {
+          const { data: st } = await api.post<SubjectTeacherInfo>(
+            `/settings/classes/${$page.params.id}/subjects/${data.id}/teachers`,
+            { staff_member_id: newSubjectTeacherId },
+          );
+          data.teachers = [st];
+        } catch { /* teacher assignment is best-effort — subject was still created */ }
+      }
+
+      cls = { ...cls!, subjects: [...cls!.subjects, data].sort((a, b) => a.subject_name.localeCompare(b.subject_name)) };
+      selectedSchoolSubjectId = ""; newSubjectCode = ""; newSubjectTeacherId = ""; addingSubject = false;
       toast.success("Subject added");
     } catch (e) { subjectApiError = apiError(e); }
     finally { savingSubject = false; }
@@ -668,6 +684,15 @@
                   on:click={() => newSubjectIsCore = false}>Elective</button>
               </div>
             </div>
+          </div>
+          <div class="subj-add-teacher">
+            <label for="steacher">Teacher <span class="subj-opt">(optional)</span></label>
+            <select id="steacher" class="subj-inp" bind:value={newSubjectTeacherId}>
+              <option value="">— Assign later —</option>
+              {#each staffList as st}
+                <option value={st.id}>{st.first_name} {st.last_name}</option>
+              {/each}
+            </select>
           </div>
           {#if subjectApiError}
             <p class="subj-api-err"><AlertCircle size={12} />{subjectApiError}</p>
@@ -1193,6 +1218,9 @@
 }
 .subj-inp.invalid { border-color: var(--err-text); }
 .subj-ferr { font-size: 11px; color: var(--err-text); margin: 0; }
+.subj-add-teacher { display: flex; flex-direction: column; gap: 4px; }
+.subj-add-teacher label { font-size: 11.5px; font-weight: 600; color: var(--tx-low); }
+.subj-opt { font-weight: 400; color: var(--tx-low); }
 
 /* Core/Elective toggle in add form */
 .type-toggle { display: flex; border: 1px solid var(--border-strong); border-radius: 6px; overflow: hidden; height: 34px; }
