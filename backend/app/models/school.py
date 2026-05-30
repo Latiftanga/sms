@@ -37,6 +37,9 @@ class School(UUIDPrimaryKey, TimestampMixin, Base):
     )  # DAY | BOARDING | MIXED
     has_houses: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     has_fees_module: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    attendance_mode: Mapped[str] = mapped_column(
+        String(10), nullable=False, default="DAILY"
+    )  # DAILY | LESSON
 
     # Tenancy & identity
     subdomain: Mapped[str | None] = mapped_column(String(63), unique=True, nullable=True)

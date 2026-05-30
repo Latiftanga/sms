@@ -59,6 +59,7 @@ class SchoolResponse(IDSchema, TimestampSchema):
     facility_type: str
     has_houses: bool
     has_fees_module: bool
+    attendance_mode: str   # DAILY | LESSON
     accent_color: str
     logo_url: str | None
     motto: str | None

@@ -13,7 +13,7 @@
   import {
     School2, Shield,
     Pencil, Trash2, Check, X, ChevronDown,
-    AlertCircle, Loader2, MapPin, Phone, Palette, ImagePlus,
+    AlertCircle, Loader2, MapPin, Phone, Palette, ImagePlus, ClipboardCheck,
     Users, ScrollText, ToggleLeft, ToggleRight, KeyRound, Plus, Search,
   } from "@lucide/svelte";
 
@@ -23,6 +23,7 @@
     address: string | null; region: string | null; district: string | null;
     motto: string | null; accent_color: string; logo_url: string | null;
     education_levels: string[];
+    attendance_mode: string;
   }
   // ── Permissions ───────────────────────────────────────────────────
   $: isSuperAdmin   = $auth.user?.system_role === "SUPERADMIN";
@@ -68,6 +69,7 @@
         name: school!.name, phone: school!.phone, email: school!.email,
         address: school!.address, region: school!.region, district: school!.district,
         motto: school!.motto || null, accent_color: school!.accent_color,
+        attendance_mode: school!.attendance_mode,
       });
       schoolSuccess = true;
       toast.success("School profile saved");
@@ -490,6 +492,34 @@
                         bind:value={school.accent_color} placeholder="#185FA5" />
                       <div class="color-sample" style="background:{school.accent_color};">Button preview</div>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-hicon"><ClipboardCheck size={14} /></div>
+                  <div>
+                    <h2 class="card-title">Attendance Mode</h2>
+                    <p class="card-desc">Controls who can mark attendance and at what frequency.</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="attendance-mode-picker">
+                    <label class="mode-option" class:selected={school.attendance_mode === "DAILY"}>
+                      <input type="radio" name="att-mode" value="DAILY" bind:group={school.attendance_mode} />
+                      <div class="mode-content">
+                        <strong>Daily</strong>
+                        <span>One roll call per day. Only the designated class teacher marks attendance for their class.</span>
+                      </div>
+                    </label>
+                    <label class="mode-option" class:selected={school.attendance_mode === "LESSON"}>
+                      <input type="radio" name="att-mode" value="LESSON" bind:group={school.attendance_mode} />
+                      <div class="mode-content">
+                        <strong>Lesson-based</strong>
+                        <span>Attendance captured each lesson period by the subject teacher teaching that class.</span>
+                      </div>
+                    </label>
                   </div>
                 </div>
               </div>
@@ -1147,6 +1177,22 @@ select.input {
   flex-shrink: 0;
 }
 .mono { font-family: "Menlo", "Consolas", monospace; }
+
+/* ── Attendance mode picker ──────────────────────────────────────── */
+.attendance-mode-picker {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.mode-option {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border-subtle); background: var(--bg-card);
+  transition: border-color 0.15s;
+}
+.mode-option input[type="radio"] { margin-top: 3px; flex-shrink: 0; accent-color: var(--accent); }
+.mode-option.selected { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.mode-content { display: flex; flex-direction: column; gap: 3px; }
+.mode-content strong { font-size: 0.875rem; color: var(--tx-high); }
+.mode-content span { font-size: 0.8rem; color: var(--tx-low); line-height: 1.4; }
 
 /* ── Page header (used by non-form tabs) ─────────────────────────── */
 :global(.page-head) { margin-bottom: 20px; }

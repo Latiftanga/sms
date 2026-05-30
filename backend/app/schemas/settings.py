@@ -212,12 +212,20 @@ class SchoolProfileUpdate(OrmBase):
     district: str | None = None
     motto: str | None = None
     accent_color: str | None = None
+    attendance_mode: str | None = None
 
     @field_validator("accent_color")
     @classmethod
     def validate_hex(cls, v: str | None) -> str | None:
         if v and (not v.startswith("#") or len(v) not in (4, 7)):
             raise ValueError("accent_color must be a CSS hex colour e.g. #185FA5")
+        return v
+
+    @field_validator("attendance_mode")
+    @classmethod
+    def validate_attendance_mode(cls, v: str | None) -> str | None:
+        if v is not None and v not in ("DAILY", "LESSON"):
+            raise ValueError("attendance_mode must be DAILY or LESSON")
         return v
 
 # Rebuild forward reference
