@@ -137,11 +137,64 @@ class ClassTeacherInfo(OrmBase):
     staff_name: str
 
 
+# ── Class Subject ──────────────────────────────────────────────────────────────
+
+class ClassSubjectCreate(OrmBase):
+    subject_name: str
+    subject_code: str
+    is_core: bool = True
+
+    @field_validator("subject_code")
+    @classmethod
+    def normalise_code(cls, v: str) -> str:
+        v = v.strip().upper()
+        if not v:
+            raise ValueError("subject_code cannot be empty")
+        if len(v) > 20:
+            raise ValueError("subject_code must be 20 characters or fewer")
+        return v
+
+    @field_validator("subject_name")
+    @classmethod
+    def normalise_name(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("subject_name cannot be empty")
+        return v
+
+
+class ClassSubjectUpdate(OrmBase):
+    subject_name: str | None = None
+    subject_code: str | None = None
+    is_core: bool | None = None
+    is_active: bool | None = None
+
+    @field_validator("subject_code")
+    @classmethod
+    def normalise_code(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        v = v.strip().upper()
+        if not v:
+            raise ValueError("subject_code cannot be empty")
+        if len(v) > 20:
+            raise ValueError("subject_code must be 20 characters or fewer")
+        return v
+
+
+class ClassSubjectResponse(IDSchema, TimestampSchema):
+    subject_name: str
+    subject_code: str
+    is_core: bool
+    is_active: bool
+
+
 class ClassDetailResponse(ClassResponse):
     class_teacher: ClassTeacherInfo | None = None
     student_count: int = 0
     current_year_id: UUID | None = None
     current_year_name: str | None = None
+    subjects: list[ClassSubjectResponse] = []
 
 
 class ClassTeacherAssign(OrmBase):

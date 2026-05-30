@@ -2,11 +2,12 @@ from uuid import UUID
 
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, SessionDep, require
 from app.core.permissions import Permission
-from app.models.academic import AcademicTerm, AcademicYear, Class, ClassTeacher, LearningArea
+from app.models.academic import AcademicTerm, AcademicYear, Class, ClassSubject, ClassTeacher, LearningArea
 from app.models.student import StudentClassEnrollment
 from app.models.school import School
 from app.models.staff import PositionPermission, StaffMember, StaffPosition
@@ -17,6 +18,7 @@ from app.schemas.settings import (
     AcademicYearCreate, AcademicYearResponse, AcademicYearUpdate,
     ClassCreate, ClassDetailResponse, ClassResponse, ClassTeacherAssign,
     ClassTeacherInfo, ClassUpdate,
+    ClassSubjectCreate, ClassSubjectUpdate, ClassSubjectResponse,
     LearningAreaCreate, LearningAreaResponse, LearningAreaUpdate,
     SchoolProfileUpdate, EDUCATION_LEVEL_MAP,
     UserAccountResponse, UserAccountUpdate,
@@ -501,6 +503,12 @@ async def _class_detail(
             )
         ) or 0
 
+    subjects = list(await session.scalars(
+        select(ClassSubject)
+        .where(ClassSubject.class_id == class_id)
+        .order_by(ClassSubject.subject_name)
+    ))
+
     return ClassDetailResponse(
         id=cls.id,
         created_at=cls.created_at,
@@ -519,6 +527,7 @@ async def _class_detail(
         student_count=student_count,
         current_year_id=current_year.id if current_year else None,
         current_year_name=current_year.name if current_year else None,
+        subjects=[ClassSubjectResponse.model_validate(s) for s in subjects],
     )
 
 
@@ -602,6 +611,128 @@ async def remove_class_teacher(class_id: UUID, user: CurrentUser, session: Sessi
     if ct:
         await session.delete(ct)
         await session.commit()
+
+
+# ── Class Subjects ────────────────────────────────────────────────────────────
+
+async def _get_class_owned(class_id: UUID, school_id: UUID, session: SessionDep) -> Class:
+    cls = await session.scalar(
+        select(Class).where(Class.id == class_id, Class.school_id == school_id)
+    )
+    if not cls:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Class not found")
+    return cls
+
+
+@router.get("/classes/{class_id}/subjects", response_model=list[ClassSubjectResponse])
+async def list_class_subjects(class_id: UUID, user: CurrentUser, session: SessionDep):
+    await _get_class_owned(class_id, _school_id(user), session)
+    rows = list(await session.scalars(
+        select(ClassSubject)
+        .where(ClassSubject.class_id == class_id)
+        .order_by(ClassSubject.subject_name)
+    ))
+    return [ClassSubjectResponse.model_validate(r) for r in rows]
+
+
+@router.post("/classes/{class_id}/subjects", response_model=ClassSubjectResponse,
+             status_code=201, dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
+async def add_class_subject(
+    class_id: UUID, body: ClassSubjectCreate, user: CurrentUser, session: SessionDep
+):
+    await _get_class_owned(class_id, _school_id(user), session)
+
+    existing = await session.scalar(
+        select(ClassSubject).where(
+            ClassSubject.class_id == class_id,
+            ClassSubject.subject_code == body.subject_code,
+        )
+    )
+    if existing:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            f"Subject with code '{body.subject_code}' already exists in this class",
+        )
+
+    subj = ClassSubject(
+        class_id=class_id,
+        subject_name=body.subject_name,
+        subject_code=body.subject_code,
+        is_core=body.is_core,
+    )
+    session.add(subj)
+    await session.commit()
+    await session.refresh(subj)
+    return ClassSubjectResponse.model_validate(subj)
+
+
+@router.patch("/classes/{class_id}/subjects/{subject_id}",
+              response_model=ClassSubjectResponse,
+              dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
+async def update_class_subject(
+    class_id: UUID, subject_id: UUID, body: ClassSubjectUpdate,
+    user: CurrentUser, session: SessionDep,
+):
+    await _get_class_owned(class_id, _school_id(user), session)
+
+    subj = await session.scalar(
+        select(ClassSubject).where(
+            ClassSubject.id == subject_id, ClassSubject.class_id == class_id
+        )
+    )
+    if not subj:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Subject not found")
+
+    if body.subject_name is not None:
+        subj.subject_name = body.subject_name
+    if body.subject_code is not None and body.subject_code != subj.subject_code:
+        conflict = await session.scalar(
+            select(ClassSubject).where(
+                ClassSubject.class_id == class_id,
+                ClassSubject.subject_code == body.subject_code,
+                ClassSubject.id != subject_id,
+            )
+        )
+        if conflict:
+            raise HTTPException(
+                status.HTTP_409_CONFLICT,
+                f"Subject with code '{body.subject_code}' already exists in this class",
+            )
+        subj.subject_code = body.subject_code
+    if body.is_core is not None:
+        subj.is_core = body.is_core
+    if body.is_active is not None:
+        subj.is_active = body.is_active
+
+    await session.commit()
+    await session.refresh(subj)
+    return ClassSubjectResponse.model_validate(subj)
+
+
+@router.delete("/classes/{class_id}/subjects/{subject_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
+async def delete_class_subject(
+    class_id: UUID, subject_id: UUID, user: CurrentUser, session: SessionDep
+):
+    await _get_class_owned(class_id, _school_id(user), session)
+
+    subj = await session.scalar(
+        select(ClassSubject).where(
+            ClassSubject.id == subject_id, ClassSubject.class_id == class_id
+        )
+    )
+    if not subj:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Subject not found")
+
+    try:
+        await session.delete(subj)
+        await session.commit()
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "Subject has student registrations and cannot be deleted. Deactivate it instead.",
+        )
 
 
 # ── Staff Positions ───────────────────────────────────────────────────────────

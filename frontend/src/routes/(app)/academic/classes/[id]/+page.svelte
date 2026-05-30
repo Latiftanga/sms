@@ -11,10 +11,15 @@
     ArrowLeft, UserCheck, Users, GraduationCap, Pencil,
     Check, X, AlertCircle, Loader2, Search, UserX,
     CalendarDays, BookOpen, Hash, ToggleLeft, ToggleRight,
+    Plus, BookMarked,
   } from "@lucide/svelte";
 
   // ── Types ─────────────────────────────────────────────────────────
   interface ClassTeacher { staff_member_id: string; staff_name: string; }
+  interface ClassSubject {
+    id: string; subject_name: string; subject_code: string;
+    is_core: boolean; is_active: boolean;
+  }
   interface ClassDetail {
     id: string; name: string; level: string; year: number | null;
     education_level: string; stream: string | null; is_active: boolean;
@@ -23,6 +28,7 @@
     student_count: number;
     current_year_id: string | null;
     current_year_name: string | null;
+    subjects: ClassSubject[];
   }
   interface StaffOption {
     id: string; first_name: string; last_name: string;
@@ -141,6 +147,110 @@
       toast.success(next ? "Class activated" : "Class deactivated");
     } catch (e) { toast.error(apiError(e)); }
     finally { togglingActive = false; }
+  }
+
+  // ── Subjects ───────────────────────────────────────────────────────
+  let addingSubject = false;
+  let newSubject = { subject_name: "", subject_code: "", is_core: true };
+  let subjectErrors: Record<string, string> = {};
+  let savingSubject = false;
+  let subjectApiError = "";
+  let togglingSubject: string | null = null;
+  let deletingSubject: string | null = null;
+  let editingSubject: string | null = null;
+  let editSubjectName = "";
+  let editSubjectCode = "";
+  let savingSubjectEdit = false;
+
+  function validateSubject() {
+    const e: Record<string, string> = {};
+    if (!newSubject.subject_name.trim()) e.subject_name = "Name is required";
+    if (!newSubject.subject_code.trim()) e.subject_code = "Code is required";
+    return e;
+  }
+
+  async function addSubject() {
+    subjectErrors = validateSubject();
+    if (Object.keys(subjectErrors).length) return;
+    savingSubject = true; subjectApiError = "";
+    try {
+      const { data } = await api.post<ClassSubject>(
+        `/settings/classes/${$page.params.id}/subjects`,
+        {
+          subject_name: newSubject.subject_name.trim(),
+          subject_code: newSubject.subject_code.trim().toUpperCase(),
+          is_core: newSubject.is_core,
+        },
+      );
+      cls = { ...cls!, subjects: [...(cls!.subjects), data].sort((a, b) => a.subject_name.localeCompare(b.subject_name)) };
+      newSubject = { subject_name: "", subject_code: "", is_core: true };
+      subjectErrors = {}; addingSubject = false;
+      toast.success("Subject added");
+    } catch (e) { subjectApiError = apiError(e); }
+    finally { savingSubject = false; }
+  }
+
+  function openEditSubject(s: ClassSubject) {
+    editingSubject = s.id;
+    editSubjectName = s.subject_name;
+    editSubjectCode = s.subject_code;
+  }
+
+  async function saveSubjectEdit(s: ClassSubject) {
+    const name = editSubjectName.trim();
+    const code = editSubjectCode.trim().toUpperCase();
+    if (!name || !code) return;
+    savingSubjectEdit = true;
+    try {
+      const { data } = await api.patch<ClassSubject>(
+        `/settings/classes/${$page.params.id}/subjects/${s.id}`,
+        { subject_name: name, subject_code: code },
+      );
+      cls = { ...cls!, subjects: cls!.subjects.map(x => x.id === s.id ? data : x).sort((a, b) => a.subject_name.localeCompare(b.subject_name)) };
+      editingSubject = null;
+    } catch (e) { toast.error(apiError(e)); }
+    finally { savingSubjectEdit = false; }
+  }
+
+  async function toggleSubjectCore(s: ClassSubject) {
+    togglingSubject = s.id;
+    try {
+      const { data } = await api.patch<ClassSubject>(
+        `/settings/classes/${$page.params.id}/subjects/${s.id}`,
+        { is_core: !s.is_core },
+      );
+      cls = { ...cls!, subjects: cls!.subjects.map(x => x.id === s.id ? data : x) };
+    } catch (e) { toast.error(apiError(e)); }
+    finally { togglingSubject = null; }
+  }
+
+  async function toggleSubjectActive(s: ClassSubject) {
+    togglingSubject = s.id;
+    try {
+      const { data } = await api.patch<ClassSubject>(
+        `/settings/classes/${$page.params.id}/subjects/${s.id}`,
+        { is_active: !s.is_active },
+      );
+      cls = { ...cls!, subjects: cls!.subjects.map(x => x.id === s.id ? data : x) };
+      toast.success(data.is_active ? "Subject activated" : "Subject deactivated");
+    } catch (e) { toast.error(apiError(e)); }
+    finally { togglingSubject = null; }
+  }
+
+  async function deleteSubject(s: ClassSubject) {
+    const ok = await confirmDialog.show({
+      title: "Remove subject?",
+      message: `"${s.subject_name}" will be removed from this class. If it has student registrations you'll be asked to deactivate it instead.`,
+      variant: "danger", confirmLabel: "Remove",
+    });
+    if (!ok) return;
+    deletingSubject = s.id;
+    try {
+      await api.delete(`/settings/classes/${$page.params.id}/subjects/${s.id}`);
+      cls = { ...cls!, subjects: cls!.subjects.filter(x => x.id !== s.id) };
+      toast.success("Subject removed");
+    } catch (e) { toast.error(apiError(e)); }
+    finally { deletingSubject = null; }
   }
 
   $: filteredStaff = staffSearch
@@ -429,6 +539,157 @@
       </div><!-- /side-col -->
 
     </div><!-- /layout -->
+
+    <!-- ── Subjects ────────────────────────────────────────────────── -->
+    <div class="card subj-card">
+      <div class="card-head">
+        <div class="card-icon"><BookMarked size={15} /></div>
+        <div class="card-head-text">
+          <span class="card-title">Subjects</span>
+          <span class="card-sub">
+            {cls.subjects.length} subject{cls.subjects.length !== 1 ? "s" : ""} assigned ·
+            {cls.subjects.filter(s => s.is_core).length} core,
+            {cls.subjects.filter(s => !s.is_core).length} elective
+          </span>
+        </div>
+        {#if !addingSubject}
+          <button class="card-head-action" on:click={() => { addingSubject = true; subjectApiError = ""; }}>
+            <Plus size={12} /> Add subject
+          </button>
+        {/if}
+      </div>
+
+      <!-- Add form -->
+      {#if addingSubject}
+        <div class="subj-add-form">
+          <div class="subj-add-fields">
+            <div class="subj-field">
+              <label for="sname">Subject name</label>
+              <input id="sname" class="subj-inp" class:invalid={subjectErrors.subject_name}
+                bind:value={newSubject.subject_name} placeholder="e.g. Mathematics" />
+              {#if subjectErrors.subject_name}<p class="subj-ferr">{subjectErrors.subject_name}</p>{/if}
+            </div>
+            <div class="subj-field subj-field-code">
+              <label for="scode">Code</label>
+              <input id="scode" class="subj-inp" class:invalid={subjectErrors.subject_code}
+                bind:value={newSubject.subject_code} placeholder="MATH" maxlength="20"
+                style="text-transform:uppercase;" />
+              {#if subjectErrors.subject_code}<p class="subj-ferr">{subjectErrors.subject_code}</p>{/if}
+            </div>
+            <div class="subj-field subj-field-type">
+              <label>Type</label>
+              <div class="type-toggle">
+                <button
+                  class="type-btn" class:active={newSubject.is_core}
+                  on:click={() => newSubject.is_core = true}
+                >Core</button>
+                <button
+                  class="type-btn" class:active={!newSubject.is_core}
+                  on:click={() => newSubject.is_core = false}
+                >Elective</button>
+              </div>
+            </div>
+          </div>
+          {#if subjectApiError}
+            <p class="subj-api-err"><AlertCircle size={12} />{subjectApiError}</p>
+          {/if}
+          <div class="subj-add-footer">
+            <Button loading={savingSubject} on:click={addSubject}>
+              {savingSubject ? "Adding…" : "Add subject"}
+            </Button>
+            <Button variant="ghost" on:click={() => { addingSubject = false; subjectErrors = {}; newSubject = { subject_name: "", subject_code: "", is_core: true }; }}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      {/if}
+
+      <!-- Subject list -->
+      {#if cls.subjects.length === 0 && !addingSubject}
+        <div class="subj-empty">
+          <BookMarked size={20} />
+          <span>No subjects assigned yet. Add the first subject above.</span>
+        </div>
+      {:else if cls.subjects.length > 0}
+        <div class="subj-list">
+          <div class="subj-list-head">
+            <span>Subject</span>
+            <span>Code</span>
+            <span>Type</span>
+            <span></span>
+          </div>
+          {#each cls.subjects as s (s.id)}
+            <div class="subj-row" class:subj-row-inactive={!s.is_active}>
+
+              {#if editingSubject === s.id}
+                <!-- Inline edit -->
+                <div class="subj-edit-fields">
+                  <input class="subj-edit-inp" bind:value={editSubjectName}
+                    placeholder="Subject name"
+                    on:keydown={e => e.key === "Enter" && saveSubjectEdit(s)}
+                    on:keydown={e => e.key === "Escape" && (editingSubject = null)}
+                  />
+                  <input class="subj-edit-inp subj-edit-code" bind:value={editSubjectCode}
+                    placeholder="CODE" maxlength="20" style="text-transform:uppercase;"
+                    on:keydown={e => e.key === "Enter" && saveSubjectEdit(s)}
+                  />
+                </div>
+                <span></span>
+                <span class="subj-actions">
+                  <button class="tact-btn" on:click={() => saveSubjectEdit(s)} disabled={savingSubjectEdit} title="Save">
+                    {#if savingSubjectEdit}<Loader2 size={12} class="spin" />{:else}<Check size={12} />{/if}
+                  </button>
+                  <button class="tact-btn" on:click={() => editingSubject = null} title="Cancel"><X size={12} /></button>
+                </span>
+
+              {:else}
+                <!-- Normal view -->
+                <span class="subj-name" class:subj-name-muted={!s.is_active}>{s.subject_name}</span>
+                <span class="subj-code">{s.subject_code}</span>
+                <span class="subj-type">
+                  <button
+                    class="type-pill"
+                    class:core={s.is_core}
+                    class:elective={!s.is_core}
+                    on:click={() => toggleSubjectCore(s)}
+                    disabled={togglingSubject === s.id}
+                    title="Toggle core / elective"
+                  >
+                    {#if togglingSubject === s.id && togglingSubject}
+                      <Loader2 size={10} class="spin" />
+                    {:else}
+                      {s.is_core ? "Core" : "Elective"}
+                    {/if}
+                  </button>
+                </span>
+                <span class="subj-actions">
+                  <button class="tact-btn" on:click={() => openEditSubject(s)} title="Edit name / code">
+                    <Pencil size={12} />
+                  </button>
+                  <button
+                    class="tact-btn"
+                    on:click={() => toggleSubjectActive(s)}
+                    disabled={togglingSubject === s.id}
+                    title={s.is_active ? "Deactivate" : "Activate"}
+                  >
+                    {#if s.is_active}<ToggleRight size={14} style="color:var(--accent)" />{:else}<ToggleLeft size={14} />{/if}
+                  </button>
+                  <button
+                    class="tact-btn tact-danger"
+                    on:click={() => deleteSubject(s)}
+                    disabled={deletingSubject === s.id}
+                    title="Remove subject"
+                  >
+                    {#if deletingSubject === s.id}<Loader2 size={12} class="spin" />{:else}<X size={12} />{/if}
+                  </button>
+                </span>
+              {/if}
+
+            </div>
+          {/each}
+        </div>
+      {/if}
+    </div>
 
   {/if}
 </div>
@@ -780,4 +1041,128 @@
 
 :global(.spin) { animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Subjects card ───────────────────────────────────────────────── */
+.subj-card { margin-top: 16px; }
+
+/* Add form */
+.subj-add-form {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-0);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.subj-add-fields {
+  display: grid;
+  grid-template-columns: 1fr 110px 160px;
+  gap: 10px;
+  align-items: start;
+}
+@media (max-width: 580px) {
+  .subj-add-fields { grid-template-columns: 1fr; }
+}
+.subj-field { display: flex; flex-direction: column; gap: 4px; }
+.subj-field label { font-size: 11.5px; font-weight: 600; color: var(--tx-low); }
+.subj-inp {
+  height: 34px; padding: 0 10px;
+  border: 1px solid var(--border-strong); border-radius: 6px;
+  background: var(--surface-1); color: var(--tx-high);
+  font-size: 13px; font-family: inherit; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.subj-inp::placeholder { color: var(--tx-placeholder); }
+.subj-inp:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.subj-inp.invalid { border-color: var(--err-text); }
+.subj-ferr { font-size: 11px; color: var(--err-text); margin: 0; }
+
+/* Core/Elective toggle in add form */
+.type-toggle { display: flex; border: 1px solid var(--border-strong); border-radius: 6px; overflow: hidden; height: 34px; }
+.type-btn {
+  flex: 1; border: none; background: transparent;
+  font-size: 12.5px; font-weight: 500; color: var(--tx-low);
+  cursor: pointer; transition: background 0.1s, color 0.1s;
+}
+.type-btn.active {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.subj-api-err {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--err-text); margin: 0;
+}
+.subj-add-footer { display: flex; gap: 8px; }
+
+/* Empty state */
+.subj-empty {
+  display: flex; align-items: center; gap: 10px;
+  padding: 18px 16px;
+  color: var(--tx-low); font-size: 13px;
+}
+
+/* List */
+.subj-list { }
+.subj-list-head {
+  display: grid;
+  grid-template-columns: 1fr 90px 100px 88px;
+  padding: 8px 16px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--tx-low);
+}
+.subj-row {
+  display: grid;
+  grid-template-columns: 1fr 90px 100px 88px;
+  padding: 0 16px;
+  align-items: center;
+  min-height: 42px;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.1s;
+}
+.subj-row:last-child { border-bottom: none; }
+.subj-row:hover { background: var(--accent-subtle); }
+.subj-row-inactive { opacity: 0.55; }
+.subj-name { font-size: 13.5px; font-weight: 500; color: var(--tx-high); padding-right: 6px; }
+.subj-name-muted { color: var(--tx-low); }
+.subj-code {
+  font-size: 12px; font-weight: 600; color: var(--tx-low);
+  font-family: ui-monospace, monospace; letter-spacing: 0.04em;
+}
+.subj-type { display: flex; align-items: center; }
+.type-pill {
+  font-size: 11px; font-weight: 600;
+  padding: 2px 9px; border-radius: 10px;
+  border: 1px solid transparent; cursor: pointer;
+  transition: opacity 0.1s; display: inline-flex; align-items: center; gap: 4px;
+}
+.type-pill:disabled { cursor: not-allowed; opacity: 0.6; }
+.type-pill.core {
+  background: color-mix(in srgb, #3b82f6 12%, transparent);
+  color: #1d4ed8;
+  border-color: color-mix(in srgb, #3b82f6 22%, transparent);
+}
+.type-pill.elective {
+  background: color-mix(in srgb, #f59e0b 12%, transparent);
+  color: #b45309;
+  border-color: color-mix(in srgb, #f59e0b 22%, transparent);
+}
+.type-pill:hover:not(:disabled) { opacity: 0.75; }
+.subj-actions { display: flex; align-items: center; justify-content: flex-end; gap: 1px; }
+
+/* Inline subject edit */
+.subj-edit-fields {
+  display: flex; gap: 6px; align-items: center;
+  grid-column: 1 / 3;
+}
+.subj-edit-inp {
+  height: 28px; padding: 0 8px;
+  border: 1px solid var(--accent); border-radius: 5px;
+  background: var(--surface-0); color: var(--tx-high);
+  font-size: 13px; font-family: inherit; outline: none; flex: 1;
+}
+.subj-edit-code { flex: 0 0 72px; font-family: ui-monospace, monospace; }
 </style>
