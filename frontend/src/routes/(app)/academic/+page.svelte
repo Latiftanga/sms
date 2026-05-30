@@ -10,9 +10,9 @@
   import EmptyState from "$components/ui/EmptyState.svelte";
   import PageHeader from "$components/ui/PageHeader.svelte";
   import {
-    CalendarDays, LayoutGrid, BookOpen,
-    Plus, Trash2, ChevronDown,
-    AlertCircle, X, Search, SlidersHorizontal,
+    CalendarDays, LayoutGrid, BookOpen, Library,
+    Plus, Trash2, ChevronDown, Pencil, Check,
+    AlertCircle, X, Search, SlidersHorizontal, ToggleLeft, ToggleRight,
   } from "@lucide/svelte";
 
   // ── Types ─────────────────────────────────────────────────────────
@@ -24,6 +24,7 @@
     is_current: boolean; terms: AcademicTerm[];
   }
   interface LearningArea { id: string; name: string; short_name: string | null; is_active: boolean; }
+  interface SchoolSubject { id: string; name: string; code: string | null; is_active: boolean; }
   interface SchoolClass {
     id: string; name: string; level: string; year: number | null;
     education_level: string; stream: string | null; is_active: boolean;
@@ -31,7 +32,7 @@
   }
 
   // ── Tab ───────────────────────────────────────────────────────────
-  let tab: "calendar" | "classes" | "learning_areas" = "calendar";
+  let tab: "calendar" | "subjects" | "learning_areas" | "classes" = "calendar";
 
   function apiError(e: unknown): string {
     const err = e as { response?: { data?: { detail?: string } } };
@@ -53,7 +54,7 @@
   // ── School education levels (needed for SHS-only features) ────────
   let schoolEdLevels: string[] = [];
   $: isSHS = schoolEdLevels.includes("SHS");
-  $: if (!isSHS && tab === "learning_areas") tab = "calendar";
+  $: if (!isSHS && tab === "learning_areas") tab = "subjects";
 
   async function loadSchoolLevels() {
     try {
@@ -150,6 +151,85 @@
   async function deleteTerm(termId: string) {
     try { await api.delete(`/settings/terms/${termId}`); await loadYears(); toast.success("Term deleted"); }
     catch (e) { toast.error(apiError(e)); }
+  }
+
+  // ── School subjects ───────────────────────────────────────────────
+  let subjects: SchoolSubject[] = [];
+  let subjectsLoaded = false;
+  let subjectsError = "";
+  let newSubject = { name: "", code: "" };
+  let addingSubject = false;
+  let savingSubject = false;
+  let subjectApiError = "";
+  let editingSubjectId: string | null = null;
+  let editSubjectName = "";
+  let editSubjectCode = "";
+  let savingSubjectEdit = false;
+  let subjectEditError = "";
+
+  async function loadSubjects() {
+    try {
+      const { data } = await api.get<SchoolSubject[]>("/settings/subjects");
+      subjects = data;
+      subjectsLoaded = true;
+    } catch (e) { subjectsError = apiError(e); }
+  }
+
+  async function createSubject() {
+    if (!newSubject.name.trim()) { subjectApiError = "Subject name is required."; return; }
+    savingSubject = true; subjectApiError = "";
+    try {
+      await api.post("/settings/subjects", {
+        name: newSubject.name.trim(),
+        code: newSubject.code.trim() || null,
+      });
+      newSubject = { name: "", code: "" };
+      addingSubject = false;
+      await loadSubjects();
+      toast.success("Subject added");
+    } catch (e) { subjectApiError = apiError(e); }
+    finally { savingSubject = false; }
+  }
+
+  function startEditSubject(s: SchoolSubject) {
+    editingSubjectId = s.id;
+    editSubjectName = s.name;
+    editSubjectCode = s.code ?? "";
+    subjectEditError = "";
+  }
+
+  async function saveSubjectEdit(s: SchoolSubject) {
+    if (!editSubjectName.trim()) { subjectEditError = "Name is required."; return; }
+    savingSubjectEdit = true; subjectEditError = "";
+    try {
+      await api.patch(`/settings/subjects/${s.id}`, {
+        name: editSubjectName.trim(),
+        code: editSubjectCode.trim() || null,
+      });
+      editingSubjectId = null;
+      await loadSubjects();
+      toast.success("Subject updated");
+    } catch (e) { subjectEditError = apiError(e); }
+    finally { savingSubjectEdit = false; }
+  }
+
+  async function toggleSubjectActive(s: SchoolSubject) {
+    try {
+      await api.patch(`/settings/subjects/${s.id}`, { is_active: !s.is_active });
+      subjects = subjects.map(x => x.id === s.id ? { ...x, is_active: !s.is_active } : x);
+    } catch (e) { toast.error(apiError(e)); }
+  }
+
+  async function deleteSubject(s: SchoolSubject) {
+    await confirmDelete(
+      "Remove subject?",
+      `"${s.name}" will be removed from the school subject list. Classes already using it are not affected.`,
+      async () => {
+        await api.delete(`/settings/subjects/${s.id}`);
+        subjects = subjects.filter(x => x.id !== s.id);
+        toast.success("Subject removed");
+      }
+    );
   }
 
   // ── Learning areas ────────────────────────────────────────────────
@@ -295,13 +375,11 @@
   // ── Init ──────────────────────────────────────────────────────────
   onMount(async () => {
     const urlTab = $page.url.searchParams.get("tab");
-    if (urlTab === "classes" || urlTab === "learning_areas" || urlTab === "calendar") {
-      tab = urlTab;
+    if (urlTab === "classes" || urlTab === "learning_areas" || urlTab === "calendar" || urlTab === "subjects") {
+      tab = urlTab as typeof tab;
     }
     await loadSchoolLevels();
-    await loadYears();
-    await loadClasses();
-    await loadLearningAreas();
+    await Promise.all([loadYears(), loadSubjects(), loadClasses(), loadLearningAreas()]);
   });
 </script>
 
@@ -313,6 +391,9 @@
   <div class="tabs-bar">
     <button class="tab" class:active={tab === "calendar"} on:click={() => tab = "calendar"}>
       <CalendarDays size={14} /><span class="tab-label">Academic Calendar</span>
+    </button>
+    <button class="tab" class:active={tab === "subjects"} on:click={() => tab = "subjects"}>
+      <Library size={14} /><span class="tab-label">Subjects</span>
     </button>
     {#if isSHS}
       <button class="tab" class:active={tab === "learning_areas"} on:click={() => tab = "learning_areas"}>
@@ -488,6 +569,92 @@
         </div>
       {/each}
 
+
+    <!-- ══ SUBJECTS ════════════════════════════════════════════════════ -->
+    {:else if tab === "subjects"}
+      <PageHeader title="Subjects" description="Define the subjects your school teaches. Classes then assign from this list.">
+        <Button on:click={() => { addingSubject = !addingSubject; subjectApiError = ""; newSubject = { name: "", code: "" }; }}>
+          <Plus size={13} />{addingSubject ? "Cancel" : "Add Subject"}
+        </Button>
+      </PageHeader>
+
+      {#if addingSubject}
+        <div class="card">
+          <div class="card-body">
+            {#if subjectApiError}<p class="ferr">{subjectApiError}</p>{/if}
+            <div class="form-row-inline">
+              <div class="field" style="flex:2">
+                <label for="sname">Subject Name <span class="req">*</span></label>
+                <input id="sname" class="input" bind:value={newSubject.name}
+                  placeholder="e.g. Mathematics" on:keydown={e => e.key === "Enter" && createSubject()} />
+              </div>
+              <div class="field" style="flex:1">
+                <label for="scode">Short Code <span class="opt">(optional)</span></label>
+                <input id="scode" class="input" bind:value={newSubject.code}
+                  placeholder="e.g. MATH" maxlength="20" style="text-transform:uppercase;"
+                  on:keydown={e => e.key === "Enter" && createSubject()} />
+              </div>
+            </div>
+            <div class="form-actions">
+              <Button variant="ghost" on:click={() => { addingSubject = false; subjectApiError = ""; }}>Cancel</Button>
+              <Button loading={savingSubject} on:click={createSubject}>
+                {savingSubject ? "Adding…" : "Add subject"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      {/if}
+
+      {#if subjectsError}
+        <div class="ferr-block"><AlertCircle size={14} />{subjectsError}</div>
+      {:else if subjects.length === 0 && !addingSubject}
+        <EmptyState icon={Library} title="No subjects yet" description="Add the subjects your school teaches. You'll assign them to individual classes next.">
+          <Button on:click={() => addingSubject = true}><Plus size={13} />Add your first subject</Button>
+        </EmptyState>
+      {:else if subjects.length > 0}
+        <div class="subject-list">
+          <div class="subject-list-head">
+            <span>Subject</span>
+            <span>Code</span>
+            <span>Status</span>
+            <span></span>
+          </div>
+          {#each subjects as s (s.id)}
+            <div class="subject-row" class:row-inactive={!s.is_active}>
+              {#if editingSubjectId === s.id}
+                <input class="input input-sm" bind:value={editSubjectName}
+                  placeholder="Subject name"
+                  on:keydown={e => e.key === "Enter" && saveSubjectEdit(s)}
+                  on:keydown={e => e.key === "Escape" && (editingSubjectId = null)} />
+                <input class="input input-sm mono" bind:value={editSubjectCode}
+                  placeholder="CODE" maxlength="20" style="text-transform:uppercase;"
+                  on:keydown={e => e.key === "Enter" && saveSubjectEdit(s)} />
+                <span></span>
+                <span class="row-actions">
+                  {#if subjectEditError}<span class="ferr-inline">{subjectEditError}</span>{/if}
+                  <button class="icon-act" title="Save" on:click={() => saveSubjectEdit(s)} disabled={savingSubjectEdit}>
+                    <Check size={13} />
+                  </button>
+                  <button class="icon-act" title="Cancel" on:click={() => editingSubjectId = null}><X size={13} /></button>
+                </span>
+              {:else}
+                <span class="subj-name-col">{s.name}</span>
+                <span class="subj-code-col">{s.code ?? "—"}</span>
+                <span>
+                  <Badge variant={s.is_active ? "ok" : "neutral"}>{s.is_active ? "Active" : "Inactive"}</Badge>
+                </span>
+                <span class="row-actions">
+                  <button class="icon-act" title="Edit" on:click={() => startEditSubject(s)}><Pencil size={13} /></button>
+                  <button class="icon-act" title={s.is_active ? "Deactivate" : "Activate"} on:click={() => toggleSubjectActive(s)}>
+                    {#if s.is_active}<ToggleRight size={16} style="color:var(--accent)" />{:else}<ToggleLeft size={16} />{/if}
+                  </button>
+                  <button class="icon-act danger" title="Delete" on:click={() => deleteSubject(s)}><Trash2 size={13} /></button>
+                </span>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {/if}
 
     <!-- ══ LEARNING AREAS ══════════════════════════════════════════════ -->
     {:else if tab === "learning_areas"}
@@ -837,6 +1004,50 @@ select.input {
   font-size: 12.5px; margin-top: 10px;
   border: 1px solid color-mix(in srgb, var(--err-text) 18%, transparent);
 }
+
+/* ── Subject list ─────────────────────────────────────────────────── */
+.form-row-inline { display: flex; gap: 12px; flex-wrap: wrap; }
+.form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.subject-list {
+  border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden;
+}
+.subject-list-head, .subject-row {
+  display: grid;
+  grid-template-columns: 1fr 100px 90px 100px;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+}
+.subject-list-head {
+  background: var(--bg-subtle);
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--tx-low);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.subject-row {
+  border-top: 1px solid var(--border-subtle); font-size: 0.875rem;
+}
+.subject-row:first-of-type { border-top: none; }
+.subject-row:hover { background: var(--accent-subtle); }
+.row-inactive { opacity: 0.55; }
+.subj-name-col { font-weight: 500; color: var(--tx-high); }
+.subj-code-col { font-family: monospace; font-size: 0.8rem; color: var(--tx-mid); }
+.row-actions { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+.icon-act {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 5px;
+  border: none; background: none; cursor: pointer; color: var(--tx-low);
+}
+.icon-act:hover { background: var(--bg-subtle); color: var(--tx-high); }
+.icon-act.danger:hover { color: #dc2626; background: #fee2e2; }
+.icon-act:disabled { opacity: 0.4; cursor: not-allowed; }
+.input-sm { padding: 5px 8px; font-size: 0.8125rem; }
+.ferr-block {
+  display: flex; align-items: center; gap: 8px; padding: 10px 14px;
+  background: var(--err-bg); color: var(--err-text);
+  border-radius: 8px; font-size: 0.8125rem;
+}
+.ferr-inline { font-size: 0.75rem; color: var(--err-text); }
 
 /* ── Academic Calendar ───────────────────────────────────────────── */
 .year-card {

@@ -217,6 +217,22 @@ class Class(UUIDPrimaryKey, TimestampMixin, Base):
         return base
 
 
+class SchoolSubject(UUIDPrimaryKey, TimestampMixin, Base):
+    """
+    School-wide subject catalogue. Admin defines subjects here first;
+    classes then assign from this list.
+    """
+    __tablename__ = "school_subject"
+    __table_args__ = (UniqueConstraint("school_id", "name"),)
+
+    school_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("school.id", ondelete="CASCADE"), nullable=False
+    )
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    code: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+
 class ClassSubject(UUIDPrimaryKey, TimestampMixin, Base):
     __tablename__ = "class_subject"
     __table_args__ = (UniqueConstraint("class_id", "subject_code"),)

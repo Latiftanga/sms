@@ -152,9 +152,23 @@
   }
 
   // ── Subjects ───────────────────────────────────────────────────────
+  interface SchoolSubjectOption { id: string; name: string; code: string | null; }
+  let schoolSubjects: SchoolSubjectOption[] = [];
+  let schoolSubjectsLoaded = false;
+
+  async function loadSchoolSubjects() {
+    if (schoolSubjectsLoaded) return;
+    try {
+      const { data } = await api.get<SchoolSubjectOption[]>("/settings/subjects");
+      schoolSubjects = data.filter(s => (s as SchoolSubjectOption & { is_active: boolean }).is_active !== false);
+      schoolSubjectsLoaded = true;
+    } catch { schoolSubjects = []; }
+  }
+
   let addingSubject = false;
-  let newSubject = { subject_name: "", subject_code: "", is_core: true };
-  let subjectErrors: Record<string, string> = {};
+  let selectedSchoolSubjectId = "";
+  let newSubjectCode = "";
+  let newSubjectIsCore = true;
   let savingSubject = false;
   let subjectApiError = "";
   let togglingSubject: string | null = null;
@@ -164,29 +178,34 @@
   let editSubjectCode = "";
   let savingSubjectEdit = false;
 
-  function validateSubject() {
-    const e: Record<string, string> = {};
-    if (!newSubject.subject_name.trim()) e.subject_name = "Name is required";
-    if (!newSubject.subject_code.trim()) e.subject_code = "Code is required";
-    return e;
+  $: selectedSchoolSubject = schoolSubjects.find(s => s.id === selectedSchoolSubjectId) ?? null;
+  $: if (selectedSchoolSubject) newSubjectCode = selectedSchoolSubject.code ?? "";
+
+  function openAddSubject() {
+    addingSubject = true;
+    selectedSchoolSubjectId = "";
+    newSubjectCode = "";
+    newSubjectIsCore = true;
+    subjectApiError = "";
+    loadSchoolSubjects();
   }
 
   async function addSubject() {
-    subjectErrors = validateSubject();
-    if (Object.keys(subjectErrors).length) return;
+    if (!selectedSchoolSubjectId || !selectedSchoolSubject) {
+      subjectApiError = "Please select a subject from the list."; return;
+    }
     savingSubject = true; subjectApiError = "";
     try {
       const { data } = await api.post<ClassSubject>(
         `/settings/classes/${$page.params.id}/subjects`,
         {
-          subject_name: newSubject.subject_name.trim(),
-          subject_code: newSubject.subject_code.trim().toUpperCase(),
-          is_core: newSubject.is_core,
+          subject_name: selectedSchoolSubject.name,
+          subject_code: newSubjectCode.trim().toUpperCase() || selectedSchoolSubject.name.slice(0, 4).toUpperCase(),
+          is_core: newSubjectIsCore,
         },
       );
       cls = { ...cls!, subjects: [...(cls!.subjects), data].sort((a, b) => a.subject_name.localeCompare(b.subject_name)) };
-      newSubject = { subject_name: "", subject_code: "", is_core: true };
-      subjectErrors = {}; addingSubject = false;
+      selectedSchoolSubjectId = ""; newSubjectCode = ""; addingSubject = false;
       toast.success("Subject added");
     } catch (e) { subjectApiError = apiError(e); }
     finally { savingSubject = false; }
@@ -610,7 +629,7 @@
           </span>
         </div>
         {#if !addingSubject}
-          <button class="card-head-action" on:click={() => { addingSubject = true; subjectApiError = ""; }}>
+          <button class="card-head-action" on:click={openAddSubject}>
             <Plus size={12} /> Add subject
           </button>
         {/if}
@@ -620,30 +639,33 @@
       {#if addingSubject}
         <div class="subj-add-form">
           <div class="subj-add-fields">
-            <div class="subj-field">
-              <label for="sname">Subject name</label>
-              <input id="sname" class="subj-inp" class:invalid={subjectErrors.subject_name}
-                bind:value={newSubject.subject_name} placeholder="e.g. Mathematics" />
-              {#if subjectErrors.subject_name}<p class="subj-ferr">{subjectErrors.subject_name}</p>{/if}
+            <div class="subj-field" style="flex:2">
+              <label for="ssubj">Subject</label>
+              {#if schoolSubjects.length === 0 && schoolSubjectsLoaded}
+                <p class="subj-ferr">
+                  No subjects defined yet — go to <a href="/academic?tab=subjects">Academic → Subjects</a> to add them first.
+                </p>
+              {:else}
+                <select id="ssubj" class="subj-inp" bind:value={selectedSchoolSubjectId}>
+                  <option value="">— Select a subject —</option>
+                  {#each schoolSubjects as s}
+                    <option value={s.id}>{s.name}</option>
+                  {/each}
+                </select>
+              {/if}
             </div>
             <div class="subj-field subj-field-code">
               <label for="scode">Code</label>
-              <input id="scode" class="subj-inp" class:invalid={subjectErrors.subject_code}
-                bind:value={newSubject.subject_code} placeholder="MATH" maxlength="20"
-                style="text-transform:uppercase;" />
-              {#if subjectErrors.subject_code}<p class="subj-ferr">{subjectErrors.subject_code}</p>{/if}
+              <input id="scode" class="subj-inp" bind:value={newSubjectCode}
+                placeholder="AUTO" maxlength="20" style="text-transform:uppercase;" />
             </div>
             <div class="subj-field subj-field-type">
               <label>Type</label>
               <div class="type-toggle">
-                <button
-                  class="type-btn" class:active={newSubject.is_core}
-                  on:click={() => newSubject.is_core = true}
-                >Core</button>
-                <button
-                  class="type-btn" class:active={!newSubject.is_core}
-                  on:click={() => newSubject.is_core = false}
-                >Elective</button>
+                <button class="type-btn" class:active={newSubjectIsCore}
+                  on:click={() => newSubjectIsCore = true}>Core</button>
+                <button class="type-btn" class:active={!newSubjectIsCore}
+                  on:click={() => newSubjectIsCore = false}>Elective</button>
               </div>
             </div>
           </div>
@@ -651,10 +673,10 @@
             <p class="subj-api-err"><AlertCircle size={12} />{subjectApiError}</p>
           {/if}
           <div class="subj-add-footer">
-            <Button loading={savingSubject} on:click={addSubject}>
+            <Button loading={savingSubject} on:click={addSubject} disabled={!selectedSchoolSubjectId}>
               {savingSubject ? "Adding…" : "Add subject"}
             </Button>
-            <Button variant="ghost" on:click={() => { addingSubject = false; subjectErrors = {}; newSubject = { subject_name: "", subject_code: "", is_core: true }; }}>
+            <Button variant="ghost" on:click={() => { addingSubject = false; subjectApiError = ""; }}>
               Cancel
             </Button>
           </div>

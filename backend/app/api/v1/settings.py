@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, SessionDep, require
 from app.core.permissions import Permission
-from app.models.academic import AcademicTerm, AcademicYear, Class, ClassSubject, ClassTeacher, LearningArea, SubjectTeacher
+from app.models.academic import AcademicTerm, AcademicYear, Class, ClassSubject, ClassTeacher, LearningArea, SchoolSubject, SubjectTeacher
 from app.models.student import StudentClassEnrollment
 from app.models.school import School
 from app.models.staff import PositionPermission, StaffMember, StaffPosition
@@ -18,6 +18,7 @@ from app.schemas.settings import (
     AcademicYearCreate, AcademicYearResponse, AcademicYearUpdate,
     ClassCreate, ClassDetailResponse, ClassResponse, ClassTeacherAssign,
     ClassTeacherInfo, ClassUpdate,
+    SchoolSubjectCreate, SchoolSubjectUpdate, SchoolSubjectResponse,
     ClassSubjectCreate, ClassSubjectUpdate, ClassSubjectResponse,
     SubjectTeacherInfo, SubjectTeacherAssign,
     LearningAreaCreate, LearningAreaResponse, LearningAreaUpdate,
@@ -274,6 +275,70 @@ async def delete_term(term_id: UUID, user: CurrentUser, session: SessionDep):
     if term.is_current:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Cannot delete the current term")
     await session.delete(term)
+    await session.commit()
+
+
+# ── School Subjects (catalogue) ───────────────────────────────────────────────
+
+@router.get("/subjects", response_model=list[SchoolSubjectResponse],
+            dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
+async def list_school_subjects(user: CurrentUser, session: SessionDep):
+    rows = await session.scalars(
+        select(SchoolSubject)
+        .where(SchoolSubject.school_id == _school_id(user))
+        .order_by(SchoolSubject.name)
+    )
+    return [SchoolSubjectResponse.model_validate(r) for r in rows]
+
+
+@router.post("/subjects", response_model=SchoolSubjectResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
+async def create_school_subject(body: SchoolSubjectCreate, user: CurrentUser, session: SessionDep):
+    subj = SchoolSubject(school_id=_school_id(user), **body.model_dump())
+    session.add(subj)
+    try:
+        await session.commit()
+        await session.refresh(subj)
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(status.HTTP_409_CONFLICT, f'Subject "{body.name}" already exists')
+    return SchoolSubjectResponse.model_validate(subj)
+
+
+@router.patch("/subjects/{subject_id}", response_model=SchoolSubjectResponse,
+              dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
+async def update_school_subject(
+    subject_id: UUID, body: SchoolSubjectUpdate, user: CurrentUser, session: SessionDep
+):
+    subj = await session.scalar(
+        select(SchoolSubject).where(
+            SchoolSubject.id == subject_id, SchoolSubject.school_id == _school_id(user)
+        )
+    )
+    if not subj:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Subject not found")
+    for field, value in body.model_dump(exclude_unset=True).items():
+        setattr(subj, field, value)
+    try:
+        await session.commit()
+        await session.refresh(subj)
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(status.HTTP_409_CONFLICT, "A subject with that name already exists")
+    return SchoolSubjectResponse.model_validate(subj)
+
+
+@router.delete("/subjects/{subject_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
+async def delete_school_subject(subject_id: UUID, user: CurrentUser, session: SessionDep):
+    subj = await session.scalar(
+        select(SchoolSubject).where(
+            SchoolSubject.id == subject_id, SchoolSubject.school_id == _school_id(user)
+        )
+    )
+    if not subj:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Subject not found")
+    await session.delete(subj)
     await session.commit()
 
 

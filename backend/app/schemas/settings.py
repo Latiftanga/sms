@@ -82,6 +82,58 @@ class LearningAreaResponse(IDSchema, TimestampSchema):
     short_name: str | None
     is_active: bool
 
+# ── School Subject (catalogue) ────────────────────────────────────────────────
+
+class SchoolSubjectCreate(OrmBase):
+    name: str
+    code: str | None = None
+
+    @field_validator("name")
+    @classmethod
+    def normalise_name(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("name cannot be empty")
+        return v
+
+    @field_validator("code")
+    @classmethod
+    def normalise_code(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        v = v.strip().upper()
+        return v or None
+
+
+class SchoolSubjectUpdate(OrmBase):
+    name: str | None = None
+    code: str | None = None
+    is_active: bool | None = None
+
+    @field_validator("name")
+    @classmethod
+    def normalise_name(cls, v: str | None) -> str | None:
+        if v is not None:
+            v = v.strip()
+            if not v:
+                raise ValueError("name cannot be empty")
+        return v
+
+    @field_validator("code")
+    @classmethod
+    def normalise_code(cls, v: str | None) -> str | None:
+        if v is not None:
+            v = v.strip().upper()
+            return v or None
+        return v
+
+
+class SchoolSubjectResponse(IDSchema, TimestampSchema):
+    name: str
+    code: str | None
+    is_active: bool
+
+
 # ── Class ─────────────────────────────────────────────────────────────────────
 
 class ClassCreate(OrmBase):
