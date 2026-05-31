@@ -251,3 +251,22 @@ async def superadmin_user(session: AsyncSession) -> User:
     session.add(user)
     await session.commit()
     return user
+
+
+from app.models.staff import PositionPermission
+from app.core.permissions import ALL_PERMISSIONS
+
+
+@pytest_asyncio.fixture
+async def admin_user_all_perms(
+    session: AsyncSession, admin_user: User, admin_position: StaffPosition
+) -> User:
+    """admin_user with every PositionPermission granted — use for endpoints that require perms."""
+    for perm_key in ALL_PERMISSIONS:
+        session.add(PositionPermission(
+            position_id=admin_position.id,
+            permission_key=perm_key,
+            granted=True,
+        ))
+    await session.commit()
+    return admin_user

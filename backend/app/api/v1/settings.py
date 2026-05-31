@@ -178,7 +178,11 @@ async def update_academic_year(
     for field, value in body.model_dump(exclude_none=True).items():
         setattr(year, field, value)
     await session.commit()
-    await session.refresh(year, ["terms"])
+    year = await session.scalar(
+        select(AcademicYear)
+        .where(AcademicYear.id == year_id)
+        .options(selectinload(AcademicYear.terms))
+    )
     return AcademicYearResponse.model_validate(year)
 
 
