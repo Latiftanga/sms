@@ -238,7 +238,7 @@
         `/settings/classes/${$page.params.id}/subjects/${s.id}`,
         { subject_name: name, subject_code: code },
       );
-      cls = { ...cls!, subjects: cls!.subjects.map(x => x.id === s.id ? data : x).sort((a, b) => a.subject_name.localeCompare(b.subject_name)) };
+      cls = { ...cls!, subjects: cls!.subjects.map(x => x.id === s.id ? { ...x, ...data } : x).sort((a, b) => a.subject_name.localeCompare(b.subject_name)) };
       editingSubject = null;
     } catch (e) { toast.error(apiError(e)); }
     finally { savingSubjectEdit = false; }
@@ -251,7 +251,7 @@
         `/settings/classes/${$page.params.id}/subjects/${s.id}`,
         { is_core: !s.is_core },
       );
-      cls = { ...cls!, subjects: cls!.subjects.map(x => x.id === s.id ? data : x) };
+      cls = { ...cls!, subjects: cls!.subjects.map(x => x.id === s.id ? { ...x, ...data } : x) };
     } catch (e) { toast.error(apiError(e)); }
     finally { togglingSubject = null; }
   }
@@ -263,7 +263,7 @@
         `/settings/classes/${$page.params.id}/subjects/${s.id}`,
         { is_active: !s.is_active },
       );
-      cls = { ...cls!, subjects: cls!.subjects.map(x => x.id === s.id ? data : x) };
+      cls = { ...cls!, subjects: cls!.subjects.map(x => x.id === s.id ? { ...x, ...data } : x) };
       toast.success(data.is_active ? "Subject activated" : "Subject deactivated");
     } catch (e) { toast.error(apiError(e)); }
     finally { togglingSubject = null; }

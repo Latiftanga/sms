@@ -592,6 +592,8 @@ async def _class_detail(
             )
         )
         for st, staff in st_rows:
+            if st.class_subject_id not in subject_teachers_by_subject:
+                continue  # orphaned SubjectTeacher row — skip rather than crash
             subject_teachers_by_subject[st.class_subject_id].append(
                 SubjectTeacherInfo(
                     id=st.id,
@@ -693,6 +695,7 @@ async def assign_class_teacher(
                dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def remove_class_teacher(class_id: UUID, user: CurrentUser, session: SessionDep):
     school_id = _school_id(user)
+    await _get_class_owned(class_id, school_id, session)
 
     current_year = await session.scalar(
         select(AcademicYear).where(

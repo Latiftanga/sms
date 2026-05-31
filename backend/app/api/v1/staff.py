@@ -23,9 +23,12 @@ Routes:
   POST   /staff/bulk                       — bulk CSV/Excel upload
 """
 import io
+import logging
 import secrets
 from datetime import UTC, date, datetime, timedelta
 from uuid import UUID
+
+logger = logging.getLogger(__name__)
 
 import httpx
 from fastapi import APIRouter, File, HTTPException, Query, UploadFile, status
@@ -397,6 +400,10 @@ async def send_invite(
         existing.email = str(body.email)
         existing.invite_token = token
         existing.invite_expires_at = expires_at
+        # Re-apply default roles in case they were cleared since the first invite
+        await session.flush()
+        codes = _default_role_codes(member)
+        await _assign_roles_by_codes(existing, codes, user.id, session)
     else:
         new_user = User(
             email=str(body.email),
@@ -422,8 +429,8 @@ async def send_invite(
         try:
             await _send_invite_sms(member.phone, token)
             sms_sent = True
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("SMS invite failed for staff %s: %s", member.id, e)
 
     return InviteResponse(invite_token=token, email=str(body.email), sms_sent=sms_sent)
 
@@ -455,8 +462,8 @@ async def reset_password(
         try:
             await _send_invite_sms(member.phone, token)
             sms_sent = True
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("SMS invite failed for staff %s: %s", member.id, e)
 
     return InviteResponse(invite_token=token, email=linked.email, sms_sent=sms_sent)
 
