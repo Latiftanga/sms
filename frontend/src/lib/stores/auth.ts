@@ -30,8 +30,12 @@ function createAuthStore() {
 
       try {
         const { data } = await api.get<User>("/auth/me");
+        // Re-check after await: login() may have won the race and already set the user.
+        if (get({ subscribe }).user) return;
         set({ user: data, loading: false, error: null });
       } catch {
+        // Don't wipe a user that login() just set while /auth/me was in-flight.
+        if (get({ subscribe }).user) return;
         set({ user: null, loading: false, error: null });
       }
     },

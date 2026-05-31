@@ -95,18 +95,17 @@
   // SUPERADMIN bypasses all checks.
   $: perms = ($currentUser?.permissions ?? {}) as Record<string, boolean>;
 
-  function canSee(anyPermission: string[] | undefined): boolean {
-    if (isSuperAdmin) return true;
-    if (!anyPermission?.length) return true;
-    return anyPermission.some(k => perms[k] === true);
-  }
-
   // Rebuild visible groups whenever permissions or role changes.
   // Groups with zero visible items are dropped entirely (no phantom dividers).
+  // Inlined (not a helper fn) so Svelte tracks perms + isSuperAdmin as dependencies.
   $: visibleGroups = NAV
     .map((group: NavGroup) => ({
       ...group,
-      items: group.items.filter(item => canSee(item.anyPermission)),
+      items: group.items.filter(item => {
+        if (isSuperAdmin) return true;
+        if (!item.anyPermission?.length) return true;
+        return item.anyPermission.some(k => perms[k] === true);
+      }),
     }))
     .filter(group => group.items.length > 0);
 
@@ -115,7 +114,7 @@
     ? `position:fixed;top:var(--topbar-h);left:0;height:calc(100% - var(--topbar-h));width:var(--sidebar-w);transform:translateX(${mobileOpen ? "0" : "-100%"});transition:transform 0.22s ease;z-index:50;`
     : `position:relative;width:${collapsed ? "54px" : "var(--sidebar-w)"};transition:width 0.2s ease;z-index:20;`;
 
-  $: userName = $currentUser?.email?.split("@")[0] ?? "—";
+  $: userName = $currentUser?.full_name || $currentUser?.email?.split("@")[0] || "—";
   $: userRole = $currentUser?.system_role ?? "—";
 </script>
 

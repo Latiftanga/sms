@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   email: string;
+  full_name: string | null;
   system_role: "SUPERADMIN" | "SCHOOL_STAFF" | "STUDENT" | "PARENT";
   school_id: string | null;
   permissions: Record<string, boolean>;

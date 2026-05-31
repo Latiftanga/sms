@@ -55,6 +55,10 @@ class User(UUIDPrimaryKey, TimestampMixin, Base):
     invite_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     is_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
+    # Self-service password reset
+    password_reset_token: Mapped[str | None] = mapped_column(String(100), unique=True)
+    password_reset_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
     staff_member: Mapped["StaffMember | None"] = relationship(
         foreign_keys=[staff_member_id], back_populates="user"
     )

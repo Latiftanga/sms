@@ -3,13 +3,11 @@
   import { page } from "$app/stores";
   import { goto } from "$app/navigation";
   import { api } from "$api/client";
-  import { auth } from "$lib/stores/auth";
   import { schoolBranding } from "$stores/school";
-  import { Eye, EyeOff, AlertCircle, Loader2 } from "@lucide/svelte";
+  import { Eye, EyeOff, AlertCircle, Loader2, CheckCircle } from "@lucide/svelte";
 
   const token = $page.params.token;
 
-  let staffName = "";
   let email = "";
   let loading = true;
   let loadError = "";
@@ -20,20 +18,32 @@
   let showConfirm = false;
   let submitting = false;
   let submitError = "";
+  let done = false;
 
   onMount(async () => {
+    // Apply saved theme
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const saved = localStorage.getItem("sis-theme");
+    const isDark = saved === "dark" || ((!saved || saved === "system") && mq.matches);
+    document.documentElement.classList.toggle("dark", isDark);
+    const handler = (e: MediaQueryListEvent) => {
+      if (!saved || saved === "system") document.documentElement.classList.toggle("dark", e.matches);
+    };
+    mq.addEventListener("change", handler);
+
     try {
-      const { data } = await api.get<{ staff_name: string; email: string }>(`/auth/invite/${token}`);
-      staffName = data.staff_name;
+      const { data } = await api.get<{ email: string }>(`/auth/reset-password/${token}`);
       email = data.email;
     } catch (e: unknown) {
-      const err = e as { response?: { data?: { detail?: string }; status?: number } };
+      const err = e as { response?: { status?: number } };
       loadError = err?.response?.status === 410
-        ? "This invite link has expired. Ask your admin to send a new one."
-        : "This invite link is invalid or has already been used.";
+        ? "This reset link has expired. Request a new one from the login page."
+        : "This reset link is invalid or has already been used.";
     } finally {
       loading = false;
     }
+
+    return () => mq.removeEventListener("change", handler);
   });
 
   $: strength = password.length === 0 ? 0
@@ -51,13 +61,12 @@
     if (password !== confirm) { submitError = "Passwords do not match."; return; }
     submitting = true;
     try {
-      await api.post(`/auth/invite/${token}`, { password });
-      await auth.login(email, password);
-      goto("/dashboard");
+      await api.post(`/auth/reset-password/${token}`, { password });
+      done = true;
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string }; status?: number } };
       submitError = err?.response?.status === 410
-        ? "This invite has expired. Ask your admin to send a new one."
+        ? "This link has expired. Request a new one."
         : err?.response?.data?.detail ?? "Something went wrong. Please try again.";
     } finally {
       submitting = false;
@@ -70,11 +79,11 @@
 </script>
 
 <svelte:head>
-  <title>Set up your account — TTEK SIS</title>
+  <title>Reset password — {schoolName}</title>
 </svelte:head>
 
-<div class="invite-page">
-  <div class="invite-card">
+<div class="shell">
+  <div class="card">
 
     <div class="brand">
       {#if logoUrl}
@@ -88,29 +97,37 @@
     {#if loading}
       <div class="state-center">
         <Loader2 size={24} class="spin" />
-        <span>Validating invite…</span>
+        <span>Validating link…</span>
       </div>
 
     {:else if loadError}
       <div class="state-center error-state">
-        <AlertCircle size={28} class="error-icon" />
-        <p class="error-msg">{loadError}</p>
-        <a href="/login" class="back-link">Back to sign in</a>
+        <AlertCircle size={28} />
+        <p class="state-msg">{loadError}</p>
+        <a href="/forgot-password" class="link">Request a new link</a>
+      </div>
+
+    {:else if done}
+      <div class="state-center success-state">
+        <CheckCircle size={32} />
+        <p class="state-title">Password updated</p>
+        <p class="state-msg">Your password has been reset successfully.</p>
+        <a href="/login" class="btn-primary" style="background:{accentColor}">Sign in</a>
       </div>
 
     {:else}
-      <div class="invite-header">
-        <h1>Welcome{staffName ? `, ${staffName.split(" ")[0]}` : ""}!</h1>
-        <p class="invite-sub">Set a password for <strong>{email}</strong> to activate your account.</p>
+      <div class="form-header">
+        <h1>Set a new password</h1>
+        <p>For <strong>{email}</strong></p>
       </div>
 
-      <form class="invite-form" on:submit|preventDefault={submit}>
+      <form on:submit|preventDefault={submit}>
         {#if submitError}
-          <p class="form-error"><AlertCircle size={13} /> {submitError}</p>
+          <div class="err-box"><AlertCircle size={13} /> {submitError}</div>
         {/if}
 
         <div class="field">
-          <label for="pw">Password</label>
+          <label for="pw">New password</label>
           <div class="input-wrap">
             <input
               id="pw"
@@ -149,13 +166,15 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-primary" class:loading={submitting} disabled={submitting}>
+        <button type="submit" class="btn-primary" disabled={submitting} style="background:{accentColor}">
           {#if submitting}<Loader2 size={14} class="spin" />{/if}
-          Activate account
+          Reset password
         </button>
       </form>
+    {/if}
 
-      <p class="footer-note">Already set up? <a href="/login">Sign in</a></p>
+    {#if !done}
+      <a href="/login" class="back-link">← Back to sign in</a>
     {/if}
 
   </div>
@@ -164,92 +183,87 @@
 <style>
   :global(body) { margin: 0; }
 
-  .invite-page {
+  .shell {
     min-height: 100dvh;
     display: flex; align-items: center; justify-content: center;
-    background: var(--bg, #F2F0EC);
-    padding: 24px 16px;
+    background: var(--bg); padding: 24px 16px;
   }
 
-  .invite-card {
+  .card {
     width: 100%; max-width: 420px;
-    background: var(--surface-1, #fff);
-    border: 1px solid var(--border-subtle, #e5e2db);
+    background: var(--surface-0);
+    border: 1px solid var(--border-subtle);
     border-radius: 16px;
     padding: 36px 32px;
     display: flex; flex-direction: column; gap: 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
   }
 
-  /* ── Brand ── */
   .brand {
     display: flex; align-items: center; gap: 10px;
   }
   .brand-mark {
     width: 32px; height: 32px; border-radius: 8px;
-    color: #fff;
+    color: #fff; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
     font-weight: 700; font-size: 1rem;
-    flex-shrink: 0;
   }
   .brand-logo {
     width: 32px; height: 32px; border-radius: 8px;
-    object-fit: contain; border: 1px solid var(--border-subtle, #e5e2db);
+    object-fit: contain; border: 1px solid var(--border-subtle);
     flex-shrink: 0;
   }
-  .brand-name { font-weight: 600; font-size: 0.9375rem; color: var(--tx-high, #1a1a1a); }
+  .brand-name { font-weight: 600; font-size: 0.9375rem; color: var(--tx-high); }
 
-  /* ── Header ── */
-  .invite-header { display: flex; flex-direction: column; gap: 6px; }
-  .invite-header h1 { margin: 0; font-size: 1.375rem; font-weight: 700; color: var(--tx-high, #1a1a1a); }
-  .invite-sub { margin: 0; font-size: 0.875rem; color: var(--tx-mid, #666); line-height: 1.5; }
+  .form-header { display: flex; flex-direction: column; gap: 4px; }
+  .form-header h1 { margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--tx-high); }
+  .form-header p { margin: 0; font-size: 0.875rem; color: var(--tx-mid); }
 
-  /* ── Form ── */
-  .invite-form { display: flex; flex-direction: column; gap: 16px; }
+  form { display: flex; flex-direction: column; gap: 16px; }
 
   .field { display: flex; flex-direction: column; gap: 6px; }
-  .field label { font-size: 0.8125rem; font-weight: 500; color: var(--tx-mid, #555); }
+  .field label { font-size: 0.8125rem; font-weight: 500; color: var(--tx-mid); }
 
   .input-wrap { position: relative; }
   .input {
     width: 100%; box-sizing: border-box;
     height: 38px; padding: 0 36px 0 12px;
-    border: 1px solid var(--border-strong, #d0cdc7);
+    border: 1px solid var(--border-strong);
     border-radius: 8px; font-size: 0.9375rem;
-    background: var(--surface-0, #f8f6f1);
-    color: var(--tx-high, #1a1a1a);
-    transition: border-color 0.12s, box-shadow 0.12s;
+    background: var(--surface-1); color: var(--tx-high);
     font-family: inherit;
+    transition: border-color 0.12s, box-shadow 0.12s;
   }
-  .input:focus { outline: none; border-color: var(--accent, #6366f1); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #6366f1) 15%, transparent); }
+  .input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .input::placeholder { color: var(--tx-low); }
 
   .eye-btn {
     position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; cursor: pointer; color: var(--tx-low, #999);
-    padding: 2px; display: flex; align-items: center;
+    background: none; border: none; cursor: pointer;
+    color: var(--tx-low); padding: 2px; display: flex; align-items: center;
   }
 
-  /* ── Strength ── */
   .strength-bar {
-    height: 3px; background: var(--border-subtle, #e5e2db);
+    height: 3px; background: var(--border-subtle);
     border-radius: 99px; overflow: hidden; margin-top: 4px;
   }
   .strength-fill { height: 100%; border-radius: 99px; transition: width 0.3s, background 0.3s; }
   .strength-label { font-size: 0.75rem; font-weight: 500; }
 
-  /* ── Submit button ── */
   .btn-primary {
     height: 40px; border-radius: 9px; border: none; cursor: pointer;
-    background: var(--accent, #6366f1); color: #fff;
-    font-size: 0.9375rem; font-weight: 600; font-family: inherit;
+    color: #fff; font-size: 0.9375rem; font-weight: 600; font-family: inherit;
     display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: background 0.12s, opacity 0.12s;
-    margin-top: 4px;
+    transition: filter 0.12s, opacity 0.12s;
+    text-decoration: none;
   }
-  .btn-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--accent, #6366f1) 85%, #000); }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
   .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
-  /* ── Form error ── */
-  .form-error {
+  .err-box {
     display: flex; align-items: center; gap: 6px;
     padding: 9px 12px; border-radius: 8px;
     font-size: 0.8125rem; color: #ef4444;
@@ -257,25 +271,26 @@
     border: 1px solid color-mix(in srgb, #ef4444 20%, transparent);
   }
 
-  /* ── States ── */
   .state-center {
     display: flex; flex-direction: column; align-items: center;
-    gap: 12px; padding: 24px 0; text-align: center;
-    color: var(--tx-mid, #666); font-size: 0.9375rem;
+    gap: 12px; padding: 16px 0; text-align: center;
+    color: var(--tx-mid); font-size: 0.9375rem;
   }
-  :global(.state-center .spin) { color: var(--tx-low, #aaa); }
+  .error-state { color: #ef4444; }
+  .success-state { color: #10b981; }
+  .state-title { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--tx-high); }
+  .state-msg { margin: 0; color: var(--tx-mid); font-size: 0.875rem; line-height: 1.5; }
 
-  .error-state :global(.error-icon) { color: #ef4444; }
-  .error-msg { margin: 0; color: var(--tx-mid, #666); }
-  .back-link { color: var(--accent, #6366f1); font-size: 0.875rem; text-decoration: none; }
-  .back-link:hover { text-decoration: underline; }
+  .link { color: var(--accent); font-size: 0.875rem; text-decoration: none; }
+  .link:hover { text-decoration: underline; }
 
-  /* ── Footer ── */
-  .footer-note { margin: 0; font-size: 0.8125rem; color: var(--tx-low, #999); text-align: center; }
-  .footer-note a { color: var(--accent, #6366f1); text-decoration: none; }
-  .footer-note a:hover { text-decoration: underline; }
+  .back-link {
+    display: block; text-align: center;
+    font-size: 0.8125rem; color: var(--tx-low);
+    text-decoration: none; transition: color 0.12s;
+  }
+  .back-link:hover { color: var(--tx-mid); }
 
-  /* ── Animations ── */
   :global(.spin) { animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>

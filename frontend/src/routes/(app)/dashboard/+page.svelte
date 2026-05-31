@@ -17,7 +17,7 @@
     if (h < 17) return "Good afternoon";
     return "Good evening";
   })();
-  $: name = $currentUser?.email?.split("@")[0] ?? "there";
+  $: name = $currentUser?.full_name?.split(" ")[0] || $currentUser?.email?.split("@")[0] || "there";
   $: today = new Date().toLocaleDateString("en-GH", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
