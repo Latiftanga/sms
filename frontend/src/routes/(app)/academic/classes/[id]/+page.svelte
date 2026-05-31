@@ -124,10 +124,10 @@
   async function saveStream() {
     savingStream = true;
     try {
-      await api.patch(`/settings/classes/${$page.params.id}`, {
+      const { data } = await api.patch(`/settings/classes/${$page.params.id}`, {
         stream: streamValue.trim() || null,
       });
-      cls = { ...cls!, stream: streamValue.trim() || null };
+      cls = { ...cls!, ...data };
       editingStream = false;
       toast.success("Stream updated");
     } catch (e) { toast.error(apiError(e)); }
@@ -139,8 +139,8 @@
     const next = !cls.is_active;
     togglingActive = true;
     try {
-      await api.patch(`/settings/classes/${$page.params.id}`, { is_active: next });
-      cls = { ...cls, is_active: next };
+      const { data } = await api.patch(`/settings/classes/${$page.params.id}`, { is_active: next });
+      cls = { ...cls!, ...data };
       toast.success(next ? "Class activated" : "Class deactivated");
     } catch (e) { toast.error(apiError(e)); }
     finally { togglingActive = false; }
