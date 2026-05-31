@@ -205,17 +205,18 @@
       );
 
       // Optionally assign the teacher in the same step
+      let newSubject: ClassSubject = data;
       if (newSubjectTeacherId) {
         try {
           const { data: st } = await api.post<SubjectTeacherInfo>(
             `/settings/classes/${$page.params.id}/subjects/${data.id}/teachers`,
             { staff_member_id: newSubjectTeacherId },
           );
-          data.teachers = [st];
+          newSubject = { ...data, teachers: [st] };
         } catch { /* teacher assignment is best-effort — subject was still created */ }
       }
 
-      cls = { ...cls!, subjects: [...cls!.subjects, data].sort((a, b) => a.subject_name.localeCompare(b.subject_name)) };
+      cls = { ...cls!, subjects: [...cls!.subjects, newSubject].sort((a, b) => a.subject_name.localeCompare(b.subject_name)) };
       selectedSchoolSubjectId = ""; newSubjectCode = ""; newSubjectTeacherId = ""; addingSubject = false;
       toast.success("Subject added");
     } catch (e) { subjectApiError = apiError(e); }

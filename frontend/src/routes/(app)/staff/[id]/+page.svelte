@@ -443,9 +443,8 @@
     if (!ok) return;
     try {
       await api.delete(`/staff/${staffId}/roles/${userRoleId}`);
-      staffPerms = { ...staffPerms!, roles: staffPerms!.roles.filter(r => r.id !== userRoleId) };
       toast.success("Role removed");
-      await loadPerms(); // refresh effective permissions
+      await loadPerms(); // refreshes roles + recomputes effective permissions
     } catch (e) { toast.error(apiError(e)); }
   }
 
