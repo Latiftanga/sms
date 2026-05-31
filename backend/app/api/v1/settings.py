@@ -38,6 +38,14 @@ def _school_id(user: CurrentUser) -> UUID:
     return user.school_id
 
 
+async def _current_year(school_id: UUID, session: SessionDep) -> AcademicYear | None:
+    return await session.scalar(
+        select(AcademicYear).where(
+            AcademicYear.school_id == school_id, AcademicYear.is_current.is_(True)
+        )
+    )
+
+
 def _require_shs(school: School) -> None:
     if "SHS" not in (school.education_levels or []):
         raise HTTPException(
@@ -540,29 +548,27 @@ async def _class_detail(
     if not cls:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Class not found")
 
-    current_year = await session.scalar(
-        select(AcademicYear).where(
-            AcademicYear.school_id == school_id, AcademicYear.is_current.is_(True)
-        )
-    )
+    current_year = await _current_year(school_id, session)
 
     class_teacher: ClassTeacherInfo | None = None
     student_count = 0
 
     if current_year:
-        ct = await session.scalar(
-            select(ClassTeacher).where(
+        ct_row = await session.execute(
+            select(ClassTeacher, StaffMember)
+            .join(StaffMember, StaffMember.id == ClassTeacher.staff_member_id)
+            .where(
                 ClassTeacher.class_id == class_id,
                 ClassTeacher.academic_year_id == current_year.id,
             )
         )
-        if ct:
-            staff = await session.get(StaffMember, ct.staff_member_id)
-            if staff:
-                class_teacher = ClassTeacherInfo(
-                    staff_member_id=staff.id,
-                    staff_name=staff.full_name,
-                )
+        ct_pair = ct_row.first()
+        if ct_pair:
+            _, staff = ct_pair
+            class_teacher = ClassTeacherInfo(
+                staff_member_id=staff.id,
+                staff_name=staff.full_name,
+            )
 
         student_count = await session.scalar(
             select(func.count(StudentClassEnrollment.id)).where(
@@ -661,11 +667,7 @@ async def assign_class_teacher(
     if not staff:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Staff member not found")
 
-    current_year = await session.scalar(
-        select(AcademicYear).where(
-            AcademicYear.school_id == school_id, AcademicYear.is_current.is_(True)
-        )
-    )
+    current_year = await _current_year(school_id, session)
     if not current_year:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
@@ -697,11 +699,7 @@ async def remove_class_teacher(class_id: UUID, user: CurrentUser, session: Sessi
     school_id = _school_id(user)
     await _get_class_owned(class_id, school_id, session)
 
-    current_year = await session.scalar(
-        select(AcademicYear).where(
-            AcademicYear.school_id == school_id, AcademicYear.is_current.is_(True)
-        )
-    )
+    current_year = await _current_year(school_id, session)
     if not current_year:
         return  # nothing to remove
 
@@ -865,11 +863,7 @@ async def assign_subject_teacher(
     if not subj:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Subject not found")
 
-    current_year = await session.scalar(
-        select(AcademicYear).where(
-            AcademicYear.school_id == school_id, AcademicYear.is_current.is_(True)
-        )
-    )
+    current_year = await _current_year(school_id, session)
     if not current_year:
         raise HTTPException(status.HTTP_409_CONFLICT, "No active academic year")
 

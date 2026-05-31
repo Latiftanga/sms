@@ -462,6 +462,16 @@
     { label: "Settings",     keys: ["manage_school_config", "manage_academic_structure", "manage_users", "view_analytics"] },
   ];
 
+  // Any permission the backend returns that isn't listed above lands here,
+  // so new backend permissions are never silently invisible in the UI.
+  const KNOWN_PERM_KEYS = new Set(PERM_GROUPS.flatMap(g => g.keys));
+  $: unknownPermKeys = staffPerms
+    ? Object.keys(staffPerms.permissions).filter(k => !KNOWN_PERM_KEYS.has(k))
+    : [];
+  $: allPermGroups = unknownPermKeys.length > 0
+    ? [...PERM_GROUPS, { label: "Other", keys: unknownPermKeys }]
+    : PERM_GROUPS;
+
   let savingPerms: Set<string> = new Set();
   let addingOverride = false;
   let newOverridePerm = "";
@@ -1186,7 +1196,7 @@
                   <div class="add-override-form">
                     <select class="input input-sm" bind:value={newOverridePerm}>
                       <option value="">— Pick a permission —</option>
-                      {#each PERM_GROUPS as group}
+                      {#each allPermGroups as group}
                         <optgroup label={group.label}>
                           {#each group.keys.filter(k => !overrideKeys.has(k)) as key}
                             <option value={key}>{key.replace(/_/g, " ")}</option>

@@ -31,9 +31,13 @@
     // the 15-minute access-token window without ever wiping the nav on failure.
     const interval = setInterval(() => auth.refresh(), 12 * 60 * 1000);
 
-    // Also refresh when the user returns to this tab after being away.
+    // Refresh when the user returns to this tab, debounced to avoid request
+    // storms from rapid tab switching.
+    let visibilityTimer: ReturnType<typeof setTimeout> | null = null;
     function onVisibilityChange() {
-      if (document.visibilityState === "visible") auth.refresh();
+      if (document.visibilityState !== "visible") return;
+      if (visibilityTimer) clearTimeout(visibilityTimer);
+      visibilityTimer = setTimeout(() => auth.refresh(), 500);
     }
     document.addEventListener("visibilitychange", onVisibilityChange);
 
