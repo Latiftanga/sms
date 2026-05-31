@@ -400,26 +400,24 @@
 
       <!-- ① Class Details -->
       <div class="card">
-        <div class="card-head">
-          <div class="card-icon"><GraduationCap size={15} /></div>
-          <div class="card-head-text"><span class="card-title">Class Details</span></div>
-        </div>
-        <div class="card-body no-pad">
+        <div class="detail-bar">
 
-          <div class="info-row">
-            <span class="info-label">Level</span>
-            <span class="info-val">{cls.level}{cls.year ? ` ${cls.year}` : ""}</span>
+          <div class="detail-item">
+            <span class="detail-label">Level</span>
+            <span class="detail-val">{cls.level}{cls.year ? ` ${cls.year}` : ""}</span>
           </div>
 
           {#if cls.learning_area}
-            <div class="info-row">
-              <span class="info-label">Programme</span>
-              <span class="info-val">{cls.learning_area.name}</span>
+            <div class="detail-div"></div>
+            <div class="detail-item">
+              <span class="detail-label">Programme</span>
+              <span class="detail-val">{cls.learning_area.name}</span>
             </div>
           {/if}
 
-          <div class="info-row">
-            <span class="info-label">Stream</span>
+          <div class="detail-div"></div>
+          <div class="detail-item">
+            <span class="detail-label">Stream</span>
             {#if editingStream}
               <div class="stream-edit">
                 <input class="stream-inp" bind:value={streamValue} placeholder="A, Gold, Blue…"
@@ -432,12 +430,8 @@
                 </button>
               </div>
             {:else}
-              <div class="info-val-row">
-                {#if cls.stream}
-                  <span class="info-val">{cls.stream}</span>
-                {:else}
-                  <span class="info-val info-muted">None</span>
-                {/if}
+              <div class="detail-val-edit">
+                <span class="detail-val" class:detail-muted={!cls.stream}>{cls.stream ?? "None"}</span>
                 <button class="iact" on:click={() => { editingStream = true; streamValue = cls?.stream ?? ""; }} title="Edit stream">
                   <Pencil size={12} />
                 </button>
@@ -445,24 +439,17 @@
             {/if}
           </div>
 
-          <div class="info-row info-row-last">
-            <span class="info-label">Status</span>
-            <div class="status-toggle">
-              {#if cls.is_active}
-                <span class="sdot active"></span><span class="sval">Active</span>
-              {:else}
-                <span class="sdot inactive"></span><span class="sval muted">Inactive</span>
-              {/if}
-              <button class="toggle-status" class:is-active={cls.is_active}
-                on:click={toggleActive} disabled={togglingActive}
-                title={cls.is_active ? "Deactivate class" : "Activate class"}>
-                {#if togglingActive}
-                  <Loader2 size={13} class="spin" />
-                {:else if cls.is_active}
-                  <ToggleRight size={18} />
-                {:else}
-                  <ToggleLeft size={18} />
-                {/if}
+          <div class="detail-div"></div>
+          <div class="detail-item">
+            <span class="detail-label">Status</span>
+            <div class="detail-val-edit">
+              <span class="sdot" class:active={cls.is_active} class:inactive={!cls.is_active}></span>
+              <span class="detail-val" class:detail-muted={!cls.is_active}>{cls.is_active ? "Active" : "Inactive"}</span>
+              <button class="iact" on:click={toggleActive} disabled={togglingActive}
+                title={cls.is_active ? "Deactivate" : "Activate"}>
+                {#if togglingActive}<Loader2 size={13} class="spin" />
+                {:else if cls.is_active}<ToggleRight size={16} style="color:var(--accent)" />
+                {:else}<ToggleLeft size={16} />{/if}
               </button>
             </div>
           </div>
@@ -1044,21 +1031,28 @@
 .enroll-hint strong { color: var(--tx-mid); }
 
 /* ── Info rows (sidebar) ─────────────────────────────────────────── */
-.info-row {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 10px; padding: 10px 16px;
-  border-bottom: 1px solid var(--border-subtle);
+/* ── Detail bar (horizontal row of labeled values) ───────────────── */
+.detail-bar {
+  display: flex; align-items: center; flex-wrap: wrap;
+  padding: 12px 16px; gap: 0;
 }
-.info-row-last { border-bottom: none; }
-.info-label {
-  font-size: 11.5px; font-weight: 600; color: var(--tx-low);
-  text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0;
+.detail-item {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 0 16px;
 }
-.info-val {
-  font-size: 13px; font-weight: 500; color: var(--tx-high); text-align: right;
+.detail-item:first-child { padding-left: 0; }
+.detail-div {
+  width: 1px; height: 32px; background: var(--border-subtle); flex-shrink: 0;
 }
-.info-muted { color: var(--tx-low); font-weight: 400; }
-.info-val-row { display: flex; align-items: center; gap: 4px; }
+.detail-label {
+  font-size: 10.5px; font-weight: 600; color: var(--tx-low);
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.detail-val {
+  font-size: 13px; font-weight: 500; color: var(--tx-high);
+}
+.detail-muted { color: var(--tx-low); font-weight: 400; }
+.detail-val-edit { display: flex; align-items: center; gap: 2px; }
 
 /* ── Stream editing ──────────────────────────────────────────────── */
 .stream-edit { display: flex; align-items: center; gap: 4px; }
@@ -1082,25 +1076,10 @@
 .iact.ok:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); }
 .iact:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ── Status toggle ───────────────────────────────────────────────── */
-.status-toggle { display: flex; align-items: center; gap: 6px; }
-.sdot {
-  width: 7px; height: 7px; border-radius: 50%;
-}
+/* ── Status dot ──────────────────────────────────────────────────── */
+.sdot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .sdot.active   { background: var(--ok-dot); }
 .sdot.inactive { background: var(--border-strong); }
-.sval { font-size: 12.5px; font-weight: 500; color: var(--tx-high); }
-.sval.muted { color: var(--tx-low); }
-.toggle-status {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; border-radius: 6px;
-  background: none; border: none; cursor: pointer;
-  color: var(--tx-low); transition: color 0.12s, background 0.12s;
-  margin-left: 2px;
-}
-.toggle-status:hover { background: var(--surface-2); color: var(--tx-high); }
-.toggle-status.is-active { color: var(--accent); }
-.toggle-status:disabled { opacity: 0.4; cursor: not-allowed; }
 
 :global(.spin) { animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
