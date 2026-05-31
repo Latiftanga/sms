@@ -171,6 +171,6 @@ def _compute_easter(year: int) -> date:
 def _compute_farmers_day(year: int) -> date:
     """First Friday of December."""
     d = date(year, 12, 1)
-    # isoweekday(): 1=Mon, 5=Fri
-    days_until_friday = (4 - d.isoweekday()) % 7
+    # isoweekday(): 1=Mon … 5=Fri; find next (or same) Friday
+    days_until_friday = (5 - d.isoweekday()) % 7
     return d + timedelta(days=days_until_friday)

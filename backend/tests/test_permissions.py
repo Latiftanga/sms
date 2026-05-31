@@ -63,7 +63,7 @@ async def test_position_template_grant(
     session.add(perm)
     await session.flush()
 
-    admin_user.position_id = admin_position.id
+    # admin_user is already linked to admin_position via UserRole (created in fixture)
     admin_user.staff_member_id = None  # no personal overrides
 
     mock_redis.get.return_value = None  # cache miss
@@ -112,8 +112,12 @@ async def test_personal_override_beats_position(
     session.add(override)
     await session.flush()
 
+    # Point admin_user at the staff record so the override lookup hits it
     admin_user.staff_member_id = staff.id
-    admin_user.position_id = admin_position.id
+    await session.flush()
+
+    # admin_user is already linked to admin_position via UserRole (created in fixture),
+    # so the role-level grant is real — the override must beat it
     mock_redis.get.return_value = None
 
     result = await resolve_all_permissions(admin_user, mock_redis, session)

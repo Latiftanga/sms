@@ -65,7 +65,7 @@ async def test_login_inactive_user(
         is_verified=True,
     )
     session.add(user)
-    await session.flush()
+    await session.commit()
 
     r = await client.post("/api/v1/auth/login", json={
         "email": "inactive@testschool.edu.gh",
@@ -87,7 +87,7 @@ async def test_login_unverified_user(
         is_verified=False,
     )
     session.add(user)
-    await session.flush()
+    await session.commit()
 
     r = await client.post("/api/v1/auth/login", json={
         "email": "unverified@testschool.edu.gh",
@@ -155,9 +155,9 @@ async def test_logout(client: AsyncClient, admin_user: User) -> None:
 
 @pytest.mark.asyncio
 async def test_me_requires_auth(client: AsyncClient) -> None:
-    # HTTPBearer(auto_error=True) returns 403 when Authorization header is absent
+    # Starlette's HTTPBearer(auto_error=True) returns 401 when Authorization header is absent
     r = await client.get("/api/v1/auth/me")
-    assert r.status_code == 403
+    assert r.status_code == 401
 
 
 @pytest.mark.asyncio

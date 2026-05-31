@@ -7,6 +7,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./infra/init-db.sh:/docker-entrypoint-initdb.d/10-init-test-db.sh:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ttek -d ttek_sis"]
       interval: 5s
@@ -73,6 +74,23 @@ services:
       db:
         condition: service_healthy
     profiles: ["migrate"]
+
+  test:
+    build:
+      context: ./backend
+      target: runtime
+    command: ["python", "-m", "pytest", "tests/", "-v", "--tb=short"]
+    env_file: .env
+    environment:
+      APP_ENV: test
+      DATABASE_URL: postgresql+asyncpg://ttek:${POSTGRES_PASSWORD}@db:5432/ttek_sis_test
+      REDIS_URL: redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles: ["test"]
 
   frontend:
     build:

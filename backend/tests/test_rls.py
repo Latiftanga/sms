@@ -43,7 +43,7 @@ async def test_school_staff_without_school_id_gets_403(
         is_verified=True,
     )
     session.add(orphan)
-    await session.flush()
+    await session.commit()
 
     r = await client.get("/api/v1/auth/me", headers=_bearer(orphan))
     assert r.status_code == 403
@@ -63,7 +63,7 @@ async def test_student_without_school_id_gets_403(
         is_verified=True,
     )
     session.add(student)
-    await session.flush()
+    await session.commit()
 
     r = await client.get("/api/v1/auth/me", headers=_bearer(student))
     assert r.status_code == 403
@@ -95,7 +95,7 @@ async def second_school(session: AsyncSession) -> School:
     await session.flush()
     schedule = SchoolSchedule(school_id=school.id, school_days=[1, 2, 3, 4, 5])
     session.add(schedule)
-    await session.flush()
+    await session.commit()
     return school
 
 
@@ -132,7 +132,7 @@ async def test_token_with_wrong_school_id_blocked(
         is_verified=True,
     )
     session.add(user)
-    await session.flush()
+    await session.commit()
 
     # Craft a token that claims test_school — DB lookup uses user.school_id, not token claim
     forged_token = create_access_token(

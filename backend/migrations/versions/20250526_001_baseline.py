@@ -40,7 +40,7 @@ def downgrade() -> None:
         "academic_term", "academic_year",
         "staff_leave", "staff_qualification", "staff_promotion",
         "staff_permission", "staff_member",
-        "user",
+        '"user"',
         "position_permission", "staff_position",
         "school_config", "school_schedule", "school",
         "grade", "grading_scale",
