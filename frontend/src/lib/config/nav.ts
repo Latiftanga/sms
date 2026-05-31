@@ -41,7 +41,6 @@ import {
   Users2,
   Settings2,
   GraduationCap,
-  UserCircle,
 } from "@lucide/svelte";
 
 export const NAV: NavGroup[] = [
@@ -49,7 +48,6 @@ export const NAV: NavGroup[] = [
   {
     items: [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/profile",   label: "My Profile", icon: UserCircle },
     ],
   },
 

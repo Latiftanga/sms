@@ -4,7 +4,7 @@
   import { auth, isAuthenticated, currentUser } from "$stores/auth";
   import { schoolBranding } from "$stores/school";
   import { Avatar, Toaster, ConfirmDialog } from "$components";
-  import { PanelLeft, Bell, Sun, Moon, Monitor, LogOut } from "@lucide/svelte";
+  import { PanelLeft, Bell, Sun, Moon, Monitor, LogOut, Settings } from "@lucide/svelte";
   import { onMount } from "svelte";
   import { NAV, type NavGroup } from "$lib/config/nav";
 
@@ -213,18 +213,22 @@
 
       <!-- User footer -->
       <div class="sidebar-footer">
-        <div class="user-card">
+        <a href="/profile" class="user-card" class:active={active("/profile")}>
           <Avatar name={$currentUser?.email ?? "U"} size="sm" />
           {#if !collapsed || mobile}
             <div class="user-info">
               <div class="user-name">{userName}</div>
               <div class="user-role">{userRole}</div>
             </div>
-            <button class="logout-btn" on:click={handleLogout} aria-label="Sign out">
+          {/if}
+        </a>
+        {#if !collapsed || mobile}
+          <div class="footer-actions">
+            <button class="footer-btn" on:click={handleLogout} aria-label="Sign out" title="Sign out">
               <LogOut size={14} />
             </button>
-          {/if}
-        </div>
+          </div>
+        {/if}
       </div>
 
     </aside>
@@ -383,22 +387,40 @@
   /* Sidebar user footer */
   .sidebar-footer {
     border-top: 1px solid var(--border-subtle);
-    padding: 10px 8px;
+    padding: 8px 8px 8px;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
 
   .user-card {
+    flex: 1;
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 9px;
-    padding: 5px 4px;
+    padding: 5px 6px;
     border-radius: 8px;
     overflow: hidden;
+    text-decoration: none;
+    transition: background 0.12s;
+  }
+
+  .user-card:hover {
+    background: var(--accent-subtle);
+  }
+
+  .user-card.active {
+    background: var(--accent-subtle);
+    outline: 1.5px solid color-mix(in srgb, var(--accent) 30%, transparent);
   }
 
   .sidebar.collapsed .user-card {
     justify-content: center;
     padding: 5px 0;
+    flex: unset;
+    width: 100%;
   }
 
   .user-info {
@@ -424,10 +446,17 @@
     text-transform: lowercase;
   }
 
-  .logout-btn {
-    width: 26px;
-    height: 26px;
-    border-radius: 6px;
+  .footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+
+  .footer-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
     border: 1px solid transparent;
     background: transparent;
     display: flex;
@@ -439,7 +468,7 @@
     transition: background 0.12s, color 0.12s, border-color 0.12s;
   }
 
-  .logout-btn:hover {
+  .footer-btn:hover {
     background: color-mix(in srgb, #ef4444 12%, transparent);
     border-color: color-mix(in srgb, #ef4444 25%, transparent);
     color: #ef4444;
