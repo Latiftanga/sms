@@ -67,6 +67,8 @@
   $: accentColor = $schoolBranding?.accent_color ?? "#185FA5";
   $: schoolName  = $schoolBranding?.name ?? "TTEK-SMS";
   $: logoUrl     = $schoolBranding?.logo_url ?? null;
+  let logoError = false;
+  $: if (logoUrl) logoError = false;
 </script>
 
 <svelte:head>
@@ -77,8 +79,9 @@
   <div class="invite-card">
 
     <div class="brand">
-      {#if logoUrl}
-        <img src={logoUrl} alt="{schoolName} logo" class="brand-logo" />
+      {#if logoUrl && !logoError}
+        <img src={logoUrl} alt="{schoolName} logo" class="brand-logo"
+          on:error={() => logoError = true} />
       {:else}
         <div class="brand-mark" style="background:{accentColor}">{schoolName.charAt(0).toUpperCase()}</div>
       {/if}

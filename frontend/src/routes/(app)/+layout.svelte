@@ -12,6 +12,8 @@
   let collapsed = false;
   let mobile = false;
   let mobileOpen = false;
+  let logoFailed = false;
+  $: if ($schoolBranding?.logo_url) logoFailed = false;
 
   // ── Theme ──────────────────────────────────────────────────────
   type ThemeMode = "light" | "dark" | "system";
@@ -171,8 +173,9 @@
       <!-- Brand header -->
       <div class="sidebar-header">
         <div class="brand-icon">
-          {#if $schoolBranding?.logo_url}
-            <img src={$schoolBranding.logo_url} alt="School logo" class="sidebar-logo-img" />
+          {#if $schoolBranding?.logo_url && !logoFailed}
+            <img src={$schoolBranding.logo_url} alt="School logo" class="sidebar-logo-img"
+              on:error={() => logoFailed = true} />
           {:else}
             {($schoolBranding?.name ?? "T").charAt(0).toUpperCase()}
           {/if}

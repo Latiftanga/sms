@@ -442,7 +442,8 @@
                       {#if logoUploading}
                         <Loader2 size={20} class="spin" />
                       {:else if school.logo_url}
-                        <img src={school.logo_url} alt="School logo" />
+                        <img src={school.logo_url} alt="School logo"
+                          on:error={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                         <div class="logo-overlay"><ImagePlus size={14} /></div>
                       {:else}
                         <ImagePlus size={20} style="opacity:.4" />

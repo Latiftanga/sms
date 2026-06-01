@@ -40,6 +40,8 @@
   $: accentColor = $schoolBranding?.accent_color ?? "#185FA5";
   $: schoolName  = $schoolBranding?.name ?? "School Information System";
   $: logoUrl     = $schoolBranding?.logo_url ?? null;
+  let logoError = false;
+  $: if (logoUrl) logoError = false;
 </script>
 
 <svelte:head>
@@ -50,8 +52,9 @@
   <div class="card">
 
     <div class="identity">
-      {#if logoUrl}
-        <img src={logoUrl} alt="{schoolName} logo" class="logo-img" />
+      {#if logoUrl && !logoError}
+        <img src={logoUrl} alt="{schoolName} logo" class="logo-img"
+          on:error={() => logoError = true} />
       {:else}
         <div class="logo-initial" style="background:{accentColor}">
           {schoolName.charAt(0).toUpperCase()}
