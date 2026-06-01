@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { auth, currentUser } from "$stores/auth";
+  import { schoolBranding } from "$stores/school";
   import { api } from "$api/client";
   import type { StaffMemberDetail, Qualification, Promotion } from "$api/types";
   import {
@@ -570,16 +571,16 @@
                 <div class="cred-card editing">
                   <div class="form-grid">
                     <div class="field span2">
-                      <label>Degree / Certificate</label>
-                      <input class="input" bind:value={editQualForm.degree} placeholder="Degree" />
+                      <label for="eq-deg-{q.id}">Degree / Certificate</label>
+                      <input id="eq-deg-{q.id}" class="input" bind:value={editQualForm.degree} placeholder="Degree" />
                     </div>
                     <div class="field">
-                      <label>Institution</label>
-                      <input class="input" bind:value={editQualForm.institution} placeholder="Institution" />
+                      <label for="eq-inst-{q.id}">Institution</label>
+                      <input id="eq-inst-{q.id}" class="input" bind:value={editQualForm.institution} placeholder="Institution" />
                     </div>
                     <div class="field">
-                      <label>Year</label>
-                      <input class="input" type="number" bind:value={editQualForm.year} placeholder="Year" />
+                      <label for="eq-yr-{q.id}">Year</label>
+                      <input id="eq-yr-{q.id}" class="input" type="number" bind:value={editQualForm.year} placeholder="Year" />
                     </div>
                   </div>
                   <div class="inline-foot">
