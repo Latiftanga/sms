@@ -179,6 +179,7 @@ class StaffPromotion(UUIDPrimaryKey, TimestampMixin, Base):
     recorded_by: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("user.id", ondelete="RESTRICT"), nullable=False
     )
+    document_url: Mapped[str | None] = mapped_column(String(500))
 
     staff_member: Mapped["StaffMember"] = relationship(back_populates="promotions")
 

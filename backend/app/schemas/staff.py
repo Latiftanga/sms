@@ -49,6 +49,7 @@ class PromotionResponse(IDSchema):
     date_promoted: date
     date_recorded: date
     recorded_by: UUID
+    document_url: str | None
 
 
 # ── StaffMember ───────────────────────────────────────────────────────────────
