@@ -23,10 +23,45 @@
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
 
-  // ── Staff count ───────────────────────────────────────────────────
-  $: canViewStaff = $currentUser?.system_role === "SUPERADMIN"
-    || $currentUser?.permissions?.view_staff === true;
+  // ── Role resolution ───────────────────────────────────────────────
+  // primaryRole is the single source of truth for layout decisions.
+  // It answers "what is this person's main job in the system?"
+  // Permissions still control individual action visibility — role controls
+  // layout, priority, and context.
 
+  type PrimaryRole = "superadmin" | "admin" | "bursar" | "housemaster" | "teacher" | "staff";
+
+  $: isSuperAdmin = $currentUser?.system_role === "SUPERADMIN";
+  $: perms = ($currentUser?.permissions ?? {}) as Record<string, boolean>;
+
+  $: primaryRole = ((): PrimaryRole => {
+    if (isSuperAdmin)                                                   return "superadmin";
+    if (perms["manage_school_config"] || perms["manage_staff"])         return "admin";
+    if (perms["record_payments"]      || perms["manage_fee_structure"]) return "bursar";
+    if (perms["manage_houses"])                                          return "housemaster";
+    if (perms["mark_attendance"]      || perms["enter_scores"])         return "teacher";
+    return "staff";
+  })();
+
+  // Per-role metadata: what the dashboard emphasises for each role.
+  // Add a layout key here when role-specific layouts are built.
+  const ROLE_META: Record<PrimaryRole, {
+    sub: string;        // greeting sub-text
+    canViewStaff: boolean;  // whether to fetch/show staff count KPI
+  }> = {
+    superadmin:  { sub: "Here's an overview of your school.",  canViewStaff: true  },
+    admin:       { sub: "Here's an overview of your school.",  canViewStaff: true  },
+    bursar:      { sub: "Here's today's financial overview.",  canViewStaff: false },
+    housemaster: { sub: "Ready for today.",                    canViewStaff: false },
+    teacher:     { sub: "Ready for today's classes.",          canViewStaff: false },
+    staff:       { sub: "Welcome back.",                       canViewStaff: false },
+  };
+
+  $: roleMeta      = ROLE_META[primaryRole];
+  $: canViewStaff  = roleMeta.canViewStaff;
+  $: dashSub       = roleMeta.sub;
+
+  // ── Staff count ───────────────────────────────────────────────────
   let staffLoading = true;
   let staffTotal: number | null = null;
 
@@ -74,29 +109,22 @@
     ]);
   });
 
-  // All possible quick actions with the permission required (null = always show)
+  // ── Quick actions ─────────────────────────────────────────────────
+  // All possible actions with their required permission.
+  // null = always visible regardless of permissions.
+  // Filtered at runtime so each user only sees what they can do.
   const ALL_ACTIONS = [
     { label: "Add Student",     icon: UserPlus,       href: "/students/new", perm: "enroll_students"  },
     { label: "Record Payment",  icon: Wallet,         href: "/fees/record",  perm: "record_payments"  },
     { label: "Mark Attendance", icon: ClipboardCheck, href: "/attendance",   perm: "mark_attendance"  },
-    { label: "Enter Scores",    icon: PenLine,         href: "/scores",       perm: "enter_scores"     },
-    { label: "View Reports",    icon: FileText,        href: "/analytics",    perm: "view_analytics"   },
-    { label: "My Profile",      icon: User,            href: "/profile",      perm: null               },
+    { label: "Enter Scores",    icon: PenLine,        href: "/scores",       perm: "enter_scores"     },
+    { label: "View Reports",    icon: FileText,       href: "/analytics",    perm: "view_analytics"   },
+    { label: "My Profile",      icon: User,           href: "/profile",      perm: null               },
   ];
-
-  $: isSuperAdmin = $currentUser?.system_role === "SUPERADMIN";
-  $: perms = ($currentUser?.permissions ?? {}) as Record<string, boolean>;
 
   $: quickActions = ALL_ACTIONS.filter(a =>
     a.perm === null || isSuperAdmin || perms[a.perm] === true
   );
-
-  // Personalised sub-text based on what the user can actually do
-  $: dashSub = (() => {
-    if (isSuperAdmin || perms["manage_staff"]) return "Here's an overview of your school.";
-    if (perms["mark_attendance"] || perms["enter_scores"]) return "Ready for today's classes.";
-    return "Welcome back.";
-  })();
 </script>
 
 <svelte:head><title>Dashboard — {$schoolBranding?.name ?? 'TTEK-SMS'}</title></svelte:head>
