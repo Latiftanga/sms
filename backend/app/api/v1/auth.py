@@ -1,10 +1,10 @@
 import logging
 import secrets
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from uuid import UUID
 
 import httpx
-from fastapi import APIRouter, HTTPException, Request, Response, status
+from fastapi import APIRouter, File, HTTPException, Request, Response, UploadFile, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -18,8 +18,21 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
+from app.models.staff import StaffMember, StaffPromotion, StaffQualification
 from app.models.user import User
+from app.schemas.staff import (
+    PromotionCreate,
+    PromotionResponse,
+    QualificationCreate,
+    QualificationResponse,
+    QualificationUpdate,
+    StaffMemberDetail,
+    StaffMemberResponse,
+    StaffSelfUpdate,
+    PromotionUpdate,
+)
 from app.services.permissions import resolve_all_permissions
+from app.services.storage import ALLOWED_IMAGE_TYPES, get_storage
 
 logger = logging.getLogger(__name__)
 
@@ -293,4 +306,198 @@ async def reset_password(token: str, body: ResetPasswordRequest, session: Sessio
     user.must_change_password = False
     user.password_reset_token = None
     user.password_reset_expires_at = None
+    await session.commit()
+
+
+# ── Self-service staff profile ────────────────────────────────────────────────
+
+_STAFF_REQUIRED = HTTPException(status.HTTP_404_NOT_FOUND, "No staff profile linked to this account")
+
+ALLOWED_PHOTO_TYPES = {"image/jpeg", "image/png", "image/webp"}
+
+
+async def _my_member(user: User, session) -> StaffMember:
+    if not user.staff_member_id:
+        raise _STAFF_REQUIRED
+    member = await session.get(StaffMember, user.staff_member_id)
+    if not member:
+        raise _STAFF_REQUIRED
+    return member
+
+
+@router.get("/me/staff", response_model=StaffMemberDetail)
+async def me_staff(current_user: CurrentUser, session: SessionDep) -> StaffMemberDetail:
+    member = await session.scalar(
+        select(StaffMember)
+        .where(StaffMember.id == current_user.staff_member_id)
+        .options(
+            selectinload(StaffMember.qualifications),
+            selectinload(StaffMember.promotions),
+        )
+    )
+    if not member:
+        raise _STAFF_REQUIRED
+    from app.api.v1.staff import _current_rank
+    return StaffMemberDetail.model_validate({
+        **member.__dict__,
+        "current_rank": _current_rank(member.promotions),
+        "has_account": True,
+        "invite_pending": False,
+        "qualifications": [QualificationResponse.model_validate(q) for q in member.qualifications],
+        "promotions": sorted(
+            [PromotionResponse.model_validate(p) for p in member.promotions],
+            key=lambda p: p.date_promoted, reverse=True,
+        ),
+    })
+
+
+@router.patch("/me/staff", response_model=StaffMemberResponse)
+async def update_me_staff(
+    body: StaffSelfUpdate,
+    current_user: CurrentUser,
+    session: SessionDep,
+) -> StaffMemberResponse:
+    member = await _my_member(current_user, session)
+    for field, value in body.model_dump(exclude_unset=True).items():
+        setattr(member, field, value)
+    await session.commit()
+    await session.refresh(member)
+    from app.api.v1.staff import _to_response
+    return _to_response(member, has_account=True)
+
+
+@router.post("/me/photo", response_model=StaffMemberResponse)
+async def upload_my_photo(
+    current_user: CurrentUser,
+    session: SessionDep,
+    file: UploadFile = File(...),
+) -> StaffMemberResponse:
+    if file.content_type not in ALLOWED_PHOTO_TYPES:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, "Unsupported image type — use JPEG, PNG or WebP")
+    member = await _my_member(current_user, session)
+    storage = get_storage()
+    if member.photo_url:
+        await storage.delete(member.photo_url)
+    member.photo_url = await storage.upload(file, folder="staff-photos")
+    await session.commit()
+    await session.refresh(member)
+    from app.api.v1.staff import _to_response
+    return _to_response(member, has_account=True)
+
+
+@router.post("/me/qualifications", response_model=QualificationResponse, status_code=201)
+async def add_my_qualification(
+    body: QualificationCreate,
+    current_user: CurrentUser,
+    session: SessionDep,
+) -> QualificationResponse:
+    member = await _my_member(current_user, session)
+    q = StaffQualification(staff_member_id=member.id, **body.model_dump())
+    session.add(q)
+    await session.commit()
+    await session.refresh(q)
+    return QualificationResponse.model_validate(q)
+
+
+@router.patch("/me/qualifications/{qual_id}", response_model=QualificationResponse)
+async def update_my_qualification(
+    qual_id: UUID,
+    body: QualificationUpdate,
+    current_user: CurrentUser,
+    session: SessionDep,
+) -> QualificationResponse:
+    member = await _my_member(current_user, session)
+    q = await session.scalar(
+        select(StaffQualification).where(
+            StaffQualification.id == qual_id,
+            StaffQualification.staff_member_id == member.id,
+        )
+    )
+    if not q:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Qualification not found")
+    for field, value in body.model_dump(exclude_unset=True).items():
+        setattr(q, field, value)
+    await session.commit()
+    await session.refresh(q)
+    return QualificationResponse.model_validate(q)
+
+
+@router.delete("/me/qualifications/{qual_id}", status_code=204)
+async def delete_my_qualification(
+    qual_id: UUID,
+    current_user: CurrentUser,
+    session: SessionDep,
+) -> None:
+    member = await _my_member(current_user, session)
+    q = await session.scalar(
+        select(StaffQualification).where(
+            StaffQualification.id == qual_id,
+            StaffQualification.staff_member_id == member.id,
+        )
+    )
+    if not q:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Qualification not found")
+    await session.delete(q)
+    await session.commit()
+
+
+@router.post("/me/promotions", response_model=PromotionResponse, status_code=201)
+async def add_my_promotion(
+    body: PromotionCreate,
+    current_user: CurrentUser,
+    session: SessionDep,
+) -> PromotionResponse:
+    member = await _my_member(current_user, session)
+    row = StaffPromotion(
+        staff_member_id=member.id,
+        rank=body.rank,
+        date_promoted=body.date_promoted,
+        date_recorded=date.today(),
+        recorded_by=current_user.id,
+    )
+    session.add(row)
+    await session.commit()
+    await session.refresh(row)
+    return PromotionResponse.model_validate(row)
+
+
+@router.patch("/me/promotions/{prom_id}", response_model=PromotionResponse)
+async def update_my_promotion(
+    prom_id: UUID,
+    body: PromotionUpdate,
+    current_user: CurrentUser,
+    session: SessionDep,
+) -> PromotionResponse:
+    member = await _my_member(current_user, session)
+    row = await session.scalar(
+        select(StaffPromotion).where(
+            StaffPromotion.id == prom_id,
+            StaffPromotion.staff_member_id == member.id,
+        )
+    )
+    if not row:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Promotion record not found")
+    for field, value in body.model_dump(exclude_unset=True).items():
+        setattr(row, field, value)
+    await session.commit()
+    await session.refresh(row)
+    return PromotionResponse.model_validate(row)
+
+
+@router.delete("/me/promotions/{prom_id}", status_code=204)
+async def delete_my_promotion(
+    prom_id: UUID,
+    current_user: CurrentUser,
+    session: SessionDep,
+) -> None:
+    member = await _my_member(current_user, session)
+    row = await session.scalar(
+        select(StaffPromotion).where(
+            StaffPromotion.id == prom_id,
+            StaffPromotion.staff_member_id == member.id,
+        )
+    )
+    if not row:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Promotion record not found")
+    await session.delete(row)
     await session.commit()
