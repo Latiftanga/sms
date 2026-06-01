@@ -32,7 +32,7 @@ from app.schemas.staff import (
     PromotionUpdate,
 )
 from app.services.permissions import resolve_all_permissions
-from app.services.storage import ALLOWED_IMAGE_TYPES, get_storage
+from app.services.storage import ALLOWED_DOCUMENT_TYPES, ALLOWED_IMAGE_TYPES, MAX_DOCUMENT_BYTES, get_storage
 
 logger = logging.getLogger(__name__)
 
@@ -501,3 +501,30 @@ async def delete_my_promotion(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Promotion record not found")
     await session.delete(row)
     await session.commit()
+
+
+@router.post("/me/promotions/{prom_id}/document", response_model=PromotionResponse)
+async def upload_my_promotion_document(
+    prom_id: UUID,
+    current_user: CurrentUser,
+    session: SessionDep,
+    file: UploadFile = File(...),
+) -> PromotionResponse:
+    if file.content_type not in ALLOWED_DOCUMENT_TYPES:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "JPEG, PNG, WebP or PDF only")
+    member = await _my_member(current_user, session)
+    row = await session.scalar(
+        select(StaffPromotion).where(
+            StaffPromotion.id == prom_id,
+            StaffPromotion.staff_member_id == member.id,
+        )
+    )
+    if not row:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Promotion record not found")
+    storage = get_storage()
+    if row.document_url:
+        await storage.delete(row.document_url)
+    row.document_url = await storage.upload(file, folder="promotion-docs", max_bytes=MAX_DOCUMENT_BYTES)
+    await session.commit()
+    await session.refresh(row)
+    return PromotionResponse.model_validate(row)

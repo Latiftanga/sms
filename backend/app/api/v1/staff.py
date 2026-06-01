@@ -41,6 +41,7 @@ from app.api.deps import CurrentUser, RedisDep, SessionDep, require
 from app.core.config import settings
 from app.core.permissions import ALL_PERMISSIONS, Permission
 from app.core.security import hash_password
+from app.services.storage import ALLOWED_DOCUMENT_TYPES, MAX_DOCUMENT_BYTES, get_storage
 from app.models.staff import (
     StaffMember,
     StaffPermission,
@@ -73,7 +74,6 @@ from app.schemas.staff import (
 )
 from app.schemas.common import PagedResponse
 from app.services.permissions import invalidate_cache, resolve_all_permissions
-from app.services.storage import get_storage
 
 router = APIRouter(prefix="/staff", tags=["staff"])
 
@@ -633,6 +633,35 @@ async def remove_promotion(
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Promotion record not found")
     await session.delete(row)
     await session.commit()
+
+
+@router.post("/{staff_id}/promotions/{prom_id}/document", response_model=PromotionResponse,
+             dependencies=[require(Permission.MANAGE_PROMOTIONS)])
+async def upload_promotion_document(
+    staff_id: UUID,
+    prom_id: UUID,
+    user: CurrentUser,
+    session: SessionDep,
+    file: UploadFile = File(...),
+):
+    if file.content_type not in ALLOWED_DOCUMENT_TYPES:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "JPEG, PNG, WebP or PDF only")
+    member = await _get_member(staff_id, user.school_id, session)
+    row = await session.scalar(
+        select(StaffPromotion).where(
+            StaffPromotion.id == prom_id,
+            StaffPromotion.staff_member_id == member.id,
+        )
+    )
+    if not row:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Promotion record not found")
+    storage = get_storage()
+    if row.document_url:
+        await storage.delete(row.document_url)
+    row.document_url = await storage.upload(file, folder="promotion-docs", max_bytes=MAX_DOCUMENT_BYTES)
+    await session.commit()
+    await session.refresh(row)
+    return PromotionResponse.model_validate(row)
 
 
 # ── Permissions ───────────────────────────────────────────────────────────────

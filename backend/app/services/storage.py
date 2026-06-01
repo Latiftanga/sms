@@ -20,7 +20,9 @@ from fastapi import UploadFile
 from app.core.config import settings
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/svg+xml"}
-MAX_LOGO_BYTES = 2 * 1024 * 1024  # 2 MB
+ALLOWED_DOCUMENT_TYPES = {"image/jpeg", "image/png", "image/webp", "application/pdf"}
+MAX_LOGO_BYTES = 2 * 1024 * 1024    # 2 MB
+MAX_DOCUMENT_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
 def _ext(content_type: str) -> str:
@@ -29,11 +31,12 @@ def _ext(content_type: str) -> str:
         "image/png": ".png",
         "image/webp": ".webp",
         "image/svg+xml": ".svg",
+        "application/pdf": ".pdf",
     }.get(content_type, ".bin")
 
 
 class StorageService(Protocol):
-    async def upload(self, file: UploadFile, *, folder: str = "uploads") -> str:
+    async def upload(self, file: UploadFile, *, folder: str = "uploads", max_bytes: int = MAX_LOGO_BYTES) -> str:
         """Upload file and return its public URL."""
         ...
 
@@ -49,10 +52,10 @@ class LocalStorage:
         self._root = Path(settings.UPLOADS_DIR).resolve()
         self._url_prefix = settings.UPLOADS_URL_PREFIX.rstrip("/")
 
-    async def upload(self, file: UploadFile, *, folder: str = "uploads") -> str:
+    async def upload(self, file: UploadFile, *, folder: str = "uploads", max_bytes: int = MAX_LOGO_BYTES) -> str:
         data = await file.read()
-        if len(data) > MAX_LOGO_BYTES:
-            raise ValueError(f"File exceeds {MAX_LOGO_BYTES // 1024 // 1024} MB limit")
+        if len(data) > max_bytes:
+            raise ValueError(f"File exceeds {max_bytes // 1024 // 1024} MB limit")
 
         dest_dir = self._root / folder
         dest_dir.mkdir(parents=True, exist_ok=True)
@@ -91,10 +94,10 @@ class R2Storage:
         self._bucket = settings.R2_BUCKET
         self._endpoint = settings.R2_ENDPOINT
 
-    async def upload(self, file: UploadFile, *, folder: str = "uploads") -> str:
+    async def upload(self, file: UploadFile, *, folder: str = "uploads", max_bytes: int = MAX_LOGO_BYTES) -> str:
         data = await file.read()
-        if len(data) > MAX_LOGO_BYTES:
-            raise ValueError(f"File exceeds {MAX_LOGO_BYTES // 1024 // 1024} MB limit")
+        if len(data) > max_bytes:
+            raise ValueError(f"File exceeds {max_bytes // 1024 // 1024} MB limit")
 
         key = f"{folder}/{uuid.uuid4().hex}{_ext(file.content_type or '')}"
 
