@@ -24,6 +24,9 @@
   });
 
   // ── Staff count ───────────────────────────────────────────────────
+  $: canViewStaff = $currentUser?.system_role === "SUPERADMIN"
+    || $currentUser?.permissions?.view_staff === true;
+
   let staffLoading = true;
   let staffTotal: number | null = null;
 
@@ -51,10 +54,12 @@
 
   onMount(() => {
     Promise.all([
-      api.get("/staff", { params: { is_active: true, limit: 1 } })
-        .then(({ data }) => { staffTotal = data.total; })
-        .catch(() => { staffTotal = null; })
-        .finally(() => { staffLoading = false; }),
+      canViewStaff
+        ? api.get("/staff", { params: { is_active: true, limit: 1 } })
+            .then(({ data }) => { staffTotal = data.total; })
+            .catch(() => { staffTotal = null; })
+            .finally(() => { staffLoading = false; })
+        : Promise.resolve().then(() => { staffLoading = false; }),
 
       api.get("/settings/current-term")
         .then(({ data }) => {
@@ -130,13 +135,16 @@
     <div class="kpi-sub unavail-sub"><Lock size={10} />Attendance module coming soon</div>
   </div>
 
-  <!-- Active Staff — live data -->
-  <div class="kpi-card">
+  <!-- Active Staff — live data for users with view_staff permission -->
+  <div class="kpi-card" class:kpi-unavailable={!canViewStaff}>
     <div class="kpi-top">
       <span class="kpi-label">Active Staff</span>
       <div class="kpi-icon"><UserCheck size={15} /></div>
     </div>
-    {#if staffLoading}
+    {#if !canViewStaff}
+      <div class="kpi-value">—</div>
+      <div class="kpi-sub unavail-sub"><Lock size={10} />Admin access only</div>
+    {:else if staffLoading}
       <div class="skeleton skeleton-value"></div>
       <div class="skeleton skeleton-sub"></div>
     {:else if staffTotal !== null}
