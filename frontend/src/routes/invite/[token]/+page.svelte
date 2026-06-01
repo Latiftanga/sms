@@ -29,8 +29,8 @@
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string }; status?: number } };
       loadError = err?.response?.status === 410
-        ? "This invite link has expired. Ask your admin to send a new one."
-        : "This invite link is invalid or has already been used.";
+        ? "This invite link has expired. The person who set up your account can send a new one from the Staff section."
+        : "This invite link is invalid or has already been used. Try signing in, or ask for a new invite link.";
     } finally {
       loading = false;
     }

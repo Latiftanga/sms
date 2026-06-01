@@ -19,6 +19,7 @@
   let submitting = false;
   let submitError = "";
   let done = false;
+  let countdown = 3;
 
   onMount(async () => {
     // Apply saved theme
@@ -37,8 +38,8 @@
     } catch (e: unknown) {
       const err = e as { response?: { status?: number } };
       loadError = err?.response?.status === 410
-        ? "This reset link has expired. Request a new one from the login page."
-        : "This reset link is invalid or has already been used.";
+        ? "This reset link has expired — they're valid for 2 hours. Request a new one from the login page."
+        : "This reset link is invalid or has already been used. Request a new one if you still need access.";
     } finally {
       loading = false;
     }
@@ -63,6 +64,10 @@
     try {
       await api.post(`/auth/reset-password/${token}`, { password });
       done = true;
+      const timer = setInterval(() => {
+        countdown -= 1;
+        if (countdown <= 0) { clearInterval(timer); goto("/login"); }
+      }, 1000);
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string }; status?: number } };
       submitError = err?.response?.status === 410
@@ -112,7 +117,8 @@
         <CheckCircle size={32} />
         <p class="state-title">Password updated</p>
         <p class="state-msg">Your password has been reset successfully.</p>
-        <a href="/login" class="btn-primary" style="background:{accentColor}">Sign in</a>
+        <p class="redirect-note">Taking you to sign in in {countdown}…</p>
+        <a href="/login" class="btn-primary" style="background:{accentColor}">Sign in now</a>
       </div>
 
     {:else}
@@ -280,6 +286,7 @@
   .success-state { color: #10b981; }
   .state-title { margin: 0; font-size: 1.1rem; font-weight: 700; color: var(--tx-high); }
   .state-msg { margin: 0; color: var(--tx-mid); font-size: 0.875rem; line-height: 1.5; }
+  .redirect-note { margin: 0; font-size: 0.8125rem; color: var(--tx-low); }
 
   .link { color: var(--accent); font-size: 0.875rem; text-decoration: none; }
   .link:hover { text-decoration: underline; }

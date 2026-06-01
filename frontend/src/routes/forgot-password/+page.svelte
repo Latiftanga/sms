@@ -65,16 +65,20 @@
     {#if sent}
       <div class="sent-state">
         <div class="sent-icon" style="color:{accentColor}">✓</div>
-        <p class="sent-title">Check your email</p>
+        <p class="sent-title">Check your phone</p>
         <p class="sent-body">
-          If <strong>{email}</strong> is registered, you'll receive a password reset link shortly.
-          Check your spam folder if it doesn't arrive within a few minutes.
+          If <strong>{email}</strong> has an account with a registered phone number,
+          you'll receive a reset link via SMS. The link expires in 2 hours.
+        </p>
+        <p class="sent-hint">
+          Didn't receive an SMS? Your phone number may not be on record.
+          Contact your school administrator to update it or resend the link.
         </p>
       </div>
     {:else}
       <div class="form-heading">
         <p class="form-title">Reset your password</p>
-        <p class="form-sub">Enter your email and we'll send you a reset link.</p>
+        <p class="form-sub">Enter your account email. A reset link will be sent via SMS to the phone number registered with your account.</p>
       </div>
 
       <form on:submit={handleSubmit} novalidate>
@@ -283,6 +287,17 @@
     font-size: 0.8125rem;
     color: var(--tx-low);
     line-height: 1.55;
+  }
+
+  .sent-hint {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--tx-low);
+    line-height: 1.5;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-subtle);
   }
 
   /* Back link */
