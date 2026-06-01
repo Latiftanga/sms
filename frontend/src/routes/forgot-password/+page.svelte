@@ -97,7 +97,7 @@
             bind:value={email}
             required
             autocomplete="email"
-            placeholder="you@school.edu.gh"
+            placeholder="your.name@gmail.com"
           />
         </div>
 

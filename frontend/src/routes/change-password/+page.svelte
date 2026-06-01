@@ -54,18 +54,18 @@
       <KeyRound size={22} />
     </div>
     <h1 class="title">Set a new password</h1>
-    <p class="sub">Your account has a temporary password. Choose a permanent one to continue.</p>
+    <p class="sub">Your administrator has asked you to choose a new password before continuing.</p>
 
       <form on:submit|preventDefault={submit} novalidate>
         <div class="field">
-          <label for="cp-current">Temporary password</label>
+          <label for="cp-current">Current password</label>
           <div class="pw-wrap">
             <input
               id="cp-current" class="input"
               type={showCurrent ? "text" : "password"}
               bind:value={current}
               autocomplete="current-password"
-              placeholder="Your temporary password"
+              placeholder="Your current password"
             />
             <button type="button" class="eye-btn" on:click={() => showCurrent = !showCurrent}>
               {#if showCurrent}<EyeOff size={14} />{:else}<Eye size={14} />{/if}

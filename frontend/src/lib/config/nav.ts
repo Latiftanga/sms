@@ -41,6 +41,7 @@ import {
   Users2,
   Settings2,
   GraduationCap,
+  PenLine,
 } from "@lucide/svelte";
 
 export const NAV: NavGroup[] = [
@@ -66,6 +67,12 @@ export const NAV: NavGroup[] = [
         label: "Attendance",
         icon: ClipboardCheck,
         anyPermission: ["mark_attendance", "view_attendance"],
+      },
+      {
+        href: "/scores",
+        label: "Scores",
+        icon: PenLine,
+        anyPermission: ["enter_scores", "approve_scores", "view_scores"],
       },
       {
         href: "/fees",
