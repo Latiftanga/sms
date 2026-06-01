@@ -269,6 +269,15 @@
     </div>
 
   </form>
+
+  <!-- Sticky save bar — visible on small screens only -->
+  <div class="sticky-bar">
+    <span class="sticky-hint">* Required fields</span>
+    <div class="sticky-actions">
+      <Button type="button" variant="ghost" on:click={() => goto("/staff")}>Cancel</Button>
+      <Button type="submit" form="new-staff-form" loading={saving}>Save staff member</Button>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -377,6 +386,37 @@
 
   @media (max-width: 600px) {
     .row-2, .row-3 { grid-template-columns: 1fr; }
+  }
+
+  /* ── Sticky mobile save bar ──────────────────── */
+  .sticky-bar {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    .sticky-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      bottom: 0;
+      background: var(--surface-0);
+      border-top: 1px solid var(--border-subtle);
+      padding: 12px 16px;
+      margin: 0 -28px -24px;
+      box-shadow: 0 -4px 12px rgba(0,0,0,.06);
+    }
+
+    .sticky-actions { display: flex; gap: 8px; }
+
+    .sticky-hint {
+      font-size: 0.75rem;
+      color: var(--tx-low);
+    }
+
+    /* Hide the top-bar actions on mobile to avoid duplicate buttons */
+    .page-top-actions { display: none; }
   }
 
 </style>

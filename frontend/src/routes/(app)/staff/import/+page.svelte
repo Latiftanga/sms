@@ -225,11 +225,11 @@
 
       <div class="guide-note">
         <strong>Valid categories</strong>
-        <p>TEACHING · NON-TEACHING</p>
+        <p>Teaching · Non-Teaching</p>
         <strong>Valid designations</strong>
-        <p>TEACHER · HEADTEACHER · ASSISTANT_HEAD · BURSAR</p>
+        <p>Teacher · Headteacher · Assistant Head · Bursar · Housemaster · Senior Housemaster</p>
         <strong>Valid employment types</strong>
-        <p>PERMANENT · CONTRACT · VOLUNTEER · GES_POSTED</p>
+        <p>Permanent · Contract · Volunteer · GES Posted</p>
         <strong>Date format</strong>
         <p>YYYY-MM-DD &nbsp;e.g. <code>1985-04-12</code></p>
       </div>
@@ -286,13 +286,13 @@
     background: color-mix(in srgb, var(--accent) 4%, transparent);
   }
   .drop-zone.has-file {
-    border-color: #10b981;
-    background: color-mix(in srgb, #10b981 4%, transparent);
+    border-color: var(--ok-dot);
+    background: color-mix(in srgb, var(--ok-dot) 5%, transparent);
     padding: 32px 24px;
   }
 
   .drop-zone :global(.drop-icon) { color: var(--tx-low); }
-  .drop-zone :global(.file-icon) { color: #10b981; }
+  .drop-zone :global(.file-icon) { color: var(--ok-dot); }
 
   .drop-label { margin: 0; font-size: 0.9rem; color: var(--tx-mid); }
   .browse-link { color: var(--accent); text-decoration: underline; }
@@ -369,7 +369,7 @@
   .error-table tr:last-child td { border-bottom: none; }
 
   .row-num { font-weight: 700; color: var(--tx-high); width: 48px; }
-  .field-name { font-family: monospace; color: #ef4444; white-space: nowrap; }
+  .field-name { font-family: monospace; color: var(--err-text); white-space: nowrap; }
   .err-msg { color: var(--tx-mid); }
 
   .result-actions {
