@@ -6,6 +6,7 @@ export interface User {
   school_id: string | null;
   permissions: Record<string, boolean>;
   must_change_password: boolean;
+  designation: string | null;
 }
 
 export interface School {

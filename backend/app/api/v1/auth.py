@@ -67,6 +67,7 @@ class MeResponse(BaseModel):
     school_id: str | None
     permissions: dict[str, bool]
     must_change_password: bool
+    designation: str | None = None   # from linked staff_member; drives primaryRole on the frontend
 
 
 class ChangePasswordRequest(BaseModel):
@@ -134,6 +135,7 @@ async def logout(response: Response) -> dict:
 async def me(current_user: CurrentUser, redis: RedisDep, session: SessionDep) -> MeResponse:
     perms = await resolve_all_permissions(current_user, redis, session)
     full_name: str | None = None
+    designation: str | None = None
     if current_user.staff_member_id:
         user_with_staff = await session.scalar(
             select(User)
@@ -143,6 +145,7 @@ async def me(current_user: CurrentUser, redis: RedisDep, session: SessionDep) ->
         if user_with_staff and user_with_staff.staff_member:
             sm = user_with_staff.staff_member
             full_name = f"{sm.first_name} {sm.last_name}".strip()
+            designation = sm.designation
     return MeResponse(
         id=str(current_user.id),
         email=current_user.email,
@@ -151,6 +154,7 @@ async def me(current_user: CurrentUser, redis: RedisDep, session: SessionDep) ->
         school_id=str(current_user.school_id) if current_user.school_id else None,
         permissions=perms,
         must_change_password=current_user.must_change_password,
+        designation=designation,
     )
 
 

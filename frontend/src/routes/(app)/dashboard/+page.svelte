@@ -29,32 +29,58 @@
   // Permissions still control individual action visibility — role controls
   // layout, priority, and context.
 
-  type PrimaryRole = "superadmin" | "admin" | "bursar" | "housemaster" | "teacher" | "staff";
+  type PrimaryRole =
+    | "superadmin"
+    | "headteacher"   // HEADTEACHER / ASSISTANT_HEAD designation
+    | "admin"         // school config / staff management without headteacher designation
+    | "bursar"        // financial operations
+    | "housemaster"   // boarding / pastoral
+    | "class_teacher" // stub — owns a specific class; full detection needs class assignment from API
+    | "teacher"       // subject teacher; fallback for mark_attendance / enter_scores
+    | "staff";        // authenticated but no specific role yet
 
-  $: isSuperAdmin = $currentUser?.system_role === "SUPERADMIN";
-  $: perms = ($currentUser?.permissions ?? {}) as Record<string, boolean>;
+  $: isSuperAdmin  = $currentUser?.system_role === "SUPERADMIN";
+  $: perms         = ($currentUser?.permissions  ?? {}) as Record<string, boolean>;
+  $: designation   = $currentUser?.designation   ?? null;
 
   $: primaryRole = ((): PrimaryRole => {
-    if (isSuperAdmin)                                                   return "superadmin";
+    if (isSuperAdmin) return "superadmin";
+
+    // Headteacher — designation is the most reliable signal; approve_scores is
+    // a secondary check for accounts where designation isn't set yet.
+    if (designation === "HEADTEACHER" || designation === "ASSISTANT_HEAD"
+        || (perms["approve_scores"] && perms["manage_staff"]))          return "headteacher";
+
     if (perms["manage_school_config"] || perms["manage_staff"])         return "admin";
     if (perms["record_payments"]      || perms["manage_fee_structure"]) return "bursar";
     if (perms["manage_houses"])                                          return "housemaster";
-    if (perms["mark_attendance"]      || perms["enter_scores"])         return "teacher";
+
+    // class_teacher: has mark_attendance; full distinction from subject teacher
+    // requires a class assignment flag in /auth/me — stub falls through to "teacher"
+    // until that API field is available.
+    // TODO: when hasClassAssignment is in currentUser, change to:
+    //   if (perms["mark_attendance"] && hasClassAssignment) return "class_teacher";
+    if (perms["mark_attendance"] || perms["enter_scores"])              return "teacher";
+
     return "staff";
   })();
 
   // Per-role metadata: what the dashboard emphasises for each role.
-  // Add a layout key here when role-specific layouts are built.
+  // sub       — greeting sub-text below the user's name
+  // canViewStaff — whether to fetch / show the active staff count KPI
+  // When role-specific layouts are built, add a `layout` key here.
   const ROLE_META: Record<PrimaryRole, {
-    sub: string;        // greeting sub-text
-    canViewStaff: boolean;  // whether to fetch/show staff count KPI
+    sub: string;
+    canViewStaff: boolean;
   }> = {
-    superadmin:  { sub: "Here's an overview of your school.",  canViewStaff: true  },
-    admin:       { sub: "Here's an overview of your school.",  canViewStaff: true  },
-    bursar:      { sub: "Here's today's financial overview.",  canViewStaff: false },
-    housemaster: { sub: "Ready for today.",                    canViewStaff: false },
-    teacher:     { sub: "Ready for today's classes.",          canViewStaff: false },
-    staff:       { sub: "Welcome back.",                       canViewStaff: false },
+    superadmin:   { sub: "Here's an overview of your school.",       canViewStaff: true  },
+    headteacher:  { sub: "Here's your school at a glance.",          canViewStaff: true  },
+    admin:        { sub: "Here's an overview of your school.",       canViewStaff: true  },
+    bursar:       { sub: "Here's today's financial overview.",       canViewStaff: false },
+    housemaster:  { sub: "Ready for today.",                         canViewStaff: false },
+    class_teacher:{ sub: "Ready for today's classes.",               canViewStaff: false },
+    teacher:      { sub: "Ready for today's classes.",               canViewStaff: false },
+    staff:        { sub: "Welcome back.",                            canViewStaff: false },
   };
 
   $: roleMeta      = ROLE_META[primaryRole];
