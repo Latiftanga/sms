@@ -89,6 +89,9 @@
 
   $: if (!$auth.loading && !$isAuthenticated) goto("/login");
   $: if (!$auth.loading && $auth.user?.must_change_password) goto("/change-password");
+  // Superadmins manage the platform, not individual schools — they have no
+  // school_id and don't belong in the school app shell.
+  $: if (!$auth.loading && isSuperAdmin) goto("/platform");
 
   // ── Dynamic nav ────────────────────────────────────────────────
   // Permissions are a flat Record<string, boolean> from /auth/me.

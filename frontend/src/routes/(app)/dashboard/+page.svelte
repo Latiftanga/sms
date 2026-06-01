@@ -29,8 +29,9 @@
   // Permissions still control individual action visibility — role controls
   // layout, priority, and context.
 
+  // Superadmins are platform-level and are redirected to /platform by the
+  // app layout — they never reach this dashboard. The type excludes them.
   type PrimaryRole =
-    | "superadmin"
     | "headteacher"   // HEADTEACHER / ASSISTANT_HEAD designation
     | "admin"         // school config / staff management without headteacher designation
     | "bursar"        // financial operations
@@ -44,10 +45,8 @@
   $: designation   = $currentUser?.designation   ?? null;
 
   $: primaryRole = ((): PrimaryRole => {
-    if (isSuperAdmin) return "superadmin";
-
-    // Headteacher — designation is the most reliable signal; approve_scores is
-    // a secondary check for accounts where designation isn't set yet.
+    // Headteacher — designation is the most reliable signal; approve_scores +
+    // manage_staff is a secondary check for accounts where designation isn't set yet.
     if (designation === "HEADTEACHER" || designation === "ASSISTANT_HEAD"
         || (perms["approve_scores"] && perms["manage_staff"]))          return "headteacher";
 
@@ -66,14 +65,13 @@
   })();
 
   // Per-role metadata: what the dashboard emphasises for each role.
-  // sub       — greeting sub-text below the user's name
+  // sub          — greeting sub-text below the user's name
   // canViewStaff — whether to fetch / show the active staff count KPI
   // When role-specific layouts are built, add a `layout` key here.
   const ROLE_META: Record<PrimaryRole, {
     sub: string;
     canViewStaff: boolean;
   }> = {
-    superadmin:   { sub: "Here's an overview of your school.",       canViewStaff: true  },
     headteacher:  { sub: "Here's your school at a glance.",          canViewStaff: true  },
     admin:        { sub: "Here's an overview of your school.",       canViewStaff: true  },
     bursar:       { sub: "Here's today's financial overview.",       canViewStaff: false },
@@ -149,7 +147,7 @@
   ];
 
   $: quickActions = ALL_ACTIONS.filter(a =>
-    a.perm === null || isSuperAdmin || perms[a.perm] === true
+    a.perm === null || perms[a.perm] === true
   );
 </script>
 
