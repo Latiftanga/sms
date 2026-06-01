@@ -7,6 +7,7 @@
   import Button  from "$components/ui/Button.svelte";
   import Badge   from "$components/ui/Badge.svelte";
   import Spinner from "$components/ui/Spinner.svelte";
+  import { schoolBranding } from "$stores/school";
   import {
     ArrowLeft, UserCheck, Users, GraduationCap, Pencil,
     Check, X, AlertCircle, Loader2, Search, UserX,
@@ -351,7 +352,7 @@
 </script>
 
 <svelte:head>
-  <title>{cls?.name ?? "Class"} — TTEK-SIS</title>
+  <title>{cls?.name ?? "Class"} — {$schoolBranding?.name ?? 'TTEK-SMS'}</title>
 </svelte:head>
 
 <div class="root">

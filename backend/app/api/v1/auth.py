@@ -18,6 +18,7 @@ from app.core.security import (
     hash_password,
     verify_password,
 )
+from app.models.school import School
 from app.models.staff import StaffMember, StaffPromotion, StaffQualification
 from app.models.user import User
 from app.schemas.staff import (
@@ -219,7 +220,7 @@ async def accept_invite(token: str, body: AcceptInviteRequest, session: SessionD
 
 # ── Self-service password reset ───────────────────────────────────────────────
 
-_RESET_TTL_MINUTES = 30
+_RESET_TTL_MINUTES = 120  # 2 hours — teachers are often in class when the SMS arrives
 
 
 class ForgotPasswordRequest(BaseModel):
@@ -234,9 +235,9 @@ class ResetTokenInfoResponse(BaseModel):
     email: str
 
 
-async def _send_reset_sms(phone: str, token: str) -> None:
+async def _send_reset_sms(phone: str, token: str, school_name: str) -> None:
     reset_url = f"{settings.FRONTEND_URL}/reset-password/{token}"
-    msg = f"TTEK SIS: Reset your password here: {reset_url} (expires in 30 minutes)"
+    msg = f"{school_name}: Reset your password here: {reset_url} (expires in 2 hours)"
     async with httpx.AsyncClient(timeout=8) as client:
         resp = await client.post(
             "https://api.africastalking.com/version1/messaging",
@@ -270,8 +271,10 @@ async def forgot_password(body: ForgotPasswordRequest, session: SessionDep) -> d
 
         phone = user.staff_member.phone if user.staff_member else None
         if phone and settings.AT_API_KEY:
+            school = await session.get(School, user.school_id) if user.school_id else None
+            school_name = school.name if school else "Your School"
             try:
-                await _send_reset_sms(phone, token)
+                await _send_reset_sms(phone, token, school_name)
             except Exception as e:
                 logger.warning("Password reset SMS failed for user %s: %s", user.id, e)
 

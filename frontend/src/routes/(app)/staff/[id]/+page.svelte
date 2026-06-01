@@ -15,6 +15,7 @@
   import type { PageData } from "./+page";
   import { confirmDialog } from "$stores/confirm";
   import { auth } from "$lib/stores/auth";
+  import { schoolBranding } from "$stores/school";
 
   export let data: PageData;
 
@@ -547,7 +548,7 @@
 </script>
 
 <svelte:head>
-  <title>{fullName} — TTEK-SIS</title>
+  <title>{fullName} — {$schoolBranding?.name ?? 'TTEK-SMS'}</title>
 </svelte:head>
 
 <div class="page">

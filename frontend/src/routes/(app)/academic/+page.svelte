@@ -9,6 +9,7 @@
   import Spinner    from "$components/ui/Spinner.svelte";
   import EmptyState from "$components/ui/EmptyState.svelte";
   import PageHeader from "$components/ui/PageHeader.svelte";
+  import { schoolBranding } from "$stores/school";
   import {
     CalendarDays, LayoutGrid, BookOpen, Library,
     Plus, Trash2, ChevronDown, Pencil, Check,
@@ -383,7 +384,7 @@
   });
 </script>
 
-<svelte:head><title>Academic — TTEK-SIS</title></svelte:head>
+<svelte:head><title>Academic — {$schoolBranding?.name ?? 'TTEK-SMS'}</title></svelte:head>
 
 <div class="academic-root">
 

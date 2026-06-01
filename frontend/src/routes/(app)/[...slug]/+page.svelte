@@ -1,10 +1,11 @@
 <script lang="ts">
   import { page } from "$app/stores";
   import { Construction } from "@lucide/svelte";
+  import { schoolBranding } from "$stores/school";
 </script>
 
 <svelte:head>
-  <title>Coming Soon — TTEK-SIS</title>
+  <title>Coming Soon — {$schoolBranding?.name ?? 'TTEK-SMS'}</title>
 </svelte:head>
 
 <div style="

@@ -4,6 +4,7 @@
   import { toast } from "$stores/toast";
   import Button from "$components/ui/Button.svelte";
   import { ArrowLeft, Upload, Download, Check, AlertCircle, FileText } from "@lucide/svelte";
+  import { schoolBranding } from "$stores/school";
   import type { BulkUploadResponse } from "$api/types";
 
   let file: File | null = null;
@@ -83,7 +84,7 @@
   }
 </script>
 
-<svelte:head><title>Import Staff — TTEK-SIS</title></svelte:head>
+<svelte:head><title>Import Staff — {$schoolBranding?.name ?? 'TTEK-SMS'}</title></svelte:head>
 
 <div class="page">
   <button class="back" on:click={() => goto("/staff")}>

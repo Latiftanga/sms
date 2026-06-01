@@ -4,6 +4,7 @@
   import { toast } from "$stores/toast";
   import Button from "$components/ui/Button.svelte";
   import { ArrowLeft, User, Phone, Briefcase, Shield } from "@lucide/svelte";
+  import { schoolBranding } from "$stores/school";
 
   // ── Form state ────────────────────────────────────────────────────
   let form = {
@@ -54,7 +55,7 @@
   }
 </script>
 
-<svelte:head><title>Add Staff Member — TTEK-SIS</title></svelte:head>
+<svelte:head><title>Add Staff Member — {$schoolBranding?.name ?? 'TTEK-SMS'}</title></svelte:head>
 
 <div class="page">
 

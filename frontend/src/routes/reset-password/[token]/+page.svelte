@@ -74,7 +74,7 @@
   }
 
   $: accentColor = $schoolBranding?.accent_color ?? "#185FA5";
-  $: schoolName  = $schoolBranding?.name ?? "TTEK SIS";
+  $: schoolName  = $schoolBranding?.name ?? "TTEK-SMS";
   $: logoUrl     = $schoolBranding?.logo_url ?? null;
 </script>
 

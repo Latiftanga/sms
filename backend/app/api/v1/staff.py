@@ -42,6 +42,7 @@ from app.core.config import settings
 from app.core.permissions import ALL_PERMISSIONS, Permission
 from app.core.security import hash_password
 from app.services.storage import ALLOWED_DOCUMENT_TYPES, MAX_DOCUMENT_BYTES, get_storage
+from app.models.school import School
 from app.models.staff import (
     StaffMember,
     StaffPermission,
@@ -361,9 +362,9 @@ async def upload_photo(
 
 # ── Invite ────────────────────────────────────────────────────────────────────
 
-async def _send_invite_sms(phone: str, invite_token: str) -> None:
+async def _send_invite_sms(phone: str, invite_token: str, school_name: str) -> None:
     invite_url = f"{settings.FRONTEND_URL}/invite/{invite_token}"
-    msg = f"You've been invited to TTEK SIS. Set up your account: {invite_url}"
+    msg = f"You've been invited to {school_name}. Set up your account: {invite_url}"
     async with httpx.AsyncClient(timeout=8) as client:
         resp = await client.post(
             "https://api.africastalking.com/version1/messaging",
@@ -426,8 +427,10 @@ async def send_invite(
 
     sms_sent = False
     if member.phone and settings.AT_API_KEY:
+        school = await session.get(School, user.school_id)
+        school_name = school.name if school else "Your School"
         try:
-            await _send_invite_sms(member.phone, token)
+            await _send_invite_sms(member.phone, token, school_name)
             sms_sent = True
         except Exception as e:
             logger.warning("SMS invite failed for staff %s: %s", member.id, e)
@@ -459,8 +462,10 @@ async def reset_password(
 
     sms_sent = False
     if member.phone and settings.AT_API_KEY:
+        school = await session.get(School, user.school_id)
+        school_name = school.name if school else "Your School"
         try:
-            await _send_invite_sms(member.phone, token)
+            await _send_invite_sms(member.phone, token, school_name)
             sms_sent = True
         except Exception as e:
             logger.warning("SMS invite failed for staff %s: %s", member.id, e)
@@ -977,7 +982,6 @@ async def download_template(user: CurrentUser, session: SessionDep):
     from openpyxl.utils import get_column_letter
     from openpyxl.worksheet.datavalidation import DataValidation
 
-    from app.models.school import School
     school = await session.scalar(select(School).where(School.id == user.school_id))
     school_name = school.name if school else "School"
     accent = school.accent_color if school else "#185FA5"

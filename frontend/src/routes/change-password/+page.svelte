@@ -3,6 +3,7 @@
   import { api } from "$api/client";
   import { goto } from "$app/navigation";
   import { KeyRound, Eye, EyeOff, AlertCircle } from "@lucide/svelte";
+  import { schoolBranding } from "$stores/school";
 
   let current = "";
   let next = "";
@@ -45,7 +46,7 @@
   }
 </script>
 
-<svelte:head><title>Set New Password — TTEK-SIS</title></svelte:head>
+<svelte:head><title>Set New Password — {$schoolBranding?.name ?? 'TTEK-SMS'}</title></svelte:head>
 
 <div class="page">
   <div class="card">

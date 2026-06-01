@@ -9,6 +9,7 @@
   import { UserPlus, Upload, Search, ChevronLeft, ChevronRight, Check, AlertCircle, Users } from "@lucide/svelte";
   import type { StaffMember, PagedResponse } from "$api/types";
   import { auth } from "$lib/stores/auth";
+  import { schoolBranding } from "$stores/school";
 
   $: canManageStaff = $auth.user?.system_role === "SUPERADMIN" || $auth.user?.permissions?.manage_staff === true;
 
@@ -83,7 +84,7 @@
   $: pageEnd   = Math.min(skip + LIMIT, total);
 </script>
 
-<svelte:head><title>Staff — TTEK-SIS</title></svelte:head>
+<svelte:head><title>Staff — {$schoolBranding?.name ?? 'TTEK-SMS'}</title></svelte:head>
 
 <div class="page">
 

@@ -380,7 +380,7 @@
   });
 </script>
 
-<svelte:head><title>Settings — TTEK-SIS</title></svelte:head>
+<svelte:head><title>Settings — {$schoolBranding?.name ?? 'TTEK-SMS'}</title></svelte:head>
 
 <div class="settings-root">
 

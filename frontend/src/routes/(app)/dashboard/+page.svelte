@@ -77,7 +77,7 @@
   ];
 </script>
 
-<svelte:head><title>Dashboard — {$schoolBranding?.name ?? 'TTEK-SIS'}</title></svelte:head>
+<svelte:head><title>Dashboard — {$schoolBranding?.name ?? 'TTEK-SMS'}</title></svelte:head>
 
 <!-- ── Page header ────────────────────────────────────────────────── -->
 <div class="dash-header">

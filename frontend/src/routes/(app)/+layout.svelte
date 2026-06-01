@@ -179,7 +179,7 @@
         </div>
         {#if !collapsed || mobile}
           <div class="brand-name">
-            <div class="brand-title">{$schoolBranding?.name ?? "TTEK-SIS"}</div>
+            <div class="brand-title">{$schoolBranding?.name ?? "TTEK-SMS"}</div>
             <div class="brand-sub">School Management</div>
           </div>
         {/if}

@@ -262,7 +262,7 @@
   $: roleLabel = $currentUser?.system_role?.replace(/_/g, " ") ?? "—";
 </script>
 
-<svelte:head><title>My Profile — TTEK-SIS</title></svelte:head>
+<svelte:head><title>My Profile — {$schoolBranding?.name ?? 'TTEK-SMS'}</title></svelte:head>
 
 <div class="profile-wrap">
 
