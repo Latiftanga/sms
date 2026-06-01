@@ -1,13 +1,14 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import { api } from "$lib/api/client";
   import { currentUser } from "$stores/auth";
   import { schoolBranding } from "$stores/school";
   import Badge from "$components/ui/Badge.svelte";
   import {
     Users, CreditCard, ClipboardCheck, UserCheck,
-    TrendingUp, TrendingDown, Minus,
-    AlertCircle, CheckCircle2, Info,
-    ArrowRight, UserPlus, FileText, CalendarCheck,
-    ChevronRight, GraduationCap, Wallet,
+    AlertCircle, ArrowRight, UserPlus, FileText,
+    CalendarCheck, ChevronRight, GraduationCap,
+    Wallet, Clock, Lock,
   } from "@lucide/svelte";
 
   // ── Greeting ──────────────────────────────────────────────────────
@@ -22,53 +23,57 @@
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
 
-  // ── Mock data — replace with TanStack Query ───────────────────────
-  const students    = { total: 1248, change: +12, label: "+12 this term" };
-  const feesTotal   = 112000;
-  const feesPaid    = 84320;
-  const attendance  = { pct: 91.4, present: 1139, total: 1248 };
-  const staff       = { active: 68, onLeave: 4 };
+  // ── Staff count ───────────────────────────────────────────────────
+  let staffLoading = true;
+  let staffTotal: number | null = null;
 
-  $: feesPct = Math.round((feesPaid / feesTotal) * 100);
+  // ── Current term ──────────────────────────────────────────────────
+  let termLoading = true;
+  let termLabel: string | null = null;
+  let termStart: Date | null = null;
+  let termEnd: Date | null = null;
 
-  // SVG donut ring (r=30, stroke-width=6 → circ ≈ 188.5)
-  const RING_R    = 30;
-  const RING_CIRC = 2 * Math.PI * RING_R;
-  $: ringDash = `${(attendance.pct / 100) * RING_CIRC} ${RING_CIRC}`;
+  $: termPct = termStart && termEnd
+    ? Math.min(100, Math.max(0, Math.round(
+        ((Date.now() - termStart.getTime()) / (termEnd.getTime() - termStart.getTime())) * 100
+      )))
+    : null;
+  $: termDaysLeft = termEnd
+    ? Math.max(0, Math.ceil((termEnd.getTime() - Date.now()) / 86_400_000))
+    : null;
 
-  // Term progress
-  const termStart   = new Date("2026-01-06");
-  const termEnd     = new Date("2026-04-11");
-  const termLabel   = "Term 2, 2025/2026";
-  $: termPct = Math.min(100, Math.max(0, Math.round(
-    ((Date.now() - termStart.getTime()) / (termEnd.getTime() - termStart.getTime())) * 100
-  )));
-  $: termDaysLeft = Math.max(0, Math.ceil((termEnd.getTime() - Date.now()) / 86_400_000));
+  function fmtDate(d: Date) {
+    return d.toLocaleDateString("en-GH", { day: "numeric", month: "short" });
+  }
+  function fmtDateLong(d: Date) {
+    return d.toLocaleDateString("en-GH", { day: "numeric", month: "short", year: "numeric" });
+  }
 
-  // Weekly attendance sparkline (Mon–Fri)
-  const spark = [88.2, 91.0, 90.5, 93.1, 91.4];
-  const sparkMax = Math.max(...spark);
-  const sparkMin = Math.min(...spark) - 2;
+  onMount(() => {
+    Promise.all([
+      api.get("/staff", { params: { is_active: true, limit: 1 } })
+        .then(({ data }) => { staffTotal = data.total; })
+        .catch(() => { staffTotal = null; })
+        .finally(() => { staffLoading = false; }),
 
-  const transactions = [
-    { student: "Ama Owusu",    initials: "AO", class: "JHS 3A", amount: "GHS 850",   date: "26 May",  status: "paid"    },
-    { student: "Kweku Mensah", initials: "KM", class: "SHS 1B", amount: "GHS 1,200", date: "26 May",  status: "paid"    },
-    { student: "Abena Asante", initials: "AA", class: "JHS 2C", amount: "GHS 700",   date: "25 May",  status: "paid"    },
-    { student: "Kofi Boateng", initials: "KB", class: "SHS 2A", amount: "GHS 950",   date: "25 May",  status: "partial" },
-    { student: "Akosua Darko", initials: "AD", class: "JHS 1B", amount: "GHS 850",   date: "24 May",  status: "paid"    },
-  ];
-
-  const alerts = [
-    { type: "warn", text: "14 students have outstanding fees over 30 days." },
-    { type: "info", text: "Term 2 timetable has not been published yet."    },
-    { type: "ok",   text: "All attendance records up to date."              },
-  ];
+      api.get("/settings/current-term")
+        .then(({ data }) => {
+          if (data) {
+            termLabel = `${data.term_name} · ${data.year_name}`;
+            termStart = new Date(data.start_date);
+            termEnd   = new Date(data.end_date);
+          }
+        })
+        .catch(() => {})
+        .finally(() => { termLoading = false; }),
+    ]);
+  });
 
   const quickActions = [
-    { label: "Add Student",      icon: UserPlus,       href: "/students/new"  },
-    { label: "Record Payment",   icon: Wallet,         href: "/fees/record"   },
-    { label: "Mark Attendance",  icon: ClipboardCheck, href: "/attendance"    },
-    { label: "View Reports",     icon: FileText,       href: "/analytics"     },
+    { label: "Add Student",     icon: UserPlus,       href: "/students/new" },
+    { label: "Record Payment",  icon: Wallet,         href: "/fees/record"  },
+    { label: "Mark Attendance", icon: ClipboardCheck, href: "/attendance"   },
+    { label: "View Reports",    icon: FileText,        href: "/analytics"    },
   ];
 </script>
 
@@ -79,172 +84,120 @@
   <div>
     <h1 class="greeting">{greeting}, {name}.</h1>
     {#if $schoolBranding?.motto}
-      <p class="school-motto-tag">"{$schoolBranding.motto}"</p>
+      <p class="sub-text">"{$schoolBranding.motto}"</p>
     {:else}
-      <p class="greeting-sub">Here's what's happening at your school today.</p>
+      <p class="sub-text">Here's an overview of your school.</p>
     {/if}
   </div>
   <div class="header-meta">
     <span class="today-pill"><CalendarCheck size={12} />{today}</span>
-    <Badge variant="accent">{termLabel}</Badge>
+    {#if termLabel}
+      <Badge variant="accent">{termLabel}</Badge>
+    {/if}
   </div>
 </div>
 
 <!-- ── KPI grid ───────────────────────────────────────────────────── -->
 <div class="kpi-grid">
 
-  <!-- Students -->
-  <div class="kpi-card">
+  <!-- Students — module not yet available -->
+  <div class="kpi-card kpi-unavailable">
     <div class="kpi-top">
       <span class="kpi-label">Total Students</span>
       <div class="kpi-icon"><GraduationCap size={15} /></div>
     </div>
-    <div class="kpi-value">{students.total.toLocaleString()}</div>
-    <div class="kpi-sub trend-up">
-      <TrendingUp size={11} />{students.label}
-    </div>
-    <!-- Weekly sparkline bars -->
-    <div class="spark" aria-hidden="true">
-      {#each spark as v, i}
-        <div
-          class="spark-bar"
-          class:spark-last={i === spark.length - 1}
-          style="height:{Math.round(((v - sparkMin) / (sparkMax - sparkMin)) * 32) + 6}px"
-        ></div>
-      {/each}
-    </div>
+    <div class="kpi-value">—</div>
+    <div class="kpi-sub unavail-sub"><Lock size={10} />Students module coming soon</div>
   </div>
 
-  <!-- Fees -->
-  <div class="kpi-card">
+  <!-- Fees — module not yet available -->
+  <div class="kpi-card kpi-unavailable">
     <div class="kpi-top">
       <span class="kpi-label">Fees Collected</span>
       <div class="kpi-icon"><CreditCard size={15} /></div>
     </div>
-    <div class="kpi-value">GHS {feesPaid.toLocaleString()}</div>
-    <div class="kpi-sub trend-neutral">
-      <Minus size={11} />of GHS {feesTotal.toLocaleString()} billed
-    </div>
-    <!-- Progress bar -->
-    <div class="progress-track" role="progressbar" aria-valuenow={feesPct} aria-valuemin={0} aria-valuemax={100} aria-label="Fees collected {feesPct}%">
-      <div class="progress-fill" style="width:{feesPct}%"></div>
-    </div>
-    <div class="progress-label">{feesPct}% collected</div>
+    <div class="kpi-value">—</div>
+    <div class="kpi-sub unavail-sub"><Lock size={10} />Fees module coming soon</div>
   </div>
 
-  <!-- Attendance -->
-  <div class="kpi-card kpi-attendance">
+  <!-- Attendance — module not yet available -->
+  <div class="kpi-card kpi-unavailable">
     <div class="kpi-top">
       <span class="kpi-label">Attendance Today</span>
       <div class="kpi-icon"><ClipboardCheck size={15} /></div>
     </div>
-    <div class="kpi-attend-body">
-      <div>
-        <div class="kpi-value">{attendance.pct}%</div>
-        <div class="kpi-sub trend-down">
-          <TrendingDown size={11} />{attendance.present} of {attendance.total} present
-        </div>
-      </div>
-      <!-- SVG donut ring -->
-      <svg class="donut" width="72" height="72" aria-hidden="true">
-        <circle
-          class="donut-fill"
-          cx="36" cy="36" r={RING_R}
-          stroke-dasharray={ringDash}
-          stroke-dashoffset="0"
-          transform="rotate(-90 36 36)"
-        />
-      </svg>
-    </div>
+    <div class="kpi-value">—</div>
+    <div class="kpi-sub unavail-sub"><Lock size={10} />Attendance module coming soon</div>
   </div>
 
-  <!-- Staff -->
+  <!-- Active Staff — live data -->
   <div class="kpi-card">
     <div class="kpi-top">
       <span class="kpi-label">Active Staff</span>
       <div class="kpi-icon"><UserCheck size={15} /></div>
     </div>
-    <div class="kpi-value">{staff.active}</div>
-    <div class="kpi-sub trend-neutral">
-      <Minus size={11} />{staff.onLeave} on leave today
-    </div>
-    <!-- Leave indicator dots -->
-    <div class="leave-dots" aria-hidden="true">
-      {#each Array(Math.min(staff.onLeave, 8)) as _}
-        <span class="leave-dot leave"></span>
-      {/each}
-      {#each Array(Math.min(staff.active, 20)) as _}
-        <span class="leave-dot active"></span>
-      {/each}
-    </div>
+    {#if staffLoading}
+      <div class="skeleton skeleton-value"></div>
+      <div class="skeleton skeleton-sub"></div>
+    {:else if staffTotal !== null}
+      <div class="kpi-value">{staffTotal}</div>
+      <div class="kpi-sub trend-neutral">Active members on record</div>
+    {:else}
+      <div class="kpi-value">—</div>
+      <div class="kpi-sub unavail-sub"><AlertCircle size={10} />Could not load</div>
+    {/if}
   </div>
 
-</div><!-- /kpi-grid -->
+</div>
 
 <!-- ── Content area ───────────────────────────────────────────────── -->
 <div class="dash-content">
 
-  <!-- ── Left: Payments table ─────────────────────────────────────── -->
+  <!-- ── Left: Recent activity ────────────────────────────────────── -->
   <div class="panel">
     <div class="panel-head">
-      <span class="panel-title">Recent Payments</span>
+      <span class="panel-title">Recent Activity</span>
       <a href="/fees" class="view-all">View all <ArrowRight size={11} /></a>
     </div>
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Student</th>
-            <th>Class</th>
-            <th class="align-right">Amount</th>
-            <th class="hide-sm">Date</th>
-            <th class="align-center">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each transactions as tx}
-            <tr>
-              <td>
-                <div class="student-cell">
-                  <div class="student-av">{tx.initials}</div>
-                  <span class="student-name">{tx.student}</span>
-                </div>
-              </td>
-              <td class="text-muted">{tx.class}</td>
-              <td class="align-right fw-med">{tx.amount}</td>
-              <td class="text-muted hide-sm">{tx.date}</td>
-              <td class="align-center">
-                <Badge variant={tx.status === "paid" ? "ok" : "warn"} size="sm">
-                  {tx.status}
-                </Badge>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
+    <div class="empty-state">
+      <div class="empty-icon"><Clock size={28} /></div>
+      <p class="empty-title">No activity yet</p>
+      <p class="empty-body">Student payments, attendance events, and other records will appear here once the relevant modules are set up.</p>
     </div>
   </div>
 
   <!-- ── Right sidebar ─────────────────────────────────────────────── -->
   <aside class="dash-aside">
 
-    <!-- Term at a glance -->
+    <!-- Term at a Glance -->
     <div class="panel">
       <div class="panel-head"><span class="panel-title">Term at a Glance</span></div>
       <div class="panel-body">
-        <div class="term-label">{termLabel}</div>
-        <div class="term-dates">
-          {termStart.toLocaleDateString("en-GH", { day: "numeric", month: "short" })} –
-          {termEnd.toLocaleDateString("en-GH", { day: "numeric", month: "short", year: "numeric" })}
-        </div>
-        <div class="progress-track" style="margin-top:12px;"
-          role="progressbar" aria-valuenow={termPct} aria-valuemin={0} aria-valuemax={100} aria-label="Term progress {termPct}%">
-          <div class="progress-fill" style="width:{termPct}%"></div>
-        </div>
-        <div class="term-meta">
-          <span class="term-pct">{termPct}% complete</span>
-          <span class="term-days">{termDaysLeft} days left</span>
-        </div>
+        {#if termLoading}
+          <div class="skeleton skeleton-line" style="width:60%;margin-bottom:6px"></div>
+          <div class="skeleton skeleton-line" style="width:80%"></div>
+          <div class="skeleton skeleton-bar" style="margin-top:14px"></div>
+        {:else if termLabel && termStart && termEnd && termPct !== null}
+          <div class="term-label">{termLabel}</div>
+          <div class="term-dates">{fmtDate(termStart)} – {fmtDateLong(termEnd)}</div>
+          <div class="progress-track" style="margin-top:12px"
+            role="progressbar"
+            aria-valuenow={termPct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Term progress {termPct}%">
+            <div class="progress-fill" style="width:{termPct}%"></div>
+          </div>
+          <div class="term-meta">
+            <span class="term-pct">{termPct}% complete</span>
+            <span class="term-days">{termDaysLeft} day{termDaysLeft === 1 ? '' : 's'} left</span>
+          </div>
+        {:else}
+          <div class="term-empty">
+            <Clock size={18} />
+            <span>No active term set.<br />Configure one in Settings → Academic Years.</span>
+          </div>
+        {/if}
       </div>
     </div>
 
@@ -252,22 +205,14 @@
     <div class="panel">
       <div class="panel-head"><span class="panel-title">Alerts</span></div>
       <div class="panel-body alerts-body">
-        {#each alerts as alert}
-          <div class="alert-row alert-{alert.type}">
-            {#if alert.type === "warn"}
-              <AlertCircle size={13} class="alert-icon" />
-            {:else if alert.type === "ok"}
-              <CheckCircle2 size={13} class="alert-icon" />
-            {:else}
-              <Info size={13} class="alert-icon" />
-            {/if}
-            <span class="alert-text">{alert.text}</span>
-          </div>
-        {/each}
+        <div class="no-alerts">
+          <span class="no-alerts-dot"></span>
+          All clear — no alerts at this time.
+        </div>
       </div>
     </div>
 
-    <!-- Quick actions -->
+    <!-- Quick Actions -->
     <div class="panel">
       <div class="panel-head"><span class="panel-title">Quick Actions</span></div>
       <div class="qa-list">
@@ -282,7 +227,7 @@
     </div>
 
   </aside>
-</div><!-- /dash-content -->
+</div>
 
 <style>
 /* ── Page header ─────────────────────────────────────────────────── */
@@ -301,13 +246,7 @@
   margin: 0 0 2px;
   line-height: 1.2;
 }
-.greeting-sub { font-size: 13px; color: var(--tx-low); margin: 0; }
-.school-motto-tag {
-  font-size: 12px;
-  color: var(--tx-low);
-  font-style: italic;
-  margin: 0;
-}
+.sub-text { font-size: 13px; color: var(--tx-low); margin: 0; font-style: italic; }
 
 .header-meta {
   display: flex;
@@ -329,6 +268,26 @@
   white-space: nowrap;
 }
 
+/* ── Skeleton loader ─────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--surface-2) 25%,
+    var(--border-subtle) 50%,
+    var(--surface-2) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 6px;
+}
+.skeleton-value { height: 32px; width: 64px; margin-bottom: 8px; }
+.skeleton-sub   { height: 12px; width: 120px; }
+.skeleton-line  { height: 13px; border-radius: 4px; }
+.skeleton-bar   { height: 6px;  border-radius: 4px; width: 100%; }
+
 /* ── KPI grid ────────────────────────────────────────────────────── */
 .kpi-grid {
   display: grid;
@@ -349,12 +308,13 @@
   flex-direction: column;
   gap: 4px;
   transition: box-shadow 0.15s, transform 0.15s;
-  position: relative;
-  overflow: hidden;
 }
 .kpi-card:hover {
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
+}
+.kpi-unavailable {
+  opacity: 0.7;
 }
 
 .kpi-top {
@@ -381,6 +341,10 @@
   justify-content: center;
   flex-shrink: 0;
 }
+.kpi-unavailable .kpi-icon {
+  background: var(--surface-2);
+  color: var(--tx-low);
+}
 
 .kpi-value {
   font-size: 26px;
@@ -389,6 +353,7 @@
   line-height: 1;
   letter-spacing: -0.5px;
 }
+.kpi-unavailable .kpi-value { color: var(--tx-low); }
 @media (max-width: 480px) { .kpi-value { font-size: 20px; } }
 
 .kpi-sub {
@@ -398,28 +363,8 @@
   font-size: 11.5px;
   margin-top: 2px;
 }
-.trend-up      { color: var(--ok-text); }
-.trend-down    { color: var(--err-text); }
 .trend-neutral { color: var(--tx-low); }
-
-/* Sparkline */
-.spark {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  margin-top: 12px;
-  height: 38px;
-}
-.spark-bar {
-  flex: 1;
-  background: var(--accent-muted);
-  border-radius: 3px 3px 0 0;
-  opacity: 0.5;
-  transition: opacity 0.1s;
-}
-.spark-bar.spark-last { background: var(--accent); opacity: 1; }
-.kpi-card:hover .spark-bar { opacity: 0.7; }
-.kpi-card:hover .spark-bar.spark-last { opacity: 1; }
+.unavail-sub   { color: var(--tx-low); font-style: italic; gap: 5px; }
 
 /* Progress bar */
 .progress-track {
@@ -435,44 +380,6 @@
   border-radius: 4px;
   transition: width 0.6s ease;
 }
-.progress-label {
-  font-size: 11px;
-  color: var(--tx-low);
-  margin-top: 4px;
-}
-
-/* Attendance ring */
-.kpi-attend-body {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex: 1;
-}
-
-.donut { overflow: visible; }
-.donut-fill {
-  fill: none;
-  stroke: var(--accent);
-  stroke-width: 6;
-  stroke-linecap: round;
-  transition: stroke-dasharray 0.6s ease;
-}
-
-/* Leave dot indicators */
-.leave-dots {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
-  margin-top: 12px;
-}
-.leave-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-.leave-dot.active { background: var(--accent-muted); }
-.leave-dot.leave  { background: var(--warn-dot); }
 
 /* ── Content layout ──────────────────────────────────────────────── */
 .dash-content {
@@ -526,69 +433,40 @@
 
 .panel-body { padding: 14px 16px; }
 
-/* ── Data table ──────────────────────────────────────────────────── */
-.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 440px;
-}
-
-.data-table thead tr {
-  background: var(--surface-2);
-}
-.data-table th {
-  padding: 8px 16px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--tx-low);
-  text-align: left;
-  white-space: nowrap;
-}
-.data-table td {
-  padding: 10px 16px;
-  font-size: 13px;
-  color: var(--tx-high);
-  border-top: 1px solid var(--border-subtle);
-}
-.data-table tbody tr { transition: background 0.1s; }
-.data-table tbody tr:hover { background: var(--surface-2); }
-
-.student-cell {
+/* ── Empty state ─────────────────────────────────────────────────── */
+.empty-state {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 32px;
   gap: 10px;
-  min-width: 0;
 }
-.student-av {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--accent-subtle);
-  color: var(--accent);
+.empty-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--tx-low);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-  flex-shrink: 0;
+  margin-bottom: 4px;
 }
-.student-name {
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.empty-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tx-high);
+  margin: 0;
 }
-
-.align-right  { text-align: right !important; }
-.align-center { text-align: center !important; }
-.text-muted   { color: var(--tx-low) !important; font-size: 12px !important; }
-.fw-med       { font-weight: 500; }
-
-@media (max-width: 520px) { .hide-sm { display: none; } }
+.empty-body {
+  font-size: 13px;
+  color: var(--tx-low);
+  margin: 0;
+  max-width: 380px;
+  line-height: 1.55;
+}
 
 /* ── Term at a glance ────────────────────────────────────────────── */
 .term-label { font-size: 13px; font-weight: 600; color: var(--tx-high); margin-bottom: 3px; }
@@ -600,26 +478,34 @@
   color: var(--tx-low);
   margin-top: 5px;
 }
-.term-pct   { color: var(--accent); font-weight: 600; }
-.term-days  { }
-
-/* ── Alerts ──────────────────────────────────────────────────────── */
-.alerts-body { display: flex; flex-direction: column; gap: 8px; }
-
-.alert-row {
+.term-pct  { color: var(--accent); font-weight: 600; }
+.term-empty {
   display: flex;
   align-items: flex-start;
   gap: 9px;
-  padding: 9px 11px;
-  border-radius: 8px;
+  color: var(--tx-low);
   font-size: 12.5px;
-  line-height: 1.45;
+  line-height: 1.5;
 }
-.alert-warn { background: var(--warn-bg); color: var(--warn-text); }
-.alert-ok   { background: var(--ok-bg);   color: var(--ok-text);   }
-.alert-info { background: var(--accent-subtle); color: var(--accent); }
-:global(.alert-icon) { flex-shrink: 0; margin-top: 1px; }
-.alert-text { flex: 1; }
+.term-empty :global(svg) { flex-shrink: 0; margin-top: 1px; }
+
+/* ── Alerts ──────────────────────────────────────────────────────── */
+.alerts-body { display: flex; flex-direction: column; gap: 8px; }
+.no-alerts {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12.5px;
+  color: var(--tx-low);
+  padding: 2px 0;
+}
+.no-alerts-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ok-text);
+  flex-shrink: 0;
+}
 
 /* ── Quick actions ───────────────────────────────────────────────── */
 .qa-list { display: flex; flex-direction: column; }

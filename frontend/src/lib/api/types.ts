@@ -119,6 +119,14 @@ export interface Promotion {
   date_promoted: string;
   date_recorded: string;
   recorded_by: string;
+  document_url: string | null;
+}
+
+export interface CurrentTermResponse {
+  term_name: string;
+  year_name: string;
+  start_date: string;
+  end_date: string;
 }
 
 export interface StaffMemberDetail extends StaffMember {

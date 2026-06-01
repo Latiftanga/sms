@@ -58,6 +58,14 @@ class AcademicTermResponse(IDSchema, TimestampSchema):
     is_current: bool
     block_owing_students: bool
 
+
+class CurrentTermResponse(OrmBase):
+    """Lightweight summary used by the dashboard — no special permission required."""
+    term_name: str
+    year_name: str
+    start_date: date
+    end_date: date
+
 # ── Learning Area (SHS only) ──────────────────────────────────────────────────
 
 class LearningAreaCreate(OrmBase):

@@ -16,6 +16,7 @@ from app.schemas.common import OrmBase, PagedResponse
 from app.schemas.settings import (
     AcademicTermCreate, AcademicTermResponse, AcademicTermUpdate,
     AcademicYearCreate, AcademicYearResponse, AcademicYearUpdate,
+    CurrentTermResponse,
     ClassCreate, ClassDetailResponse, ClassResponse, ClassTeacherAssign,
     ClassTeacherInfo, ClassUpdate,
     SchoolSubjectCreate, SchoolSubjectUpdate, SchoolSubjectResponse,
@@ -62,6 +63,28 @@ async def get_school(user: CurrentUser, session: SessionDep) -> SchoolResponse:
     if not school:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "School not found")
     return SchoolResponse.model_validate(school)
+
+
+@router.get("/current-term", response_model=CurrentTermResponse | None)
+async def get_current_term(user: CurrentUser, session: SessionDep):
+    """Return the active term for the current user's school. No special permission required."""
+    school_id = _school_id(user)
+    year = await session.scalar(
+        select(AcademicYear)
+        .where(AcademicYear.school_id == school_id, AcademicYear.is_current.is_(True))
+        .options(selectinload(AcademicYear.terms))
+    )
+    if not year:
+        return None
+    current = next((t for t in year.terms if t.is_current), None)
+    if not current:
+        return None
+    return CurrentTermResponse(
+        term_name=current.name,
+        year_name=year.name,
+        start_date=current.start_date,
+        end_date=current.end_date,
+    )
 
 
 @router.patch("/school", response_model=SchoolResponse,
