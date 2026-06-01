@@ -2,13 +2,37 @@
   import { onMount } from "svelte";
   import { auth, currentUser } from "$stores/auth";
   import { api } from "$api/client";
-  import type { StaffMemberDetail, QualificationResponse, PromotionResponse } from "$api/types";
+  import type { StaffMemberDetail, Qualification, Promotion } from "$api/types";
   import {
     Eye, EyeOff, Loader2, AlertCircle, CheckCircle2,
-    Plus, Trash2, Pencil, X, Save, Upload, Camera,
+    Plus, Trash2, Pencil, X, Save, Camera,
+    GraduationCap, Award, Shield, FileText, Paperclip,
+    ExternalLink, User, BookOpen, TrendingUp,
   } from "@lucide/svelte";
 
-  // ── Staff profile data ─────────────────────────────────────────
+  // ── Helpers ─────────────────────────────────────────────────────
+  function fmtDate(iso: string | null | undefined): string {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleDateString("en-GH", {
+      day: "numeric", month: "short", year: "numeric",
+    });
+  }
+
+  function humanise(s: string | null | undefined): string {
+    if (!s) return "—";
+    return s.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function categoryClass(cat: string) {
+    return cat === "TEACHING" ? "badge-accent" : "badge-neutral";
+  }
+
+  function employmentClass(t: string) {
+    return ({ PERMANENT: "badge-green", CONTRACT: "badge-orange",
+               VOLUNTEER: "badge-blue",  GES_POSTED: "badge-purple" })[t] ?? "badge-neutral";
+  }
+
+  // ── Staff profile ────────────────────────────────────────────────
   let staff: StaffMemberDetail | null = null;
   let staffLoading = true;
   let hasStaff = false;
@@ -25,13 +49,14 @@
     }
   });
 
-  // ── Tabs ────────────────────────────────────────────────────────
+  // ── Tabs ─────────────────────────────────────────────────────────
   type Tab = "personal" | "qualifications" | "promotions" | "security";
   let tab: Tab = "personal";
 
-  // ── Personal info edit ─────────────────────────────────────────
+  // ── Personal edit ────────────────────────────────────────────────
   let editingPersonal = false;
-  let personalForm = { gender: "", date_of_birth: "", phone: "", personal_email: "", address: "", emergency_contact_name: "", emergency_contact_phone: "" };
+  let personalForm = { gender: "", date_of_birth: "", phone: "", personal_email: "",
+                       address: "", emergency_contact_name: "", emergency_contact_phone: "" };
   let personalSaving = false;
   let personalError = "";
   let personalSuccess = false;
@@ -53,9 +78,7 @@
   async function savePersonal() {
     personalError = ""; personalSaving = true;
     const payload: Record<string, string | null> = {};
-    for (const [k, v] of Object.entries(personalForm)) {
-      payload[k] = v === "" ? null : v;
-    }
+    for (const [k, v] of Object.entries(personalForm)) payload[k] = v === "" ? null : v;
     try {
       const { data } = await api.patch<StaffMemberDetail>("/auth/me/staff", payload);
       staff = { ...staff!, ...data };
@@ -66,12 +89,10 @@
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
       personalError = err?.response?.data?.detail ?? "Failed to save changes.";
-    } finally {
-      personalSaving = false;
-    }
+    } finally { personalSaving = false; }
   }
 
-  // ── Photo upload ───────────────────────────────────────────────
+  // ── Photo upload ─────────────────────────────────────────────────
   let photoUploading = false;
   let photoError = "";
   let fileInput: HTMLInputElement;
@@ -90,12 +111,10 @@
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
       photoError = err?.response?.data?.detail ?? "Upload failed.";
-    } finally {
-      photoUploading = false;
-    }
+    } finally { photoUploading = false; }
   }
 
-  // ── Qualifications ─────────────────────────────────────────────
+  // ── Qualifications ───────────────────────────────────────────────
   let showAddQual = false;
   let qualForm = { degree: "", institution: "", year: "" };
   let qualSaving = false;
@@ -105,9 +124,11 @@
 
   async function addQualification() {
     qualError = ""; qualSaving = true;
-    if (!qualForm.degree || !qualForm.institution) { qualError = "Degree and institution are required."; qualSaving = false; return; }
+    if (!qualForm.degree || !qualForm.institution) {
+      qualError = "Degree and institution are required."; qualSaving = false; return;
+    }
     try {
-      const { data } = await api.post<QualificationResponse>("/auth/me/qualifications", {
+      const { data } = await api.post<Qualification>("/auth/me/qualifications", {
         degree: qualForm.degree,
         institution: qualForm.institution,
         year: qualForm.year ? parseInt(qualForm.year) : null,
@@ -118,12 +139,10 @@
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
       qualError = err?.response?.data?.detail ?? "Failed to add qualification.";
-    } finally {
-      qualSaving = false;
-    }
+    } finally { qualSaving = false; }
   }
 
-  function startEditQual(q: QualificationResponse) {
+  function startEditQual(q: Qualification) {
     editingQual = q.id;
     editQualForm = { degree: q.degree, institution: q.institution, year: q.year?.toString() ?? "" };
   }
@@ -131,7 +150,7 @@
   async function saveQual(qualId: string) {
     qualError = ""; qualSaving = true;
     try {
-      const { data } = await api.patch<QualificationResponse>(`/auth/me/qualifications/${qualId}`, {
+      const { data } = await api.patch<Qualification>(`/auth/me/qualifications/${qualId}`, {
         degree: editQualForm.degree || undefined,
         institution: editQualForm.institution || undefined,
         year: editQualForm.year ? parseInt(editQualForm.year) : null,
@@ -141,9 +160,7 @@
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
       qualError = err?.response?.data?.detail ?? "Failed to update.";
-    } finally {
-      qualSaving = false;
-    }
+    } finally { qualSaving = false; }
   }
 
   async function deleteQualification(qualId: string) {
@@ -153,19 +170,23 @@
     } catch { /* ignore */ }
   }
 
-  // ── Promotions ─────────────────────────────────────────────────
+  // ── Promotions ───────────────────────────────────────────────────
   let showAddPromotion = false;
   let promForm = { rank: "", date_promoted: "" };
   let promSaving = false;
   let promError = "";
+  let docUploading: Record<string, boolean> = {};
+  let docError = "";
+  let docInputs: Record<string, HTMLInputElement> = {};
 
   async function addPromotion() {
     promError = ""; promSaving = true;
-    if (!promForm.rank || !promForm.date_promoted) { promError = "Rank and date are required."; promSaving = false; return; }
+    if (!promForm.rank || !promForm.date_promoted) {
+      promError = "Rank and date are required."; promSaving = false; return;
+    }
     try {
-      const { data } = await api.post<PromotionResponse>("/auth/me/promotions", {
-        rank: promForm.rank,
-        date_promoted: promForm.date_promoted,
+      const { data } = await api.post<Promotion>("/auth/me/promotions", {
+        rank: promForm.rank, date_promoted: promForm.date_promoted,
       });
       staff = { ...staff!, promotions: [data, ...(staff?.promotions ?? [])] };
       promForm = { rank: "", date_promoted: "" };
@@ -173,9 +194,7 @@
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
       promError = err?.response?.data?.detail ?? "Failed to record promotion.";
-    } finally {
-      promSaving = false;
-    }
+    } finally { promSaving = false; }
   }
 
   async function deletePromotion(promId: string) {
@@ -185,7 +204,29 @@
     } catch { /* ignore */ }
   }
 
-  // ── Change password ────────────────────────────────────────────
+  async function uploadPromotionDocument(promId: string, file: File) {
+    docError = "";
+    docUploading = { ...docUploading, [promId]: true };
+    const form = new FormData();
+    form.append("file", file);
+    try {
+      const { data } = await api.post<Promotion>(
+        `/auth/me/promotions/${promId}/document`, form,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+      staff = { ...staff!, promotions: staff!.promotions.map(p => p.id === promId ? data : p) };
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { detail?: string } } };
+      docError = err?.response?.data?.detail ?? "Upload failed.";
+    } finally { docUploading = { ...docUploading, [promId]: false }; }
+  }
+
+  function handleDocChange(promId: string, e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) uploadPromotionDocument(promId, file);
+  }
+
+  // ── Password ─────────────────────────────────────────────────────
   let current = "", next = "", confirm = "";
   let showCurrent = false, showNext = false;
   let pwSaving = false, pwError = "", pwSuccess = false;
@@ -205,664 +246,1290 @@
     } catch (e: unknown) {
       const err = e as { response?: { data?: { detail?: string } } };
       pwError = err?.response?.data?.detail ?? "Something went wrong.";
-    } finally {
-      pwSaving = false;
-    }
+    } finally { pwSaving = false; }
   }
 
-  $: strength = next.length === 0 ? 0 : next.length < 8 ? 1 : next.length < 12 ? 2 : /[A-Z]/.test(next) && /[0-9]/.test(next) ? 4 : 3;
+  $: strength = next.length === 0 ? 0 : next.length < 8 ? 1 : next.length < 12 ? 2
+    : /[A-Z]/.test(next) && /[0-9]/.test(next) ? 4 : 3;
   $: strengthLabel = ["", "Too short", "Weak", "Good", "Strong"][strength];
   $: strengthColor = ["", "#ef4444", "#f59e0b", "#10b981", "#059669"][strength];
 
-  $: displayName = staff ? `${staff.first_name} ${staff.last_name}`.trim() : ($currentUser?.full_name || $currentUser?.email?.split("@")[0] || "—");
-  $: initials = displayName.split(" ").filter(Boolean).map((w: string) => w[0]).join("").toUpperCase().slice(0, 2) || "?";
+  $: displayName = staff
+    ? `${staff.first_name} ${staff.last_name}`.trim()
+    : ($currentUser?.full_name || $currentUser?.email?.split("@")[0] || "—");
+  $: initials = displayName.split(" ").filter(Boolean)
+    .map((w: string) => w[0]).join("").toUpperCase().slice(0, 2) || "?";
   $: roleLabel = $currentUser?.system_role?.replace(/_/g, " ") ?? "—";
 </script>
 
 <svelte:head><title>My Profile — TTEK-SIS</title></svelte:head>
 
-<div class="page">
+<div class="profile-wrap">
 
-  <!-- ── Hero ── -->
+  <!-- ── Hero ──────────────────────────────────────────────────── -->
   <div class="hero-card">
-    <div class="banner"></div>
+    <div class="banner" aria-hidden="true"></div>
+
     <div class="hero-body">
-      <!-- Avatar with upload overlay -->
-      <div class="avatar-wrap">
-        {#if staff?.photo_url}
-          <img src={staff.photo_url} alt={displayName} class="avatar-img" />
-        {:else}
-          <div class="avatar-initials">{initials}</div>
-        {/if}
-        {#if hasStaff}
-          <button class="avatar-upload-btn" on:click={() => fileInput.click()} title="Change photo" disabled={photoUploading}>
-            {#if photoUploading}<Loader2 size={12} class="spin" />{:else}<Camera size={12} />{/if}
-          </button>
-          <input bind:this={fileInput} type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" on:change={handlePhotoChange} />
+      <!-- Avatar -->
+      <div class="avatar-col">
+        <div class="avatar-ring">
+          {#if staff?.photo_url}
+            <img src={staff.photo_url} alt={displayName} class="avatar-img" />
+          {:else}
+            <div class="avatar-initials">{initials}</div>
+          {/if}
+          {#if hasStaff}
+            <button
+              class="photo-btn"
+              on:click={() => fileInput.click()}
+              title="Change photo"
+              disabled={photoUploading}
+              aria-label="Change profile photo"
+            >
+              {#if photoUploading}
+                <Loader2 size={11} class="spin" />
+              {:else}
+                <Camera size={11} />
+              {/if}
+            </button>
+            <input
+              bind:this={fileInput}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              class="sr-only"
+              on:change={handlePhotoChange}
+            />
+          {/if}
+        </div>
+        {#if photoError}
+          <p class="photo-err">{photoError}</p>
         {/if}
       </div>
-      {#if photoError}<p class="photo-error">{photoError}</p>{/if}
-      <h1 class="hero-name">{displayName}</h1>
-      <span class="hero-badge">{roleLabel}</span>
-      {#if staff?.designation}
-        <span class="hero-sub">{staff.designation.replace(/_/g, " ")}</span>
-      {/if}
+
+      <!-- Identity -->
+      <div class="identity-col">
+        <h1 class="hero-name">{displayName}</h1>
+        <div class="hero-meta">
+          <span class="role-chip">{roleLabel}</span>
+          {#if staff?.designation}
+            <span class="desig-chip">{humanise(staff.designation)}</span>
+          {/if}
+          {#if staff?.staff_id}
+            <span class="id-chip">ID: {staff.staff_id}</span>
+          {/if}
+        </div>
+        {#if staff?.current_rank}
+          <p class="hero-rank">Current rank: <strong>{staff.current_rank}</strong></p>
+        {/if}
+      </div>
     </div>
 
     <!-- Tabs -->
-    <nav class="tabs">
+    <nav class="tabs" aria-label="Profile sections">
       {#if hasStaff}
-        <button class="tab" class:active={tab === "personal"} on:click={() => tab = "personal"}>Personal</button>
-        <button class="tab" class:active={tab === "qualifications"} on:click={() => tab = "qualifications"}>Qualifications</button>
-        <button class="tab" class:active={tab === "promotions"} on:click={() => tab = "promotions"}>Promotions</button>
+        <button class="tab" class:active={tab === "personal"}
+          on:click={() => tab = "personal"}>
+          <User size={13} />Personal
+        </button>
+        <button class="tab" class:active={tab === "qualifications"}
+          on:click={() => tab = "qualifications"}>
+          <BookOpen size={13} />Qualifications
+        </button>
+        <button class="tab" class:active={tab === "promotions"}
+          on:click={() => tab = "promotions"}>
+          <TrendingUp size={13} />Promotions
+        </button>
       {/if}
-      <button class="tab" class:active={tab === "security"} on:click={() => tab = "security"}>Security</button>
+      <button class="tab" class:active={tab === "security"}
+        on:click={() => tab = "security"}>
+        <Shield size={13} />Security
+      </button>
     </nav>
   </div>
 
-  <!-- ── Tab content ── -->
-  <div class="tab-content">
+  <!-- ── Tab content ────────────────────────────────────────────── -->
+  <div class="content-card">
 
-    <!-- ── Personal ── -->
+    <!-- ─────────────── PERSONAL ─────────────────────────────────── -->
     {#if tab === "personal"}
       {#if staffLoading}
-        <div class="center-state"><Loader2 size={20} class="spin muted" /> Loading profile…</div>
+        <div class="loading-state">
+          <Loader2 size={18} class="spin muted" />
+          <span>Loading profile…</span>
+        </div>
       {:else if !hasStaff}
-        <div class="center-state muted">No staff profile linked to this account.</div>
+        <div class="empty-state">
+          <div class="empty-icon-wrap"><User size={24} /></div>
+          <p class="empty-title">No staff profile linked</p>
+          <p class="empty-body">Your account does not have a staff profile attached. Contact your administrator.</p>
+        </div>
       {:else if staff}
-        <div class="section-bar">
-          <span class="section-title">Personal information</span>
-          {#if !editingPersonal}
-            <button class="btn-ghost" on:click={startEditPersonal}><Pencil size={13} /> Edit</button>
-          {:else}
-            <div class="btn-group">
-              <button class="btn-ghost" on:click={() => { editingPersonal = false; personalError = ""; }}><X size={13} /> Cancel</button>
-              <button class="btn-primary" on:click={savePersonal} disabled={personalSaving}>
-                {#if personalSaving}<Loader2 size={13} class="spin" />{:else}<Save size={13} />{/if} Save
+
+        <!-- Personal section -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title">Personal information</h2>
+            {#if !editingPersonal}
+              <button class="btn-ghost" on:click={startEditPersonal}>
+                <Pencil size={12} />Edit
               </button>
+            {:else}
+              <div class="btn-row">
+                <button class="btn-ghost" on:click={() => { editingPersonal = false; personalError = ""; }}>
+                  <X size={12} />Cancel
+                </button>
+                <button class="btn-primary" on:click={savePersonal} disabled={personalSaving}>
+                  {#if personalSaving}<Loader2 size={12} class="spin" />{:else}<Save size={12} />{/if}
+                  Save
+                </button>
+              </div>
+            {/if}
+          </div>
+
+          {#if personalError}
+            <div class="alert-bar err"><AlertCircle size={13} />{personalError}</div>
+          {/if}
+          {#if personalSuccess}
+            <div class="alert-bar ok"><CheckCircle2 size={13} />Changes saved.</div>
+          {/if}
+
+          {#if !editingPersonal}
+            <dl class="prop-sheet">
+              <div class="prop-row">
+                <dt>First name</dt>
+                <dd>{staff.first_name}</dd>
+              </div>
+              {#if staff.middle_name}
+                <div class="prop-row">
+                  <dt>Middle name</dt>
+                  <dd>{staff.middle_name}</dd>
+                </div>
+              {/if}
+              <div class="prop-row">
+                <dt>Last name</dt>
+                <dd>{staff.last_name}</dd>
+              </div>
+              <div class="prop-row">
+                <dt>Gender</dt>
+                <dd>{humanise(staff.gender)}</dd>
+              </div>
+              <div class="prop-row">
+                <dt>Date of birth</dt>
+                <dd>{fmtDate(staff.date_of_birth)}</dd>
+              </div>
+              <div class="prop-row">
+                <dt>Phone</dt>
+                <dd>{staff.phone ?? "—"}</dd>
+              </div>
+              <div class="prop-row">
+                <dt>Personal email</dt>
+                <dd>{staff.personal_email ?? "—"}</dd>
+              </div>
+              <div class="prop-row">
+                <dt>Address</dt>
+                <dd>{staff.address ?? "—"}</dd>
+              </div>
+              <div class="prop-row">
+                <dt>Emergency contact</dt>
+                <dd>{staff.emergency_contact_name ?? "—"}</dd>
+              </div>
+              <div class="prop-row">
+                <dt>Emergency phone</dt>
+                <dd>{staff.emergency_contact_phone ?? "—"}</dd>
+              </div>
+            </dl>
+          {:else}
+            <div class="form-grid">
+              <div class="field">
+                <label for="gender">Gender</label>
+                <select id="gender" class="input" bind:value={personalForm.gender}>
+                  <option value="">— select —</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="dob">Date of birth</label>
+                <input id="dob" class="input" type="date" bind:value={personalForm.date_of_birth} />
+              </div>
+              <div class="field">
+                <label for="phone">Phone</label>
+                <input id="phone" class="input" type="tel" bind:value={personalForm.phone} placeholder="+233 XX XXX XXXX" />
+              </div>
+              <div class="field">
+                <label for="pemail">Personal email</label>
+                <input id="pemail" class="input" type="email" bind:value={personalForm.personal_email} placeholder="you@personal.com" />
+              </div>
+              <div class="field span2">
+                <label for="addr">Address</label>
+                <input id="addr" class="input" type="text" bind:value={personalForm.address} placeholder="Home address" />
+              </div>
+              <div class="field">
+                <label for="ecname">Emergency contact name</label>
+                <input id="ecname" class="input" type="text" bind:value={personalForm.emergency_contact_name} placeholder="Full name" />
+              </div>
+              <div class="field">
+                <label for="ecphone">Emergency contact phone</label>
+                <input id="ecphone" class="input" type="tel" bind:value={personalForm.emergency_contact_phone} placeholder="+233 XX XXX XXXX" />
+              </div>
             </div>
           {/if}
         </div>
 
-        {#if personalError}<div class="alert err"><AlertCircle size={13} />{personalError}</div>{/if}
-        {#if personalSuccess}<div class="alert ok"><CheckCircle2 size={13} />Saved successfully.</div>{/if}
-
-        {#if !editingPersonal}
-          <!-- Read mode -->
-          <div class="info-grid">
-            <div class="info-item">
-              <span class="info-label">First name</span>
-              <span class="info-val">{staff.first_name}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Last name</span>
-              <span class="info-val">{staff.last_name}</span>
-            </div>
-            {#if staff.middle_name}
-              <div class="info-item">
-                <span class="info-label">Middle name</span>
-                <span class="info-val">{staff.middle_name}</span>
-              </div>
-            {/if}
-            <div class="info-item">
-              <span class="info-label">Gender</span>
-              <span class="info-val">{staff.gender ?? "—"}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Date of birth</span>
-              <span class="info-val">{staff.date_of_birth ?? "—"}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Phone</span>
-              <span class="info-val">{staff.phone ?? "—"}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Personal email</span>
-              <span class="info-val">{staff.personal_email ?? "—"}</span>
-            </div>
-            <div class="info-item full">
-              <span class="info-label">Address</span>
-              <span class="info-val">{staff.address ?? "—"}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Emergency contact</span>
-              <span class="info-val">{staff.emergency_contact_name ?? "—"}</span>
-            </div>
-            <div class="info-item">
-              <span class="info-label">Emergency phone</span>
-              <span class="info-val">{staff.emergency_contact_phone ?? "—"}</span>
-            </div>
+        <!-- Employment section (read-only) -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title">Employment</h2>
+            <span class="readonly-chip">Read only</span>
           </div>
-        {:else}
-          <!-- Edit mode -->
-          <div class="form-grid">
-            <div class="field">
-              <label>Gender</label>
-              <select class="input" bind:value={personalForm.gender}>
-                <option value="">— select —</option>
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
-              </select>
+          <dl class="prop-sheet">
+            <div class="prop-row">
+              <dt>Staff ID</dt>
+              <dd>{staff.staff_id ?? "—"}</dd>
             </div>
-            <div class="field">
-              <label>Date of birth</label>
-              <input class="input" type="date" bind:value={personalForm.date_of_birth} />
+            <div class="prop-row">
+              <dt>Category</dt>
+              <dd>
+                <span class="badge {categoryClass(staff.category)}">{humanise(staff.category)}</span>
+              </dd>
             </div>
-            <div class="field">
-              <label>Phone</label>
-              <input class="input" type="tel" bind:value={personalForm.phone} placeholder="+233 XX XXX XXXX" />
+            <div class="prop-row">
+              <dt>Employment type</dt>
+              <dd>
+                <span class="badge {employmentClass(staff.employment_type)}">{humanise(staff.employment_type)}</span>
+              </dd>
             </div>
-            <div class="field">
-              <label>Personal email</label>
-              <input class="input" type="email" bind:value={personalForm.personal_email} placeholder="you@personal.com" />
+            <div class="prop-row">
+              <dt>Designation</dt>
+              <dd>{humanise(staff.designation)}</dd>
             </div>
-            <div class="field full">
-              <label>Address</label>
-              <input class="input" type="text" bind:value={personalForm.address} placeholder="Your home address" />
+            <div class="prop-row">
+              <dt>Date joined</dt>
+              <dd>{fmtDate(staff.date_joined)}</dd>
             </div>
-            <div class="field">
-              <label>Emergency contact name</label>
-              <input class="input" type="text" bind:value={personalForm.emergency_contact_name} placeholder="Full name" />
+            <div class="prop-row">
+              <dt>Current rank</dt>
+              <dd>{staff.current_rank ?? "—"}</dd>
             </div>
-            <div class="field">
-              <label>Emergency contact phone</label>
-              <input class="input" type="tel" bind:value={personalForm.emergency_contact_phone} placeholder="+233 XX XXX XXXX" />
+          </dl>
+        </div>
+      {/if}
+
+    <!-- ─────────────── QUALIFICATIONS ──────────────────────────── -->
+    {:else if tab === "qualifications"}
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">Academic qualifications</h2>
+          <button class="btn-ghost" on:click={() => { showAddQual = !showAddQual; qualError = ""; }}>
+            <Plus size={12} />Add
+          </button>
+        </div>
+
+        {#if qualError}
+          <div class="alert-bar err"><AlertCircle size={13} />{qualError}</div>
+        {/if}
+
+        {#if showAddQual}
+          <div class="inline-form">
+            <div class="form-grid">
+              <div class="field span2">
+                <label for="qdeg">Degree / Certificate *</label>
+                <input id="qdeg" class="input" bind:value={qualForm.degree} placeholder="e.g. B.Ed. Basic Education" />
+              </div>
+              <div class="field">
+                <label for="qinst">Institution *</label>
+                <input id="qinst" class="input" bind:value={qualForm.institution} placeholder="e.g. University of Education" />
+              </div>
+              <div class="field">
+                <label for="qyr">Year completed</label>
+                <input id="qyr" class="input" type="number" bind:value={qualForm.year}
+                  placeholder="e.g. 2018" min="1970" max={new Date().getFullYear()} />
+              </div>
+            </div>
+            <div class="inline-foot">
+              <button class="btn-ghost sm" on:click={() => { showAddQual = false; qualError = ""; }}>Cancel</button>
+              <button class="btn-primary sm" on:click={addQualification} disabled={qualSaving}>
+                {#if qualSaving}<Loader2 size={12} class="spin" />{/if} Save
+              </button>
             </div>
           </div>
         {/if}
 
-        <!-- Employment info (read-only) -->
-        <div class="section-bar" style="margin-top:20px">
-          <span class="section-title">Employment</span>
-          <span class="badge-readonly">Read only</span>
-        </div>
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="info-label">Staff ID</span>
-            <span class="info-val">{staff.staff_id ?? "—"}</span>
+        {#if !staff?.qualifications?.length}
+          <div class="empty-state">
+            <div class="empty-icon-wrap"><GraduationCap size={24} /></div>
+            <p class="empty-title">No qualifications on record</p>
+            <p class="empty-body">Add your academic background — degrees, certificates, and diplomas — to build your professional profile.</p>
           </div>
-          <div class="info-item">
-            <span class="info-label">Category</span>
-            <span class="info-val">{staff.category}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Employment type</span>
-            <span class="info-val">{staff.employment_type.replace(/_/g, " ")}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Designation</span>
-            <span class="info-val">{staff.designation?.replace(/_/g, " ") ?? "—"}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Date joined</span>
-            <span class="info-val">{staff.date_joined ?? "—"}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">Current rank</span>
-            <span class="info-val">{staff.current_rank ?? "—"}</span>
-          </div>
-        </div>
-      {/if}
-
-    <!-- ── Qualifications ── -->
-    {:else if tab === "qualifications"}
-      <div class="section-bar">
-        <span class="section-title">Academic qualifications</span>
-        <button class="btn-ghost" on:click={() => { showAddQual = !showAddQual; qualError = ""; }}>
-          <Plus size={13} /> Add
-        </button>
-      </div>
-
-      {#if qualError}<div class="alert err"><AlertCircle size={13} />{qualError}</div>{/if}
-
-      {#if showAddQual}
-        <div class="inline-form">
-          <div class="form-grid">
-            <div class="field">
-              <label>Degree / Certificate</label>
-              <input class="input" bind:value={qualForm.degree} placeholder="e.g. B.Ed. Basic Education" />
-            </div>
-            <div class="field">
-              <label>Institution</label>
-              <input class="input" bind:value={qualForm.institution} placeholder="e.g. University of Education" />
-            </div>
-            <div class="field">
-              <label>Year completed</label>
-              <input class="input" type="number" bind:value={qualForm.year} placeholder="e.g. 2018" min="1970" max={new Date().getFullYear()} />
-            </div>
-          </div>
-          <div class="inline-form-foot">
-            <button class="btn-ghost sm" on:click={() => { showAddQual = false; qualError = ""; }}>Cancel</button>
-            <button class="btn-primary sm" on:click={addQualification} disabled={qualSaving}>
-              {#if qualSaving}<Loader2 size={12} class="spin" />{/if} Save
-            </button>
-          </div>
-        </div>
-      {/if}
-
-      {#if !staff?.qualifications?.length}
-        <p class="empty-hint">No qualifications recorded. Add your academic background above.</p>
-      {:else}
-        <div class="list">
-          {#each staff.qualifications as q (q.id)}
-            <div class="list-row">
+        {:else}
+          <div class="cred-list">
+            {#each staff.qualifications as q (q.id)}
               {#if editingQual === q.id}
-                <div class="list-edit-grid">
-                  <input class="input sm" bind:value={editQualForm.degree} placeholder="Degree" />
-                  <input class="input sm" bind:value={editQualForm.institution} placeholder="Institution" />
-                  <input class="input sm" type="number" bind:value={editQualForm.year} placeholder="Year" />
-                  <div class="list-edit-actions">
-                    <button class="icon-btn" on:click={() => saveQual(q.id)} title="Save"><Save size={13} /></button>
-                    <button class="icon-btn muted" on:click={() => editingQual = null} title="Cancel"><X size={13} /></button>
+                <div class="cred-card editing">
+                  <div class="form-grid">
+                    <div class="field span2">
+                      <label>Degree / Certificate</label>
+                      <input class="input" bind:value={editQualForm.degree} placeholder="Degree" />
+                    </div>
+                    <div class="field">
+                      <label>Institution</label>
+                      <input class="input" bind:value={editQualForm.institution} placeholder="Institution" />
+                    </div>
+                    <div class="field">
+                      <label>Year</label>
+                      <input class="input" type="number" bind:value={editQualForm.year} placeholder="Year" />
+                    </div>
+                  </div>
+                  <div class="inline-foot">
+                    <button class="btn-ghost sm" on:click={() => editingQual = null}><X size={12} />Cancel</button>
+                    <button class="btn-primary sm" on:click={() => saveQual(q.id)} disabled={qualSaving}>
+                      {#if qualSaving}<Loader2 size={12} class="spin" />{/if}<Save size={12} />Save
+                    </button>
                   </div>
                 </div>
               {:else}
-                <div class="list-body">
-                  <span class="list-primary">{q.degree}</span>
-                  <span class="list-secondary">{q.institution}{q.year ? ` · ${q.year}` : ""}</span>
-                </div>
-                <div class="list-actions">
-                  <button class="icon-btn muted" on:click={() => startEditQual(q)} title="Edit"><Pencil size={13} /></button>
-                  <button class="icon-btn danger" on:click={() => deleteQualification(q.id)} title="Remove"><Trash2 size={13} /></button>
+                <div class="cred-card">
+                  <div class="cred-icon"><GraduationCap size={15} /></div>
+                  <div class="cred-body">
+                    <span class="cred-degree">{q.degree}</span>
+                    <span class="cred-meta">
+                      {q.institution}{q.year ? ` · ${q.year}` : ""}
+                    </span>
+                  </div>
+                  <div class="cred-actions">
+                    <button class="icon-btn" on:click={() => startEditQual(q)} title="Edit">
+                      <Pencil size={13} />
+                    </button>
+                    <button class="icon-btn danger" on:click={() => deleteQualification(q.id)} title="Remove">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
                 </div>
               {/if}
-            </div>
-          {/each}
-        </div>
-      {/if}
+            {/each}
+          </div>
+        {/if}
+      </div>
 
-    <!-- ── Promotions ── -->
+    <!-- ─────────────── PROMOTIONS ──────────────────────────────── -->
     {:else if tab === "promotions"}
-      <div class="section-bar">
-        <span class="section-title">Rank / promotion history</span>
-        <button class="btn-ghost" on:click={() => { showAddPromotion = !showAddPromotion; promError = ""; }}>
-          <Plus size={13} /> Record
-        </button>
-      </div>
-
-      {#if promError}<div class="alert err"><AlertCircle size={13} />{promError}</div>{/if}
-
-      {#if showAddPromotion}
-        <div class="inline-form">
-          <div class="form-grid">
-            <div class="field">
-              <label>New rank</label>
-              <input class="input" bind:value={promForm.rank} placeholder="e.g. Principal Superintendent" />
-            </div>
-            <div class="field">
-              <label>Date promoted</label>
-              <input class="input" type="date" bind:value={promForm.date_promoted} />
-            </div>
-          </div>
-          <div class="inline-form-foot">
-            <button class="btn-ghost sm" on:click={() => { showAddPromotion = false; promError = ""; }}>Cancel</button>
-            <button class="btn-primary sm" on:click={addPromotion} disabled={promSaving}>
-              {#if promSaving}<Loader2 size={12} class="spin" />{/if} Save
-            </button>
-          </div>
-        </div>
-      {/if}
-
-      {#if !staff?.promotions?.length}
-        <p class="empty-hint">No promotion records. Add your rank history above.</p>
-      {:else}
-        <div class="list">
-          {#each staff.promotions as p (p.id)}
-            <div class="list-row">
-              <div class="list-body">
-                <span class="list-primary">{p.rank}</span>
-                <span class="list-secondary">Effective {p.date_promoted} · Recorded {p.date_recorded}</span>
-              </div>
-              <div class="list-actions">
-                <button class="icon-btn danger" on:click={() => deletePromotion(p.id)} title="Remove"><Trash2 size={13} /></button>
-              </div>
-            </div>
-          {/each}
-        </div>
-      {/if}
-
-    <!-- ── Security ── -->
-    {:else if tab === "security"}
-      <div class="section-bar">
-        <span class="section-title">Change password</span>
-      </div>
-
-      {#if pwError}<div class="alert err"><AlertCircle size={13} />{pwError}</div>{/if}
-      {#if pwSuccess}<div class="alert ok"><CheckCircle2 size={13} />Password updated successfully.</div>{/if}
-
-      <form on:submit|preventDefault={changePassword} novalidate class="pw-form">
-        <div class="field">
-          <label for="cur">Current password</label>
-          <div class="pw-wrap">
-            <input id="cur" class="input" type={showCurrent ? "text" : "password"}
-              bind:value={current} autocomplete="current-password" placeholder="••••••••" />
-            <button type="button" class="eye" on:click={() => showCurrent = !showCurrent}>
-              {#if showCurrent}<EyeOff size={13} />{:else}<Eye size={13} />{/if}
-            </button>
-          </div>
-        </div>
-        <div class="pw-row">
-          <div class="field">
-            <label for="nxt">New password</label>
-            <div class="pw-wrap">
-              <input id="nxt" class="input" type={showNext ? "text" : "password"}
-                bind:value={next} autocomplete="new-password" placeholder="At least 8 characters" />
-              <button type="button" class="eye" on:click={() => showNext = !showNext}>
-                {#if showNext}<EyeOff size={13} />{:else}<Eye size={13} />{/if}
-              </button>
-            </div>
-            {#if next.length > 0}
-              <div class="bar"><div class="bar-fill" style="width:{strength*25}%;background:{strengthColor}"></div></div>
-              <span class="bar-label" style="color:{strengthColor}">{strengthLabel}</span>
-            {/if}
-          </div>
-          <div class="field">
-            <label for="cfm">Confirm new password</label>
-            <input id="cfm" class="input" type="password"
-              bind:value={confirm} autocomplete="new-password" placeholder="••••••••" />
-          </div>
-        </div>
-        <div class="form-foot">
-          <button class="btn-primary" type="submit" disabled={pwSaving}>
-            {#if pwSaving}<Loader2 size={13} class="spin" />{/if} Update password
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">Rank &amp; promotion history</h2>
+          <button class="btn-ghost" on:click={() => { showAddPromotion = !showAddPromotion; promError = ""; }}>
+            <Plus size={12} />Record
           </button>
         </div>
-      </form>
+
+        {#if promError}
+          <div class="alert-bar err"><AlertCircle size={13} />{promError}</div>
+        {/if}
+        {#if docError}
+          <div class="alert-bar err"><AlertCircle size={13} />{docError}</div>
+        {/if}
+
+        {#if showAddPromotion}
+          <div class="inline-form">
+            <div class="form-grid">
+              <div class="field">
+                <label for="prank">New rank *</label>
+                <input id="prank" class="input" bind:value={promForm.rank}
+                  placeholder="e.g. Principal Superintendent" />
+              </div>
+              <div class="field">
+                <label for="pdate">Date promoted *</label>
+                <input id="pdate" class="input" type="date" bind:value={promForm.date_promoted} />
+              </div>
+            </div>
+            <div class="inline-foot">
+              <button class="btn-ghost sm" on:click={() => { showAddPromotion = false; promError = ""; }}>Cancel</button>
+              <button class="btn-primary sm" on:click={addPromotion} disabled={promSaving}>
+                {#if promSaving}<Loader2 size={12} class="spin" />{/if} Save
+              </button>
+            </div>
+          </div>
+        {/if}
+
+        {#if !staff?.promotions?.length}
+          <div class="empty-state">
+            <div class="empty-icon-wrap"><Award size={24} /></div>
+            <p class="empty-title">No promotions recorded</p>
+            <p class="empty-body">Record your GES rank history here. Each entry can include the promotion letter as supporting evidence.</p>
+          </div>
+        {:else}
+          <div class="timeline">
+            {#each staff.promotions as p, i (p.id)}
+              <div class="timeline-item">
+                <div class="tl-gutter">
+                  <div class="tl-dot" class:tl-dot-latest={i === 0}></div>
+                  {#if i < staff.promotions.length - 1}
+                    <div class="tl-line"></div>
+                  {/if}
+                </div>
+                <div class="tl-body">
+                  <div class="tl-head">
+                    <span class="tl-rank">{p.rank}</span>
+                    <span class="tl-year">{new Date(p.date_promoted).getFullYear()}</span>
+                  </div>
+                  <p class="tl-meta">
+                    Effective {fmtDate(p.date_promoted)}
+                    &nbsp;·&nbsp;
+                    Recorded {fmtDate(p.date_recorded)}
+                  </p>
+
+                  <!-- Document attachment -->
+                  <div class="tl-doc">
+                    {#if p.document_url}
+                      <a href={p.document_url} target="_blank" rel="noopener" class="doc-link">
+                        <FileText size={12} />View letter
+                        <ExternalLink size={10} class="doc-ext" />
+                      </a>
+                      <button
+                        class="doc-replace"
+                        on:click={() => docInputs[p.id]?.click()}
+                        disabled={docUploading[p.id]}
+                        title="Replace document"
+                      >
+                        {#if docUploading[p.id]}
+                          <Loader2 size={11} class="spin" />
+                        {:else}
+                          Replace
+                        {/if}
+                      </button>
+                    {:else}
+                      <button
+                        class="doc-attach"
+                        on:click={() => docInputs[p.id]?.click()}
+                        disabled={docUploading[p.id]}
+                      >
+                        {#if docUploading[p.id]}
+                          <Loader2 size={11} class="spin" />Uploading…
+                        {:else}
+                          <Paperclip size={11} />Attach letter
+                        {/if}
+                      </button>
+                    {/if}
+                    <input
+                      bind:this={docInputs[p.id]}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,application/pdf"
+                      class="sr-only"
+                      on:change={(e) => handleDocChange(p.id, e)}
+                    />
+                  </div>
+                </div>
+                <button class="icon-btn danger tl-del" on:click={() => deletePromotion(p.id)} title="Remove">
+                  <Trash2 size={13} />
+                </button>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+
+    <!-- ─────────────── SECURITY ─────────────────────────────────── -->
+    {:else if tab === "security"}
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">Change password</h2>
+        </div>
+
+        {#if pwError}
+          <div class="alert-bar err"><AlertCircle size={13} />{pwError}</div>
+        {/if}
+        {#if pwSuccess}
+          <div class="alert-bar ok"><CheckCircle2 size={13} />Password updated successfully.</div>
+        {/if}
+
+        <form on:submit|preventDefault={changePassword} novalidate class="pw-form">
+          <div class="field">
+            <label for="cur">Current password</label>
+            <div class="pw-wrap">
+              <input id="cur" class="input" type={showCurrent ? "text" : "password"}
+                bind:value={current} autocomplete="current-password" placeholder="••••••••" />
+              <button type="button" class="eye-btn" on:click={() => showCurrent = !showCurrent}
+                aria-label={showCurrent ? "Hide" : "Show"}>
+                {#if showCurrent}<EyeOff size={13} />{:else}<Eye size={13} />{/if}
+              </button>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="nxt">New password</label>
+              <div class="pw-wrap">
+                <input id="nxt" class="input" type={showNext ? "text" : "password"}
+                  bind:value={next} autocomplete="new-password" placeholder="At least 8 characters" />
+                <button type="button" class="eye-btn" on:click={() => showNext = !showNext}
+                  aria-label={showNext ? "Hide" : "Show"}>
+                  {#if showNext}<EyeOff size={13} />{:else}<Eye size={13} />{/if}
+                </button>
+              </div>
+              {#if next.length > 0}
+                <div class="strength-bar">
+                  <div class="strength-fill" style="width:{strength * 25}%;background:{strengthColor}"></div>
+                </div>
+                <span class="strength-label" style="color:{strengthColor}">{strengthLabel}</span>
+              {/if}
+            </div>
+            <div class="field">
+              <label for="cfm">Confirm new password</label>
+              <input id="cfm" class="input" type="password"
+                bind:value={confirm} autocomplete="new-password" placeholder="••••••••" />
+            </div>
+          </div>
+
+          <div class="form-foot">
+            <button class="btn-primary" type="submit" disabled={pwSaving}>
+              {#if pwSaving}<Loader2 size={13} class="spin" />{/if}
+              Update password
+            </button>
+          </div>
+        </form>
+      </div>
     {/if}
 
   </div>
 </div>
 
 <style>
-  .page { max-width: 720px; display: flex; flex-direction: column; gap: 0; }
+/* ── Layout ──────────────────────────────────────────────────────── */
+.profile-wrap {
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+}
 
-  /* ── Hero card ── */
-  .hero-card {
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
-    border-radius: 14px 14px 0 0;
-    border-bottom: none;
-    overflow: hidden;
-  }
+/* ── Hero card ───────────────────────────────────────────────────── */
+.hero-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px 14px 0 0;
+  border-bottom: none;
+  overflow: hidden;
+}
 
-  .banner {
-    height: 72px;
-    background: linear-gradient(
+.banner {
+  height: 88px;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      color-mix(in srgb, var(--accent) 6%, transparent) 0px,
+      color-mix(in srgb, var(--accent) 6%, transparent) 1px,
+      transparent 1px,
+      transparent 18px
+    ),
+    linear-gradient(
       135deg,
-      color-mix(in srgb, var(--accent) 25%, var(--surface-1)) 0%,
-      color-mix(in srgb, var(--accent) 8%, var(--surface-1)) 100%
+      color-mix(in srgb, var(--accent) 22%, var(--surface-2)) 0%,
+      color-mix(in srgb, var(--accent) 6%, var(--surface-2)) 100%
     );
-  }
+}
 
-  .hero-body {
-    padding: 0 24px 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    margin-top: -34px;
-  }
+.hero-body {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  padding: 0 28px 18px;
+  margin-top: -44px;
+}
 
-  .avatar-wrap {
-    position: relative;
-    width: 68px;
-    height: 68px;
-    flex-shrink: 0;
-  }
+/* Avatar */
+.avatar-col { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
 
-  .avatar-img, .avatar-initials {
-    width: 68px; height: 68px; border-radius: 50%;
-    border: 3px solid var(--surface-1);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  }
+.avatar-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
 
-  .avatar-img { object-fit: cover; display: block; }
+.avatar-img,
+.avatar-initials {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--surface-1);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
 
-  .avatar-initials {
-    background: var(--accent); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.375rem; font-weight: 700; letter-spacing: -0.5px;
-  }
+.avatar-img { object-fit: cover; display: block; }
 
-  .avatar-upload-btn {
-    position: absolute; bottom: 0; right: 0;
-    width: 24px; height: 24px; border-radius: 50%;
-    background: var(--surface-0); border: 1.5px solid var(--border-subtle);
-    color: var(--tx-mid); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.12s;
-  }
-  .avatar-upload-btn:hover { background: var(--accent-subtle); color: var(--accent); }
+.avatar-initials {
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
 
-  .photo-error {
-    font-size: 0.75rem; color: #ef4444; margin: 4px 0 0; text-align: center;
-  }
+.photo-btn {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--surface-0);
+  border: 1.5px solid var(--border-subtle);
+  color: var(--tx-low);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+.photo-btn:hover:not(:disabled) { background: var(--accent-subtle); color: var(--accent); }
+.photo-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.photo-err { font-size: 0.7rem; color: #ef4444; margin: 4px 0 0; text-align: center; }
 
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+/* Identity */
+.identity-col {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: 4px;
+}
 
-  .hero-name {
-    margin: 10px 0 0;
-    font-size: 1.0625rem; font-weight: 700; color: var(--tx-high); line-height: 1.2;
-  }
+.hero-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--tx-high);
+  margin: 0 0 6px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-  .hero-badge {
-    margin-top: 5px; display: inline-block;
-    padding: 2px 9px; border-radius: 99px;
-    font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
-    background: var(--accent-subtle); color: var(--accent); border: 1px solid var(--accent-border);
-  }
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
 
-  .hero-sub {
-    margin-top: 3px; font-size: 0.75rem; color: var(--tx-low);
-    text-transform: capitalize;
-  }
+.role-chip,
+.desig-chip,
+.id-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 
-  /* ── Tabs ── */
-  .tabs {
-    display: flex; gap: 0;
-    padding: 14px 24px 0;
-    border-top: 1px solid var(--border-subtle);
-    margin-top: 14px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .tabs::-webkit-scrollbar { display: none; }
+.role-chip {
+  background: var(--accent-subtle);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+}
 
-  .tab {
-    padding: 8px 14px;
-    background: none; border: none; cursor: pointer;
-    font-size: 0.8125rem; font-weight: 500; color: var(--tx-low);
-    border-bottom: 2px solid transparent;
-    white-space: nowrap;
-    transition: color 0.12s, border-color 0.12s;
-    margin-bottom: -1px;
-  }
-  .tab:hover { color: var(--tx-mid); }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.desig-chip {
+  background: var(--surface-2);
+  color: var(--tx-mid);
+  border: 1px solid var(--border-subtle);
+}
 
-  /* ── Tab content panel ── */
-  .tab-content {
-    background: var(--surface-1);
-    border: 1px solid var(--border-subtle);
-    border-top: none;
-    border-radius: 0 0 14px 14px;
-    padding: 20px 24px 24px;
-    min-height: 200px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
+.id-chip {
+  background: var(--surface-2);
+  color: var(--tx-low);
+  border: 1px solid var(--border-subtle);
+  font-family: ui-monospace, monospace;
+}
 
-  /* ── Section bar ── */
-  .section-bar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border-subtle);
-  }
+.hero-rank {
+  margin: 6px 0 0;
+  font-size: 0.75rem;
+  color: var(--tx-low);
+}
+.hero-rank strong { color: var(--tx-mid); font-weight: 600; }
 
-  .section-title { font-size: 0.8125rem; font-weight: 600; color: var(--tx-high); }
+/* Responsive hero */
+@media (max-width: 520px) {
+  .hero-body { flex-direction: column; align-items: center; text-align: center; margin-top: -40px; }
+  .hero-meta { justify-content: center; }
+  .hero-rank { text-align: center; }
+  .avatar-ring { width: 72px; height: 72px; }
+  .avatar-img, .avatar-initials { width: 72px; height: 72px; }
+}
 
-  .badge-readonly {
-    font-size: 0.6875rem; font-weight: 500; color: var(--tx-low);
-    background: var(--surface-2); border: 1px solid var(--border-subtle);
-    padding: 2px 7px; border-radius: 99px;
-  }
+/* ── Tabs ─────────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  padding: 0 20px;
+  border-top: 1px solid var(--border-subtle);
+  gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
 
-  .btn-group { display: flex; gap: 6px; }
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--tx-low);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  transition: color 0.12s, border-color 0.12s;
+}
+.tab :global(svg) { opacity: 0.6; }
+.tab:hover { color: var(--tx-mid); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.tab.active :global(svg) { opacity: 1; }
 
-  /* ── Info grid (read view) ── */
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-  }
-  @media (max-width: 480px) { .info-grid { grid-template-columns: 1fr; } }
+/* ── Content card ─────────────────────────────────────────────────── */
+.content-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border-subtle);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  min-height: 220px;
+}
 
-  .info-item {
-    display: flex; flex-direction: column; gap: 2px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border-subtle);
-    padding-right: 16px;
-  }
-  .info-item.full { grid-column: span 2; }
+/* ── Section ──────────────────────────────────────────────────────── */
+.section {
+  padding: 22px 28px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.section:last-child { border-bottom: none; }
 
-  .info-label { font-size: 0.6875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; color: var(--tx-low); }
-  .info-val   { font-size: 0.875rem; color: var(--tx-high); }
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
 
-  /* ── Form grid (edit view) ── */
-  .form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  @media (max-width: 480px) { .form-grid { grid-template-columns: 1fr; } }
+.section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tx-high);
+  margin: 0;
+}
 
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field.full { grid-column: span 2; }
-  .field label { font-size: 0.75rem; font-weight: 500; color: var(--tx-mid); }
+.readonly-chip {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--tx-low);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  padding: 2px 8px;
+  border-radius: 99px;
+}
 
-  .input {
-    width: 100%; box-sizing: border-box;
-    height: 34px; padding: 0 10px;
-    border: 1px solid var(--border-strong); border-radius: 7px;
-    font-size: 0.875rem; background: var(--surface-0); color: var(--tx-high);
-    font-family: inherit; outline: none;
-    transition: border-color 0.12s, box-shadow 0.12s;
-  }
-  .input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 13%, transparent);
-  }
-  .input::placeholder { color: var(--tx-placeholder); }
-  .input.sm { height: 30px; font-size: 0.8125rem; }
+/* ── Property sheet ───────────────────────────────────────────────── */
+.prop-sheet {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+}
 
-  select.input { padding: 0 8px; cursor: pointer; }
+.prop-row {
+  display: grid;
+  grid-template-columns: 148px 1fr;
+  gap: 12px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background 0.08s;
+}
+.prop-row:last-child { border-bottom: none; }
+.prop-row:hover { background: color-mix(in srgb, var(--surface-2) 60%, transparent); margin: 0 -8px; padding-left: 8px; padding-right: 8px; border-radius: 6px; }
 
-  /* ── Alerts ── */
-  .alert {
-    display: flex; align-items: center; gap: 7px;
-    padding: 8px 11px; border-radius: 8px; font-size: 0.8125rem;
-  }
-  .alert.err { color: #ef4444; background: color-mix(in srgb, #ef4444 8%, transparent); border: 1px solid color-mix(in srgb, #ef4444 20%, transparent); }
-  .alert.ok  { color: #10b981; background: color-mix(in srgb, #10b981 10%, transparent); border: 1px solid color-mix(in srgb, #10b981 25%, transparent); }
+.prop-row dt {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--tx-low);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 
-  /* ── Inline form (add qual / promo) ── */
-  .inline-form {
-    background: var(--surface-2);
-    border: 1px solid var(--border-subtle);
-    border-radius: 9px;
-    padding: 14px;
-    display: flex; flex-direction: column; gap: 12px;
-  }
-  .inline-form-foot { display: flex; justify-content: flex-end; gap: 8px; }
+.prop-row dd {
+  font-size: 0.875rem;
+  color: var(--tx-high);
+  margin: 0;
+}
 
-  /* ── List (quals / promos) ── */
-  .list { display: flex; flex-direction: column; }
+@media (max-width: 480px) {
+  .prop-row { grid-template-columns: 1fr; gap: 2px; }
+}
 
-  .list-row {
-    display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    padding: 11px 0;
-    border-bottom: 1px solid var(--border-subtle);
-  }
-  .list-row:last-child { border-bottom: none; }
+/* ── Badges ───────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+.badge-accent  { background: var(--accent-subtle); color: var(--accent); border: 1px solid var(--accent-border); }
+.badge-neutral { background: var(--surface-2); color: var(--tx-mid); border: 1px solid var(--border-subtle); }
+.badge-green   { background: color-mix(in srgb, #10b981 12%, transparent); color: #059669; border: 1px solid color-mix(in srgb, #10b981 30%, transparent); }
+.badge-orange  { background: color-mix(in srgb, #f59e0b 12%, transparent); color: #d97706; border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent); }
+.badge-blue    { background: color-mix(in srgb, #3b82f6 12%, transparent); color: #2563eb; border: 1px solid color-mix(in srgb, #3b82f6 30%, transparent); }
+.badge-purple  { background: color-mix(in srgb, #8b5cf6 12%, transparent); color: #7c3aed; border: 1px solid color-mix(in srgb, #8b5cf6 30%, transparent); }
 
-  .list-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .list-primary  { font-size: 0.875rem; font-weight: 500; color: var(--tx-high); }
-  .list-secondary { font-size: 0.75rem; color: var(--tx-low); }
+/* ── Credential cards ─────────────────────────────────────────────── */
+.cred-list { display: flex; flex-direction: column; gap: 8px; }
 
-  .list-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.cred-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: var(--surface-0);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  transition: box-shadow 0.12s;
+}
+.cred-card:hover { box-shadow: var(--shadow-xs); }
+.cred-card.editing { border-left-color: var(--border-strong); flex-direction: column; align-items: stretch; }
 
-  .list-edit-grid {
-    display: grid; grid-template-columns: 1fr 1fr 80px 64px;
-    gap: 8px; flex: 1;
-  }
+.cred-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
 
-  .list-edit-actions { display: flex; gap: 4px; align-items: center; }
+.cred-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
-  /* ── Buttons ── */
-  .btn-primary {
-    height: 30px; padding: 0 13px;
-    border-radius: 7px; border: none; cursor: pointer;
-    background: var(--accent); color: #fff;
-    font-size: 0.8125rem; font-weight: 600; font-family: inherit;
-    display: flex; align-items: center; gap: 5px;
-    transition: opacity 0.12s;
-  }
-  .btn-primary.sm { height: 26px; padding: 0 10px; font-size: 0.75rem; }
-  .btn-primary:hover:not(:disabled) { opacity: 0.88; }
-  .btn-primary:disabled { opacity: 0.55; cursor: not-allowed; }
+.cred-degree {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--tx-high);
+}
 
-  .btn-ghost {
-    height: 28px; padding: 0 10px;
-    border-radius: 7px; border: 1px solid var(--border-strong);
-    background: transparent; color: var(--tx-mid); cursor: pointer;
-    font-size: 0.8125rem; font-weight: 500; font-family: inherit;
-    display: flex; align-items: center; gap: 5px;
-    transition: background 0.12s, color 0.12s;
-  }
-  .btn-ghost.sm { height: 26px; font-size: 0.75rem; }
-  .btn-ghost:hover { background: var(--surface-2); color: var(--tx-high); }
+.cred-meta {
+  font-size: 0.75rem;
+  color: var(--tx-low);
+}
 
-  .icon-btn {
-    width: 28px; height: 28px; border-radius: 6px;
-    border: 1px solid transparent; background: transparent;
-    color: var(--tx-low); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.12s, color 0.12s;
-  }
-  .icon-btn:hover { background: var(--surface-2); color: var(--tx-mid); }
-  .icon-btn.danger:hover { background: color-mix(in srgb, #ef4444 10%, transparent); color: #ef4444; }
-  .icon-btn.muted { color: var(--tx-low); }
+.cred-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.cred-card:hover .cred-actions,
+.cred-card:focus-within .cred-actions { opacity: 1; }
 
-  /* ── Password form ── */
-  .pw-form { display: flex; flex-direction: column; gap: 14px; max-width: 480px; }
+/* ── Promotion timeline ───────────────────────────────────────────── */
+.timeline { display: flex; flex-direction: column; }
 
-  .pw-row {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-  }
-  @media (max-width: 480px) { .pw-row { grid-template-columns: 1fr; } }
+.timeline-item {
+  display: flex;
+  gap: 0;
+  position: relative;
+}
 
-  .pw-wrap { position: relative; }
-  .pw-wrap .input { padding-right: 34px; }
-  .eye {
-    position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
-    background: none; border: none; cursor: pointer; color: var(--tx-low);
-    padding: 0; display: flex; align-items: center;
-  }
-  .eye:hover { color: var(--tx-mid); }
+.tl-gutter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 28px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
 
-  .bar { height: 2px; background: var(--border-subtle); border-radius: 99px; overflow: hidden; margin-top: 5px; }
-  .bar-fill { height: 100%; border-radius: 99px; transition: width 0.3s, background 0.3s; }
-  .bar-label { font-size: 0.6875rem; font-weight: 500; margin-top: 2px; }
+.tl-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  border: 2px solid var(--surface-1);
+  box-shadow: 0 0 0 2px var(--border-strong);
+  flex-shrink: 0;
+  z-index: 1;
+  transition: background 0.12s, box-shadow 0.12s;
+}
 
-  .form-foot { display: flex; justify-content: flex-end; }
+.tl-dot.tl-dot-latest {
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
+}
 
-  /* ── Misc ── */
-  .center-state { display: flex; align-items: center; gap: 10px; padding: 24px 0; color: var(--tx-low); font-size: 0.875rem; }
-  .empty-hint { font-size: 0.875rem; color: var(--tx-low); padding: 16px 0; margin: 0; text-align: center; }
-  .muted { color: var(--tx-low); }
+.tl-line {
+  flex: 1;
+  width: 2px;
+  background: var(--border-subtle);
+  margin: 4px 0;
+  min-height: 20px;
+}
 
-  :global(.spin) { animation: spin 0.7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.tl-body {
+  flex: 1;
+  min-width: 0;
+  padding: 0 0 22px 14px;
+}
+
+.tl-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 3px;
+}
+
+.tl-rank {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--tx-high);
+}
+
+.tl-year {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tx-low);
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  padding: 1px 7px;
+  border-radius: 99px;
+}
+
+.tl-meta {
+  font-size: 0.75rem;
+  color: var(--tx-low);
+  margin: 0 0 8px;
+}
+
+.tl-doc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.doc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--accent-subtle);
+  border: 1px solid var(--accent-border);
+  transition: opacity 0.1s;
+}
+.doc-link:hover { opacity: 0.8; }
+:global(.doc-ext) { opacity: 0.6; }
+
+.doc-replace {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--tx-low);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px 4px;
+  text-decoration: underline;
+  transition: color 0.1s;
+}
+.doc-replace:hover { color: var(--tx-mid); }
+
+.doc-attach {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--tx-low);
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
+  padding: 3px 9px;
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+}
+.doc-attach:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-subtle);
+}
+.doc-attach:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.tl-del {
+  align-self: flex-start;
+  margin-top: 0;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.timeline-item:hover .tl-del { opacity: 1; }
+
+/* ── Forms ────────────────────────────────────────────────────────── */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 520px) { .form-grid { grid-template-columns: 1fr; } }
+
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field.span2 { grid-column: span 2; }
+@media (max-width: 520px) { .field.span2 { grid-column: span 1; } }
+
+.field label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--tx-mid);
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  font-size: 0.875rem;
+  background: var(--surface-0);
+  color: var(--tx-high);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+.input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.input::placeholder { color: var(--tx-placeholder, var(--tx-low)); opacity: 0.7; }
+select.input { cursor: pointer; }
+
+/* ── Inline form ──────────────────────────────────────────────────── */
+.inline-form {
+  background: var(--surface-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inline-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────── */
+.btn-primary {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: opacity 0.12s;
+}
+.btn-primary.sm { height: 28px; padding: 0 11px; font-size: 0.75rem; }
+.btn-primary:hover:not(:disabled) { opacity: 0.88; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-ghost {
+  height: 30px;
+  padding: 0 11px;
+  border-radius: 7px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--tx-mid);
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.12s, color 0.12s;
+}
+.btn-ghost.sm { height: 28px; font-size: 0.75rem; }
+.btn-ghost:hover { background: var(--surface-2); color: var(--tx-high); }
+
+.btn-row { display: flex; gap: 6px; }
+
+.icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--tx-low);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+}
+.icon-btn:hover { background: var(--surface-2); color: var(--tx-mid); }
+.icon-btn.danger:hover {
+  background: color-mix(in srgb, #ef4444 10%, transparent);
+  color: #ef4444;
+}
+
+/* ── Alerts ───────────────────────────────────────────────────────── */
+.alert-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  margin-bottom: 14px;
+}
+.alert-bar.err {
+  color: #ef4444;
+  background: color-mix(in srgb, #ef4444 8%, transparent);
+  border: 1px solid color-mix(in srgb, #ef4444 20%, transparent);
+}
+.alert-bar.ok {
+  color: #059669;
+  background: color-mix(in srgb, #10b981 10%, transparent);
+  border: 1px solid color-mix(in srgb, #10b981 25%, transparent);
+}
+
+/* ── Empty states ─────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 40px 24px;
+  gap: 8px;
+}
+
+.empty-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--tx-low);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+  border: 1px solid var(--border-subtle);
+}
+
+.empty-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--tx-high);
+  margin: 0;
+}
+
+.empty-body {
+  font-size: 0.8125rem;
+  color: var(--tx-low);
+  line-height: 1.55;
+  margin: 0;
+  max-width: 360px;
+}
+
+/* ── Loading ──────────────────────────────────────────────────────── */
+.loading-state {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 36px 28px;
+  font-size: 0.875rem;
+  color: var(--tx-low);
+}
+
+/* ── Password form ────────────────────────────────────────────────── */
+.pw-form { display: flex; flex-direction: column; gap: 16px; max-width: 500px; }
+
+.pw-wrap { position: relative; }
+.pw-wrap .input { padding-right: 36px; }
+
+.eye-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--tx-low);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.1s;
+}
+.eye-btn:hover { color: var(--tx-mid); }
+
+.strength-bar {
+  height: 3px;
+  background: var(--surface-2);
+  border-radius: 99px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.strength-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+.strength-label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  margin-top: 3px;
+  display: block;
+}
+
+.form-foot { display: flex; justify-content: flex-end; }
+
+/* ── Utility ──────────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+}
+
+:global(.spin) { animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
