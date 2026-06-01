@@ -421,7 +421,19 @@
               </div>
               <div class="prop-row">
                 <dt>Phone</dt>
-                <dd>{staff.phone ?? "—"}</dd>
+                <dd>
+                  {#if staff.phone}
+                    {staff.phone}
+                  {:else}
+                    <span class="missing-phone">
+                      Not set —
+                      <button class="missing-phone-link" on:click={startEditPersonal}>
+                        add your number
+                      </button>
+                      to receive password reset SMS
+                    </span>
+                  {/if}
+                </dd>
               </div>
               <div class="prop-row">
                 <dt>Personal email</dt>
@@ -1429,6 +1441,25 @@ select.input { cursor: pointer; }
   background: color-mix(in srgb, #10b981 10%, transparent);
   border: 1px solid color-mix(in srgb, #10b981 25%, transparent);
 }
+
+/* ── Missing phone hint ───────────────────────────────────────────── */
+.missing-phone {
+  color: var(--warn-text);
+  font-size: 0.875rem;
+}
+
+.missing-phone-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.875rem;
+  font-family: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.missing-phone-link:hover { opacity: 0.8; }
 
 /* ── Empty states ─────────────────────────────────────────────────── */
 .empty-state {
