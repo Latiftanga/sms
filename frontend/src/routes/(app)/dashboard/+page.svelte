@@ -8,7 +8,7 @@
     Users, CreditCard, ClipboardCheck, UserCheck,
     AlertCircle, ArrowRight, UserPlus, FileText,
     CalendarCheck, ChevronRight, GraduationCap,
-    Wallet, Clock, Lock,
+    Wallet, Clock, Lock, User, PenLine,
   } from "@lucide/svelte";
 
   // ── Greeting ──────────────────────────────────────────────────────
@@ -74,12 +74,29 @@
     ]);
   });
 
-  const quickActions = [
-    { label: "Add Student",     icon: UserPlus,       href: "/students/new" },
-    { label: "Record Payment",  icon: Wallet,         href: "/fees/record"  },
-    { label: "Mark Attendance", icon: ClipboardCheck, href: "/attendance"   },
-    { label: "View Reports",    icon: FileText,        href: "/analytics"    },
+  // All possible quick actions with the permission required (null = always show)
+  const ALL_ACTIONS = [
+    { label: "Add Student",     icon: UserPlus,       href: "/students/new", perm: "enroll_students"  },
+    { label: "Record Payment",  icon: Wallet,         href: "/fees/record",  perm: "record_payments"  },
+    { label: "Mark Attendance", icon: ClipboardCheck, href: "/attendance",   perm: "mark_attendance"  },
+    { label: "Enter Scores",    icon: PenLine,         href: "/scores",       perm: "enter_scores"     },
+    { label: "View Reports",    icon: FileText,        href: "/analytics",    perm: "view_analytics"   },
+    { label: "My Profile",      icon: User,            href: "/profile",      perm: null               },
   ];
+
+  $: isSuperAdmin = $currentUser?.system_role === "SUPERADMIN";
+  $: perms = ($currentUser?.permissions ?? {}) as Record<string, boolean>;
+
+  $: quickActions = ALL_ACTIONS.filter(a =>
+    a.perm === null || isSuperAdmin || perms[a.perm] === true
+  );
+
+  // Personalised sub-text based on what the user can actually do
+  $: dashSub = (() => {
+    if (isSuperAdmin || perms["manage_staff"]) return "Here's an overview of your school.";
+    if (perms["mark_attendance"] || perms["enter_scores"]) return "Ready for today's classes.";
+    return "Welcome back.";
+  })();
 </script>
 
 <svelte:head><title>Dashboard — {$schoolBranding?.name ?? 'TTEK-SMS'}</title></svelte:head>
@@ -91,7 +108,7 @@
     {#if $schoolBranding?.motto}
       <p class="sub-text">"{$schoolBranding.motto}"</p>
     {:else}
-      <p class="sub-text">Here's an overview of your school.</p>
+      <p class="sub-text">{dashSub}</p>
     {/if}
   </div>
   <div class="header-meta">
