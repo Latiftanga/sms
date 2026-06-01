@@ -528,10 +528,26 @@
     try { return new Date(d + "T00:00:00").toLocaleDateString("en-GH", { day: "numeric", month: "short", year: "numeric" }); }
     catch { return d; }
   }
+
+  function humanise(s: string | null | undefined): string {
+    if (!s) return "—";
+    return s.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  function categoryClass(cat: string) {
+    return cat === "TEACHING" ? "badge-accent" : "badge-neutral";
+  }
+
+  function employmentClass(t: string) {
+    return ({ PERMANENT: "badge-green", CONTRACT: "badge-orange",
+               VOLUNTEER: "badge-blue",  GES_POSTED: "badge-purple" })[t] ?? "badge-neutral";
+  }
+
+  $: fullName = [member.first_name, member.middle_name, member.last_name].filter(Boolean).join(" ");
 </script>
 
 <svelte:head>
-  <title>{member.first_name} {member.last_name} — TTEK-SIS</title>
+  <title>{fullName} — TTEK-SIS</title>
 </svelte:head>
 
 <div class="page">
@@ -564,17 +580,20 @@
 
       <!-- Name + meta -->
       <div class="profile-meta">
-        <h1 class="profile-name">{member.first_name} {member.middle_name ?? ""} {member.last_name}</h1>
+        <h1 class="profile-name">{fullName}</h1>
         <div class="profile-badges">
           <Badge variant={member.is_active ? "ok" : "neutral"}>{member.is_active ? "Active" : "Inactive"}</Badge>
-          <Badge variant="accent">{member.category}</Badge>
-          <Badge variant="neutral">{member.employment_type}</Badge>
+          <Badge variant={member.category === "TEACHING" ? "accent" : "neutral"}>{humanise(member.category)}</Badge>
+          <span class="emp-chip emp-chip-{member.employment_type}">{humanise(member.employment_type)}</span>
+          {#if member.designation}
+            <span class="desig-chip">{humanise(member.designation)}</span>
+          {/if}
+          {#if member.staff_id}
+            <span class="id-chip">ID: {member.staff_id}</span>
+          {/if}
         </div>
         {#if member.current_rank}
           <p class="profile-rank">{member.current_rank}</p>
-        {/if}
-        {#if member.designation}
-          <p class="profile-desig">{member.designation}</p>
         {/if}
       </div>
 
@@ -784,13 +803,31 @@
               <span class="card-title">Personal Information</span>
             </div>
             <div class="card-body">
-              <dl class="info-list">
-                <dt>Full name</dt><dd>{member.first_name} {member.middle_name ?? ""} {member.last_name}</dd>
-                <dt>Gender</dt><dd>{member.gender ?? "—"}</dd>
-                <dt>Date of birth</dt><dd>{fmt(member.date_of_birth)}</dd>
-                <dt>Phone</dt><dd>{member.phone ?? "—"}</dd>
-                <dt>Personal email</dt><dd>{member.personal_email ?? "—"}</dd>
-                <dt>Address</dt><dd>{member.address ?? "—"}</dd>
+              <dl class="prop-sheet">
+                <div class="prop-row">
+                  <dt>Full name</dt>
+                  <dd>{fullName}</dd>
+                </div>
+                <div class="prop-row">
+                  <dt>Gender</dt>
+                  <dd>{humanise(member.gender)}</dd>
+                </div>
+                <div class="prop-row">
+                  <dt>Date of birth</dt>
+                  <dd>{fmt(member.date_of_birth)}</dd>
+                </div>
+                <div class="prop-row">
+                  <dt>Phone</dt>
+                  <dd>{member.phone ?? "—"}</dd>
+                </div>
+                <div class="prop-row">
+                  <dt>Personal email</dt>
+                  <dd>{member.personal_email ?? "—"}</dd>
+                </div>
+                <div class="prop-row">
+                  <dt>Address</dt>
+                  <dd>{member.address ?? "—"}</dd>
+                </div>
               </dl>
             </div>
           </div>
@@ -801,12 +838,27 @@
               <span class="card-title">Employment</span>
             </div>
             <div class="card-body">
-              <dl class="info-list">
-                <dt>Category</dt><dd>{member.category}</dd>
-                <dt>Employment type</dt><dd>{member.employment_type}</dd>
-                <dt>Designation</dt><dd>{member.designation ?? "—"}</dd>
-                <dt>Date joined</dt><dd>{fmt(member.date_joined)}</dd>
-                <dt>School staff ID</dt><dd class="mono">{member.staff_id ?? "—"}</dd>
+              <dl class="prop-sheet">
+                <div class="prop-row">
+                  <dt>Category</dt>
+                  <dd><span class="badge {categoryClass(member.category)}">{humanise(member.category)}</span></dd>
+                </div>
+                <div class="prop-row">
+                  <dt>Employment type</dt>
+                  <dd><span class="badge {employmentClass(member.employment_type)}">{humanise(member.employment_type)}</span></dd>
+                </div>
+                <div class="prop-row">
+                  <dt>Designation</dt>
+                  <dd>{humanise(member.designation)}</dd>
+                </div>
+                <div class="prop-row">
+                  <dt>Date joined</dt>
+                  <dd>{fmt(member.date_joined)}</dd>
+                </div>
+                <div class="prop-row">
+                  <dt>School staff ID</dt>
+                  <dd class="mono">{member.staff_id ?? "—"}</dd>
+                </div>
               </dl>
             </div>
           </div>
@@ -817,11 +869,23 @@
               <span class="card-title">GES Details</span>
             </div>
             <div class="card-body">
-              <dl class="info-list">
-                <dt>GES staff ID</dt><dd class="mono">{member.ges_staff_id ?? "—"}</dd>
-                <dt>Registered no.</dt><dd class="mono">{member.registered_no ?? "—"}</dd>
-                <dt>Licence no.</dt><dd class="mono">{member.licence_no ?? "—"}</dd>
-                <dt>SSNIT no.</dt><dd class="mono">{member.ssnit_no ?? "—"}</dd>
+              <dl class="prop-sheet">
+                <div class="prop-row">
+                  <dt>GES staff ID</dt>
+                  <dd class="mono">{member.ges_staff_id ?? "—"}</dd>
+                </div>
+                <div class="prop-row">
+                  <dt>Registered no.</dt>
+                  <dd class="mono">{member.registered_no ?? "—"}</dd>
+                </div>
+                <div class="prop-row">
+                  <dt>Licence no.</dt>
+                  <dd class="mono">{member.licence_no ?? "—"}</dd>
+                </div>
+                <div class="prop-row">
+                  <dt>SSNIT no.</dt>
+                  <dd class="mono">{member.ssnit_no ?? "—"}</dd>
+                </div>
               </dl>
             </div>
           </div>
@@ -832,9 +896,15 @@
               <span class="card-title">Emergency Contact</span>
             </div>
             <div class="card-body">
-              <dl class="info-list">
-                <dt>Name</dt><dd>{member.emergency_contact_name ?? "—"}</dd>
-                <dt>Phone</dt><dd>{member.emergency_contact_phone ?? "—"}</dd>
+              <dl class="prop-sheet">
+                <div class="prop-row">
+                  <dt>Name</dt>
+                  <dd>{member.emergency_contact_name ?? "—"}</dd>
+                </div>
+                <div class="prop-row">
+                  <dt>Phone</dt>
+                  <dd>{member.emergency_contact_phone ?? "—"}</dd>
+                </div>
               </dl>
             </div>
           </div>
@@ -1374,18 +1444,99 @@
     gap: 16px;
   }
 
-  /* ── Info list ───────────────────────────────── */
-  .info-list {
-    display: grid;
-    grid-template-columns: 140px 1fr;
-    gap: 8px 12px;
+  /* ── Property sheet ──────────────────────────── */
+  .prop-sheet {
+    display: flex;
+    flex-direction: column;
     margin: 0;
-    font-size: 0.875rem;
+    padding: 0;
   }
 
-  .info-list dt { color: var(--tx-low); font-weight: 500; }
-  .info-list dd { margin: 0; color: var(--tx-high); word-break: break-word; }
-  .info-list dd.mono { font-family: monospace; font-size: 0.8125rem; }
+  .prop-row {
+    display: grid;
+    grid-template-columns: 148px 1fr;
+    gap: 12px;
+    align-items: baseline;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: background 0.08s;
+  }
+  .prop-row:last-child { border-bottom: none; }
+  .prop-row:hover {
+    background: color-mix(in srgb, var(--surface-2) 60%, transparent);
+    margin: 0 -8px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 6px;
+  }
+
+  .prop-row dt {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--tx-low);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .prop-row dd {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--tx-high);
+    word-break: break-word;
+  }
+
+  .prop-row dd.mono { font-family: ui-monospace, monospace; font-size: 0.8125rem; }
+
+  @media (max-width: 480px) {
+    .prop-row { grid-template-columns: 1fr; gap: 2px; }
+  }
+
+  /* ── Inline badges ────────────────────────────── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .badge-accent  { background: var(--accent-subtle); color: var(--accent); border: 1px solid var(--accent-border); }
+  .badge-neutral { background: var(--surface-2); color: var(--tx-mid); border: 1px solid var(--border-subtle); }
+  .badge-green   { background: color-mix(in srgb, #10b981 12%, transparent); color: #059669; border: 1px solid color-mix(in srgb, #10b981 30%, transparent); }
+  .badge-orange  { background: color-mix(in srgb, #f59e0b 12%, transparent); color: #d97706; border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent); }
+  .badge-blue    { background: color-mix(in srgb, #3b82f6 12%, transparent); color: #2563eb; border: 1px solid color-mix(in srgb, #3b82f6 30%, transparent); }
+  .badge-purple  { background: color-mix(in srgb, #8b5cf6 12%, transparent); color: #7c3aed; border: 1px solid color-mix(in srgb, #8b5cf6 30%, transparent); }
+
+  /* Employment / designation chips in profile header */
+  .emp-chip,
+  .desig-chip,
+  .id-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border-radius: 99px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .desig-chip {
+    background: var(--surface-2);
+    color: var(--tx-mid);
+    border: 1px solid var(--border-subtle);
+  }
+  .id-chip {
+    background: var(--surface-2);
+    color: var(--tx-low);
+    border: 1px solid var(--border-subtle);
+    font-family: ui-monospace, monospace;
+  }
+  .emp-chip-PERMANENT { background: color-mix(in srgb, #10b981 12%, transparent); color: #059669; border: 1px solid color-mix(in srgb, #10b981 30%, transparent); }
+  .emp-chip-CONTRACT  { background: color-mix(in srgb, #f59e0b 12%, transparent); color: #d97706; border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent); }
+  .emp-chip-VOLUNTEER { background: color-mix(in srgb, #3b82f6 12%, transparent); color: #2563eb; border: 1px solid color-mix(in srgb, #3b82f6 30%, transparent); }
+  .emp-chip-GES_POSTED { background: color-mix(in srgb, #8b5cf6 12%, transparent); color: #7c3aed; border: 1px solid color-mix(in srgb, #8b5cf6 30%, transparent); }
 
   /* ── Sub table ───────────────────────────────── */
   .qual-table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border-subtle); }
@@ -1725,19 +1876,27 @@
   }
   .overrides-badge {
     font-size: 0.7rem; font-weight: 700; padding: 1px 7px;
-    border-radius: 10px; background: #fef3c7; color: #92400e; min-width: 20px; text-align: center;
+    border-radius: 10px;
+    background: color-mix(in srgb, #f59e0b 15%, transparent);
+    color: #d97706;
+    border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
+    min-width: 20px; text-align: center;
   }
   .perm-chips-wrap {
     display: flex; flex-wrap: wrap; gap: 5px;
   }
   .eff-chip {
     font-size: 0.72rem; padding: 3px 9px; border-radius: 10px;
-    background: #dcfce7; color: #166534; text-transform: capitalize;
-    border: 1px solid #bbf7d0;
+    background: color-mix(in srgb, #10b981 12%, transparent);
+    color: #059669;
+    text-transform: capitalize;
+    border: 1px solid color-mix(in srgb, #10b981 30%, transparent);
   }
   .eff-chip.overridden {
-    background: #d1fae5; border-color: #6ee7b7; font-weight: 600;
-    box-shadow: 0 0 0 1px #10b981 inset;
+    background: color-mix(in srgb, #10b981 18%, transparent);
+    border-color: color-mix(in srgb, #10b981 45%, transparent);
+    font-weight: 600;
+    box-shadow: 0 0 0 1px color-mix(in srgb, #10b981 50%, transparent) inset;
   }
   .perm-row2 {
     display: flex; align-items: center; gap: 8px;
@@ -1751,8 +1910,16 @@
   .perm-override-badge {
     font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 10px;
   }
-  .perm-override-badge.grant { background: #dcfce7; color: #166534; }
-  .perm-override-badge.deny  { background: #fee2e2; color: #991b1b; }
+  .perm-override-badge.grant {
+    background: color-mix(in srgb, #10b981 12%, transparent);
+    color: #059669;
+    border: 1px solid color-mix(in srgb, #10b981 30%, transparent);
+  }
+  .perm-override-badge.deny {
+    background: color-mix(in srgb, #ef4444 10%, transparent);
+    color: #dc2626;
+    border: 1px solid color-mix(in srgb, #ef4444 25%, transparent);
+  }
   .perm-clear-btn {
     font-size: 0.72rem; padding: 2px 8px;
     border: 1px solid var(--border-subtle); border-radius: 4px;
@@ -1780,11 +1947,19 @@
     background: transparent; cursor: pointer; color: var(--tx-low);
   }
   .perm-act-btn.selected { font-weight: 600; }
-  .perm-act-btn.grant.selected { border-color: #10b981; color: #166534; background: #dcfce7; }
-  .perm-act-btn.deny.selected  { border-color: #f87171; color: #991b1b; background: #fee2e2; }
-  .perm-act-btn:hover:not(:disabled) { background: var(--bg-subtle); }
-  .perm-act-btn.grant:hover:not(:disabled) { border-color: #10b981; color: #166534; }
-  .perm-act-btn.deny:hover:not(:disabled)  { border-color: #f87171; color: #991b1b; }
+  .perm-act-btn.grant.selected {
+    border-color: #10b981;
+    color: #059669;
+    background: color-mix(in srgb, #10b981 12%, transparent);
+  }
+  .perm-act-btn.deny.selected {
+    border-color: #ef4444;
+    color: #dc2626;
+    background: color-mix(in srgb, #ef4444 10%, transparent);
+  }
+  .perm-act-btn:hover:not(:disabled) { background: var(--surface-2); }
+  .perm-act-btn.grant:hover:not(:disabled) { border-color: #10b981; color: #059669; }
+  .perm-act-btn.deny:hover:not(:disabled)  { border-color: #ef4444; color: #dc2626; }
 
   /* ── Reset password ──────────────────────────────────────────── */
   .reset-pw-section {
