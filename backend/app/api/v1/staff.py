@@ -807,7 +807,12 @@ async def assign_role(
     if not linked:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "No user account linked to this staff member")
 
-    role = await session.scalar(select(StaffPosition).where(StaffPosition.id == body.role_id))
+    role = await session.scalar(
+        select(StaffPosition).where(
+            StaffPosition.id == body.role_id,
+            (StaffPosition.is_system_template.is_(True)) | (StaffPosition.school_id == user.school_id),
+        )
+    )
     if not role:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Role not found")
 
@@ -893,7 +898,7 @@ _DROPDOWNS: dict[str, list[str]] = {
     "category":        ["TEACHING", "NON-TEACHING"],
     "employment_type": ["PERMANENT", "CONTRACT", "VOLUNTEER", "GES_POSTED"],
     "gender":          ["MALE", "FEMALE", "OTHER"],
-    "designation":     ["TEACHER", "HEADTEACHER", "ASSISTANT_HEAD", "BURSAR"],
+    "designation":     ["TEACHER", "HEADTEACHER", "ASSISTANT_HEAD", "BURSAR", "HOUSEMASTER", "SENIOR_HOUSEMASTER"],
 }
 
 _EXAMPLE_ROWS = [
@@ -1069,6 +1074,12 @@ def _parse_csv(content: bytes) -> list[dict]:
     return [row for row in reader]
 
 
+_LABEL_TO_FIELD: dict[str, str] = {
+    label.lower().rstrip(" *"): field
+    for field, label, _ in _TEMPLATE_COLUMNS
+}
+
+
 def _parse_excel(content: bytes) -> list[dict]:
     try:
         import openpyxl
@@ -1082,8 +1093,25 @@ def _parse_excel(content: bytes) -> list[dict]:
     rows = list(ws.iter_rows(values_only=True))
     if not rows:
         return []
-    headers = [str(h).strip().lower() if h else "" for h in rows[0]]
-    return [dict(zip(headers, row)) for row in rows[1:]]
+
+    # Find the header row: first row where a cell matches a known field name or label.
+    # The generated template has 2 metadata rows before the real header row.
+    known = set(_LABEL_TO_FIELD) | {f for f, _, _ in _TEMPLATE_COLUMNS}
+    header_idx = 0
+    for i, row in enumerate(rows):
+        first = str(row[0]).strip().lower().rstrip(" *") if row[0] is not None else ""
+        if first in known:
+            header_idx = i
+            break
+
+    raw_headers = [str(h).strip().lower().rstrip(" *") if h is not None else "" for h in rows[header_idx]]
+    # Map display labels → field names; bare field names pass through unchanged
+    headers = [_LABEL_TO_FIELD.get(h, h) for h in raw_headers]
+
+    return [
+        dict(zip(headers, row))
+        for row in rows[header_idx + 1:]
+    ]
 
 
 @router.post("/bulk", response_model=BulkUploadResponse, status_code=201,

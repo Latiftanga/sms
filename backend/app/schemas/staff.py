@@ -127,6 +127,34 @@ class StaffMemberUpdate(OrmBase):
     ssnit_no: str | None = None
     is_active: bool | None = None
 
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, v: str | None) -> str | None:
+        if v is not None and v not in VALID_CATEGORIES:
+            raise ValueError(f"category must be one of {VALID_CATEGORIES}")
+        return v
+
+    @field_validator("employment_type")
+    @classmethod
+    def validate_employment(cls, v: str | None) -> str | None:
+        if v is not None and v not in VALID_EMPLOYMENT:
+            raise ValueError(f"employment_type must be one of {VALID_EMPLOYMENT}")
+        return v
+
+    @field_validator("gender")
+    @classmethod
+    def validate_gender(cls, v: str | None) -> str | None:
+        if v is not None and v not in VALID_GENDERS:
+            raise ValueError(f"gender must be one of {VALID_GENDERS}")
+        return v
+
+    @field_validator("designation")
+    @classmethod
+    def validate_designation(cls, v: str | None) -> str | None:
+        if v is not None and v not in VALID_DESIGNATIONS:
+            raise ValueError(f"designation must be one of {VALID_DESIGNATIONS}")
+        return v
+
 
 class StaffMemberResponse(IDSchema, TimestampSchema):
     school_id: UUID
@@ -159,6 +187,24 @@ class StaffMemberDetail(StaffMemberResponse):
     qualifications: list[QualificationResponse] = []
     promotions: list[PromotionResponse] = []
     invite_pending: bool = False
+
+
+class StaffSelfUpdate(OrmBase):
+    """Fields a staff member may update on their own profile — no employment fields."""
+    gender: str | None = None
+    date_of_birth: date | None = None
+    phone: str | None = None
+    personal_email: EmailStr | None = None
+    address: str | None = None
+    emergency_contact_name: str | None = None
+    emergency_contact_phone: str | None = None
+
+    @field_validator("gender")
+    @classmethod
+    def validate_gender(cls, v: str | None) -> str | None:
+        if v is not None and v not in VALID_GENDERS:
+            raise ValueError(f"gender must be one of {VALID_GENDERS}")
+        return v
 
 
 # ── Account / Invite ──────────────────────────────────────────────────────────
