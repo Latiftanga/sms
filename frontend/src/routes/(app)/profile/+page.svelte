@@ -54,37 +54,47 @@
   type Tab = "personal" | "qualifications" | "promotions" | "security";
   let tab: Tab = "personal";
 
-  // ── Personal edit ────────────────────────────────────────────────
-  let editingPersonal = false;
-  let personalForm = { gender: "", date_of_birth: "", phone: "", personal_email: "",
-                       address: "", emergency_contact_name: "", emergency_contact_phone: "" };
+  // ── Personal edit — per-card ─────────────────────────────────────
+  // Each card edits only its own fields; only one card open at a time.
+  type EditingCard = "personal" | "contact" | "emergency" | null;
+  let editingCard: EditingCard = null;
+
+  let personalDetailsForm = { gender: "", date_of_birth: "" };
+  let contactForm         = { phone: "", personal_email: "", address: "" };
+  let emergencyForm       = { emergency_contact_name: "", emergency_contact_phone: "" };
+
   let personalSaving = false;
-  let personalError = "";
+  let personalError  = "";
   let personalSuccess = false;
 
-  function startEditPersonal() {
-    if (!staff) return;
-    personalForm = {
-      gender: staff.gender ?? "",
-      date_of_birth: staff.date_of_birth ?? "",
-      phone: staff.phone ?? "",
-      personal_email: staff.personal_email ?? "",
-      address: staff.address ?? "",
-      emergency_contact_name: staff.emergency_contact_name ?? "",
-      emergency_contact_phone: staff.emergency_contact_phone ?? "",
-    };
-    editingPersonal = true;
+  function startEdit(card: EditingCard) {
+    if (!staff || !card) return;
+    if (card === "personal") {
+      personalDetailsForm = { gender: staff.gender ?? "", date_of_birth: staff.date_of_birth ?? "" };
+    } else if (card === "contact") {
+      contactForm = { phone: staff.phone ?? "", personal_email: staff.personal_email ?? "", address: staff.address ?? "" };
+    } else if (card === "emergency") {
+      emergencyForm = { emergency_contact_name: staff.emergency_contact_name ?? "", emergency_contact_phone: staff.emergency_contact_phone ?? "" };
+    }
+    personalError = "";
+    editingCard = card;
   }
 
-  async function savePersonal() {
+  function cancelEdit() { editingCard = null; personalError = ""; }
+
+  async function saveCard() {
     personalError = ""; personalSaving = true;
+    const src: Record<string, string> =
+      editingCard === "personal"  ? personalDetailsForm :
+      editingCard === "contact"   ? contactForm :
+      editingCard === "emergency" ? emergencyForm : {};
     const payload: Record<string, string | null> = {};
-    for (const [k, v] of Object.entries(personalForm)) payload[k] = v === "" ? null : v;
+    for (const [k, v] of Object.entries(src)) payload[k] = v === "" ? null : v;
     try {
       const { data } = await api.patch<StaffMemberDetail>("/auth/me/staff", payload);
       staff = { ...staff!, ...data };
       auth.patchUser({ full_name: `${staff.first_name} ${staff.last_name}`.trim() });
-      editingPersonal = false;
+      editingCard = null;
       personalSuccess = true;
       setTimeout(() => { personalSuccess = false; }, 4000);
     } catch (e: unknown) {
@@ -367,49 +377,53 @@
         </div>
       {:else if staff}
 
-        <!-- Personal section -->
+        <!-- Shared alert bar — shown above all cards -->
+        {#if personalError}
+          <div class="tab-alert alert-bar err"><AlertCircle size={13} />{personalError}</div>
+        {/if}
+        {#if personalSuccess}
+          <div class="tab-alert alert-bar ok"><CheckCircle2 size={13} />Changes saved.</div>
+        {/if}
+
+        <!-- ── Personal details card ──────────────────────────────── -->
         <div class="section">
           <div class="section-header">
-            <h2 class="section-title">Personal information</h2>
-            {#if !editingPersonal}
-              <button class="btn-ghost" on:click={startEditPersonal}>
+            <h2 class="section-title">Personal details</h2>
+            {#if editingCard !== "personal"}
+              <button class="btn-ghost" on:click={() => startEdit("personal")} disabled={!!editingCard}>
                 <Pencil size={12} />Edit
               </button>
             {:else}
               <div class="btn-row">
-                <button class="btn-ghost" on:click={() => { editingPersonal = false; personalError = ""; }}>
-                  <X size={12} />Cancel
-                </button>
-                <button class="btn-primary" on:click={savePersonal} disabled={personalSaving}>
-                  {#if personalSaving}<Loader2 size={12} class="spin" />{:else}<Save size={12} />{/if}
-                  Save
+                <button class="btn-ghost" on:click={cancelEdit}><X size={12} />Cancel</button>
+                <button class="btn-primary" on:click={saveCard} disabled={personalSaving}>
+                  {#if personalSaving}<Loader2 size={12} class="spin" />{:else}<Save size={12} />{/if}Save
                 </button>
               </div>
             {/if}
           </div>
 
-          {#if personalError}
-            <div class="alert-bar err"><AlertCircle size={13} />{personalError}</div>
-          {/if}
-          {#if personalSuccess}
-            <div class="alert-bar ok"><CheckCircle2 size={13} />Changes saved.</div>
-          {/if}
-
-          {#if !editingPersonal}
+          {#if editingCard === "personal"}
+            <div class="form-grid">
+              <div class="field">
+                <label for="gender">Gender</label>
+                <select id="gender" class="input" bind:value={personalDetailsForm.gender}>
+                  <option value="">— select —</option>
+                  <option value="MALE">Male</option>
+                  <option value="FEMALE">Female</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="dob">Date of birth</label>
+                <input id="dob" class="input" type="date" bind:value={personalDetailsForm.date_of_birth} />
+              </div>
+            </div>
+          {:else}
             <dl class="prop-sheet">
               <div class="prop-row">
-                <dt>First name</dt>
-                <dd>{staff.first_name}</dd>
-              </div>
-              {#if staff.middle_name}
-                <div class="prop-row">
-                  <dt>Middle name</dt>
-                  <dd>{staff.middle_name}</dd>
-                </div>
-              {/if}
-              <div class="prop-row">
-                <dt>Last name</dt>
-                <dd>{staff.last_name}</dd>
+                <dt>Full name</dt>
+                <dd>{[staff.first_name, staff.middle_name, staff.last_name].filter(Boolean).join(" ")}</dd>
               </div>
               <div class="prop-row">
                 <dt>Gender</dt>
@@ -419,6 +433,45 @@
                 <dt>Date of birth</dt>
                 <dd>{fmtDate(staff.date_of_birth)}</dd>
               </div>
+            </dl>
+          {/if}
+        </div>
+
+        <!-- ── Contact details card ───────────────────────────────── -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title">Contact details</h2>
+            {#if editingCard !== "contact"}
+              <button class="btn-ghost" on:click={() => startEdit("contact")} disabled={!!editingCard}>
+                <Pencil size={12} />Edit
+              </button>
+            {:else}
+              <div class="btn-row">
+                <button class="btn-ghost" on:click={cancelEdit}><X size={12} />Cancel</button>
+                <button class="btn-primary" on:click={saveCard} disabled={personalSaving}>
+                  {#if personalSaving}<Loader2 size={12} class="spin" />{:else}<Save size={12} />{/if}Save
+                </button>
+              </div>
+            {/if}
+          </div>
+
+          {#if editingCard === "contact"}
+            <div class="form-grid">
+              <div class="field">
+                <label for="phone">Phone</label>
+                <input id="phone" class="input" type="tel" bind:value={contactForm.phone} placeholder="+233 XX XXX XXXX" />
+              </div>
+              <div class="field">
+                <label for="pemail">Personal email</label>
+                <input id="pemail" class="input" type="email" bind:value={contactForm.personal_email} placeholder="your.name@gmail.com" />
+              </div>
+              <div class="field span2">
+                <label for="addr">Home address</label>
+                <input id="addr" class="input" type="text" bind:value={contactForm.address} placeholder="House no., street, town" />
+              </div>
+            </div>
+          {:else}
+            <dl class="prop-sheet">
               <div class="prop-row">
                 <dt>Phone</dt>
                 <dd>
@@ -427,7 +480,7 @@
                   {:else}
                     <span class="missing-phone">
                       Not set —
-                      <button class="missing-phone-link" on:click={startEditPersonal}>
+                      <button class="missing-phone-link" on:click={() => startEdit("contact")}>
                         add your number
                       </button>
                       to receive password reset SMS
@@ -443,76 +496,71 @@
                 <dt>Address</dt>
                 <dd>{staff.address ?? "—"}</dd>
               </div>
-              <div class="prop-row">
-                <dt>Emergency contact</dt>
-                <dd>{staff.emergency_contact_name ?? "—"}</dd>
-              </div>
-              <div class="prop-row">
-                <dt>Emergency phone</dt>
-                <dd>{staff.emergency_contact_phone ?? "—"}</dd>
-              </div>
             </dl>
-          {:else}
-            <div class="form-grid">
-              <div class="field">
-                <label for="gender">Gender</label>
-                <select id="gender" class="input" bind:value={personalForm.gender}>
-                  <option value="">— select —</option>
-                  <option value="MALE">Male</option>
-                  <option value="FEMALE">Female</option>
-                  <option value="OTHER">Other</option>
-                </select>
-              </div>
-              <div class="field">
-                <label for="dob">Date of birth</label>
-                <input id="dob" class="input" type="date" bind:value={personalForm.date_of_birth} />
-              </div>
-              <div class="field">
-                <label for="phone">Phone</label>
-                <input id="phone" class="input" type="tel" bind:value={personalForm.phone} placeholder="+233 XX XXX XXXX" />
-              </div>
-              <div class="field">
-                <label for="pemail">Personal email</label>
-                <input id="pemail" class="input" type="email" bind:value={personalForm.personal_email} placeholder="you@personal.com" />
-              </div>
-              <div class="field span2">
-                <label for="addr">Address</label>
-                <input id="addr" class="input" type="text" bind:value={personalForm.address} placeholder="Home address" />
-              </div>
-              <div class="field">
-                <label for="ecname">Emergency contact name</label>
-                <input id="ecname" class="input" type="text" bind:value={personalForm.emergency_contact_name} placeholder="Full name" />
-              </div>
-              <div class="field">
-                <label for="ecphone">Emergency contact phone</label>
-                <input id="ecphone" class="input" type="tel" bind:value={personalForm.emergency_contact_phone} placeholder="+233 XX XXX XXXX" />
-              </div>
-            </div>
           {/if}
         </div>
 
-        <!-- Employment section (read-only) -->
+        <!-- ── Emergency contact card ─────────────────────────────── -->
+        <div class="section">
+          <div class="section-header">
+            <h2 class="section-title">Emergency contact</h2>
+            {#if editingCard !== "emergency"}
+              <button class="btn-ghost" on:click={() => startEdit("emergency")} disabled={!!editingCard}>
+                <Pencil size={12} />Edit
+              </button>
+            {:else}
+              <div class="btn-row">
+                <button class="btn-ghost" on:click={cancelEdit}><X size={12} />Cancel</button>
+                <button class="btn-primary" on:click={saveCard} disabled={personalSaving}>
+                  {#if personalSaving}<Loader2 size={12} class="spin" />{:else}<Save size={12} />{/if}Save
+                </button>
+              </div>
+            {/if}
+          </div>
+
+          {#if editingCard === "emergency"}
+            <div class="form-grid">
+              <div class="field">
+                <label for="ecname">Contact name</label>
+                <input id="ecname" class="input" type="text" bind:value={emergencyForm.emergency_contact_name} placeholder="Full name" />
+              </div>
+              <div class="field">
+                <label for="ecphone">Contact phone</label>
+                <input id="ecphone" class="input" type="tel" bind:value={emergencyForm.emergency_contact_phone} placeholder="+233 XX XXX XXXX" />
+              </div>
+            </div>
+          {:else}
+            <dl class="prop-sheet">
+              <div class="prop-row">
+                <dt>Name</dt>
+                <dd>{staff.emergency_contact_name ?? "—"}</dd>
+              </div>
+              <div class="prop-row">
+                <dt>Phone</dt>
+                <dd>{staff.emergency_contact_phone ?? "—"}</dd>
+              </div>
+            </dl>
+          {/if}
+        </div>
+
+        <!-- ── Employment card (read-only, no edit button) ───────── -->
         <div class="section">
           <div class="section-header">
             <h2 class="section-title">Employment</h2>
-            <span class="readonly-chip">Read only</span>
+            <span class="readonly-chip">Managed by your administrator</span>
           </div>
           <dl class="prop-sheet">
             <div class="prop-row">
               <dt>Staff ID</dt>
-              <dd>{staff.staff_id ?? "—"}</dd>
+              <dd class="mono">{staff.staff_id ?? "—"}</dd>
             </div>
             <div class="prop-row">
               <dt>Category</dt>
-              <dd>
-                <span class="badge {categoryClass(staff.category)}">{humanise(staff.category)}</span>
-              </dd>
+              <dd><span class="badge {categoryClass(staff.category)}">{humanise(staff.category)}</span></dd>
             </div>
             <div class="prop-row">
               <dt>Employment type</dt>
-              <dd>
-                <span class="badge {employmentClass(staff.employment_type)}">{humanise(staff.employment_type)}</span>
-              </dd>
+              <dd><span class="badge {employmentClass(staff.employment_type)}">{humanise(staff.employment_type)}</span></dd>
             </div>
             <div class="prop-row">
               <dt>Designation</dt>
@@ -528,6 +576,7 @@
             </div>
           </dl>
         </div>
+
       {/if}
 
     <!-- ─────────────── QUALIFICATIONS ──────────────────────────── -->
@@ -1419,6 +1468,11 @@ select.input { cursor: pointer; }
 .icon-btn.danger:hover {
   background: color-mix(in srgb, #ef4444 10%, transparent);
   color: #ef4444;
+}
+
+/* ── Tab-level alert (above all cards) ───────────────────────────── */
+.tab-alert {
+  margin: 0 28px;
 }
 
 /* ── Alerts ───────────────────────────────────────────────────────── */
