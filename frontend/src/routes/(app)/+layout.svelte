@@ -556,6 +556,10 @@
     padding: 24px 28px;
   }
 
+  @media (max-width: 640px) {
+    .page-content { padding: 16px; }
+  }
+
   /* ── Navigation progress bar ────────────────── */
   .nav-bar {
     position: fixed;

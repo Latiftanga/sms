@@ -165,11 +165,11 @@
             <thead>
               <tr>
                 <th>Name</th>
-                <th>ID</th>
-                <th>Category</th>
-                <th>Employment</th>
-                <th>Rank / Designation</th>
-                <th>Account</th>
+                <th class="hide-mobile">ID</th>
+                <th class="hide-mobile">Category</th>
+                <th class="hide-tablet">Employment</th>
+                <th class="hide-tablet">Rank / Designation</th>
+                <th class="hide-mobile">Account</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -191,23 +191,27 @@
                       </div>
                       <div class="member-info">
                         <span class="member-name">{member.first_name} {member.last_name}</span>
-                        {#if member.designation}
-                          <span class="member-sub">{humanise(member.designation)}</span>
-                        {/if}
+                        <span class="member-sub">
+                          {#if member.designation}
+                            {humanise(member.designation)}
+                          {:else}
+                            {CATEGORY_LABELS[member.category] ?? member.category}
+                          {/if}
+                        </span>
                       </div>
                     </div>
                   </td>
-                  <td class="mono">{member.staff_id ?? member.ges_staff_id ?? "—"}</td>
-                  <td>
+                  <td class="mono hide-mobile">{member.staff_id ?? member.ges_staff_id ?? "—"}</td>
+                  <td class="hide-mobile">
                     <Badge variant={categoryColor(member.category)}>
                       {CATEGORY_LABELS[member.category] ?? member.category}
                     </Badge>
                   </td>
-                  <td class="text-muted">{humanise(member.employment_type)}</td>
-                  <td class="text-muted">
+                  <td class="text-muted hide-tablet">{humanise(member.employment_type)}</td>
+                  <td class="text-muted hide-tablet">
                     {member.current_rank ?? (member.designation ? humanise(member.designation) : "—")}
                   </td>
-                  <td>
+                  <td class="hide-mobile">
                     {#if member.has_account}
                       <span class="account-yes"><Check size={12} /> Active</span>
                     {:else}
@@ -499,6 +503,19 @@
     border-color: var(--border-strong);
   }
   .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Responsive column hiding ────────────────────────────────── */
+  /* Tablet (≤760px): hide Employment and Rank columns */
+  @media (max-width: 760px) {
+    .hide-tablet { display: none !important; }
+  }
+
+  /* Phone (≤520px): hide ID, Category, Account; also hide category
+     filter since only Name + Status remain */
+  @media (max-width: 520px) {
+    .hide-mobile  { display: none !important; }
+    .filter-select { display: none; }
+  }
 
   /* ── Inputs ──────────────────────────────────────────────────── */
   .input {
