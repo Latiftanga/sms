@@ -27,6 +27,12 @@ class AcademicYearCreate(OrmBase):
     start_date: date
     end_date: date
 
+    @model_validator(mode="after")
+    def validate_dates(self) -> "AcademicYearCreate":
+        if self.end_date <= self.start_date:
+            raise ValueError("end_date must be after start_date")
+        return self
+
 class AcademicYearUpdate(OrmBase):
     name: str | None = None
     start_date: date | None = None
@@ -46,6 +52,12 @@ class AcademicTermCreate(OrmBase):
     start_date: date
     end_date: date
 
+    @model_validator(mode="after")
+    def validate_dates(self) -> "AcademicTermCreate":
+        if self.end_date <= self.start_date:
+            raise ValueError("end_date must be after start_date")
+        return self
+
 class AcademicTermUpdate(OrmBase):
     name: str | None = None
     start_date: date | None = None
@@ -57,6 +69,31 @@ class AcademicTermResponse(IDSchema, TimestampSchema):
     end_date: date
     is_current: bool
     block_owing_students: bool
+
+
+# ── Houses ────────────────────────────────────────────────────────────────────
+
+class HousemasterInfo(OrmBase):
+    id: UUID
+    full_name: str
+    staff_id: str | None
+
+class HouseCreate(OrmBase):
+    name: str
+    color: str | None = None
+    housemaster_id: UUID | None = None
+
+class HouseUpdate(OrmBase):
+    name: str | None = None
+    color: str | None = None
+    housemaster_id: UUID | None = None
+    is_active: bool | None = None
+
+class HouseResponse(IDSchema, TimestampSchema):
+    name: str
+    color: str | None
+    is_active: bool
+    housemaster: HousemasterInfo | None
 
 
 class CurrentTermResponse(OrmBase):

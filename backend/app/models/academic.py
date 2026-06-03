@@ -14,6 +14,7 @@ from app.models.base import Base, TimestampMixin, UUIDPrimaryKey
 if TYPE_CHECKING:
     from app.models.school import School
     from app.models.attendance import AttendanceRecord
+    from app.models.staff import StaffMember
 
 
 class AcademicYear(UUIDPrimaryKey, TimestampMixin, Base):
@@ -152,6 +153,10 @@ class House(UUIDPrimaryKey, TimestampMixin, Base):
         UUID(as_uuid=True), ForeignKey("staff_member.id", ondelete="SET NULL"), nullable=True
     )
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+
+    housemaster: Mapped["StaffMember | None"] = relationship(
+        "StaffMember", foreign_keys=[housemaster_id]
+    )
 
 
 class Class(UUIDPrimaryKey, TimestampMixin, Base):

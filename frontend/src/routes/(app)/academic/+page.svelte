@@ -9,7 +9,7 @@
   import Spinner    from "$components/ui/Spinner.svelte";
   import EmptyState from "$components/ui/EmptyState.svelte";
   import PageHeader from "$components/ui/PageHeader.svelte";
-  import { schoolBranding } from "$stores/school";
+  import { schoolBranding, schoolContext } from "$stores/school";
   import {
     CalendarDays, LayoutGrid, BookOpen, Library,
     Plus, Trash2, ChevronDown, Pencil, Check,
@@ -53,16 +53,9 @@
   };
 
   // ── School education levels (needed for SHS-only features) ────────
-  let schoolEdLevels: string[] = [];
+  $: schoolEdLevels = $schoolContext?.education_levels ?? [];
   $: isSHS = schoolEdLevels.includes("SHS");
   $: if (!isSHS && tab === "learning_areas") tab = "subjects";
-
-  async function loadSchoolLevels() {
-    try {
-      const { data } = await api.get("/settings/school");
-      schoolEdLevels = data.education_levels ?? [];
-    } catch { schoolEdLevels = []; }
-  }
 
   // ── Academic years ────────────────────────────────────────────────
   let years: AcademicYear[] = [];
@@ -379,7 +372,6 @@
     if (urlTab === "classes" || urlTab === "learning_areas" || urlTab === "calendar" || urlTab === "subjects") {
       tab = urlTab as typeof tab;
     }
-    await loadSchoolLevels();
     await Promise.all([loadYears(), loadSubjects(), loadClasses(), loadLearningAreas()]);
   });
 </script>

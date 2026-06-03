@@ -26,6 +26,8 @@ export interface NavItem {
   icon: Icon;
   /** Visible if user has ANY of these permission keys. Absent = always show. */
   anyPermission?: string[];
+  /** Visible only if the school has ANY of these education levels. Absent = always show. */
+  requiresLevel?: string[];
 }
 
 /** A group of nav items separated from adjacent groups by a divider. */

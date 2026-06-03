@@ -11,11 +11,12 @@
   import EmptyState from "$components/ui/EmptyState.svelte";
   import PageHeader from "$components/ui/PageHeader.svelte";
   import {
-    School2, Shield,
+    School2, Shield, CalendarDays, Home,
     Pencil, Trash2, Check, X, ChevronDown,
     AlertCircle, Loader2, MapPin, Phone, Palette, ImagePlus, ClipboardCheck,
     Users, ScrollText, ToggleLeft, ToggleRight, KeyRound, Plus, Search,
   } from "@lucide/svelte";
+  import { schoolContext } from "$stores/school";
 
   // ── Types ─────────────────────────────────────────────────────────
   interface SchoolProfile {
@@ -29,10 +30,16 @@
   $: isSuperAdmin   = $auth.user?.system_role === "SUPERADMIN";
   $: canSchool      = isSuperAdmin || $auth.user?.permissions?.manage_school_config === true;
   $: canUsers       = isSuperAdmin || $auth.user?.permissions?.manage_users === true;
+  $: canAcademic    = isSuperAdmin || $auth.user?.permissions?.manage_academic_structure === true;
+  $: canHouses      = isSuperAdmin || $auth.user?.permissions?.manage_houses === true;
+  $: hasHouses      = $schoolContext?.has_houses ?? false;
 
   // ── Tab ───────────────────────────────────────────────────────────
-  let tab: "school" | "positions" | "users" | "logs" = "school";
-  $: if (!canSchool && canUsers && tab === "school") tab = "positions";
+  let tab: "school" | "academic" | "houses" | "positions" | "users" | "logs" = "school";
+  $: if (!canSchool && canUsers  && tab === "school") tab = "positions";
+  $: if (!canSchool && !canUsers && canAcademic && tab === "school") tab = "academic";
+  $: if (!canSchool && !canUsers && !canAcademic && canHouses && hasHouses && tab === "school") tab = "houses";
+  $: if (!canSchool && !canUsers && !canAcademic && tab === "school") tab = "logs";
 
   // ── Confirm delete ────────────────────────────────────────────────
   async function confirmDelete(title: string, message: string, fn: () => Promise<void>) {
@@ -181,8 +188,9 @@
   );
 
   let positions: Position[] = [];
+  let posLoaded  = false;
   let posLoading = false;
-  let posError = "";
+  let posError   = "";
   let addingPos = false;
   let savingPos = false;
   let posApiError = "";
@@ -201,6 +209,7 @@
     try {
       const { data } = await api.get<Position[]>("/settings/positions");
       positions = data;
+      posLoaded = true;
     } catch (e) {
       posError = apiError(e);
     } finally {
@@ -279,8 +288,306 @@
     else { newPosPerms = [...newPosPerms, perm]; }
   }
 
-  $: if (tab === "positions" && positions.length === 0 && !posLoading && !posError) {
+  $: if (tab === "positions" && !posLoaded && !posLoading) {
     loadPositions();
+  }
+
+  // ── Academic years ────────────────────────────────────────────────
+  interface AcademicTerm {
+    id: string; name: string;
+    start_date: string; end_date: string;
+    is_current: boolean; block_owing_students: boolean;
+  }
+  interface AcademicYear {
+    id: string; name: string;
+    start_date: string; end_date: string;
+    is_current: boolean; terms: AcademicTerm[];
+  }
+
+  function fmtD(iso: string): string {
+    try { return new Date(iso + "T00:00:00").toLocaleDateString("en-GH", { day: "numeric", month: "short", year: "numeric" }); }
+    catch { return iso; }
+  }
+
+  let years: AcademicYear[] = [];
+  let yearsLoaded  = false;
+  let yearsLoading = false;
+  let yearsError   = "";
+  let expandedYear: string | null = null;
+
+  // Add year
+  let addingYear   = false;
+  let newYear      = { name: "", start_date: "", end_date: "" };
+  let yearSaving   = false;
+  let yearFormErr  = "";
+
+  // Edit year
+  let editingYear  : string | null = null;
+  let editYearForm = { name: "", start_date: "", end_date: "" };
+  let editYearSaving = false;
+
+  // Add term
+  let addingTermFor : string | null = null;
+  let newTerm       = { name: "", start_date: "", end_date: "" };
+  let termSaving    = false;
+  let termFormErr   = "";
+
+  // Edit term
+  let editingTerm  : string | null = null;
+  let editTermForm = { name: "", start_date: "", end_date: "" };
+  let editTermSaving = false;
+
+  async function loadYears() {
+    yearsLoading = true; yearsError = "";
+    try {
+      const { data } = await api.get<{ items: AcademicYear[] }>("/settings/academic-years");
+      years = data.items;
+      yearsLoaded = true;
+    } catch (e) { yearsError = apiError(e); }
+    finally { yearsLoading = false; }
+  }
+
+  async function createYear() {
+    if (!newYear.name.trim() || !newYear.start_date || !newYear.end_date) {
+      yearFormErr = "Name and both dates are required."; return;
+    }
+    yearSaving = true; yearFormErr = "";
+    try {
+      const { data } = await api.post<AcademicYear>("/settings/academic-years", {
+        name: newYear.name.trim(), start_date: newYear.start_date, end_date: newYear.end_date,
+      });
+      years = [data, ...years];
+      newYear = { name: "", start_date: "", end_date: "" };
+      addingYear = false; expandedYear = data.id;
+      toast.success("Academic year created");
+    } catch (e) { yearFormErr = apiError(e); }
+    finally { yearSaving = false; }
+  }
+
+  async function activateYear(id: string) {
+    try {
+      const { data } = await api.post<AcademicYear>(`/settings/academic-years/${id}/activate`);
+      years = years.map(y => ({ ...y, is_current: y.id === id }));
+      toast.success(`${data.name} is now the current year`);
+    } catch (e) { toast.error(apiError(e)); }
+  }
+
+  function startEditYear(year: AcademicYear) {
+    editingYear = year.id;
+    editYearForm = { name: year.name, start_date: year.start_date, end_date: year.end_date };
+    expandedYear = year.id;
+  }
+
+  async function saveEditYear(id: string) {
+    if (!editYearForm.name.trim()) return;
+    editYearSaving = true;
+    try {
+      const { data } = await api.patch<AcademicYear>(`/settings/academic-years/${id}`, {
+        name: editYearForm.name.trim(),
+        start_date: editYearForm.start_date || undefined,
+        end_date:   editYearForm.end_date   || undefined,
+      });
+      years = years.map(y => y.id === id ? { ...y, ...data, terms: y.terms } : y);
+      editingYear = null; toast.success("Year updated");
+    } catch (e) { toast.error(apiError(e)); }
+    finally { editYearSaving = false; }
+  }
+
+  async function deleteYear(id: string) {
+    const year = years.find(y => y.id === id);
+    if (!year) return;
+    const ok = await confirmDialog.show({
+      title: "Delete academic year?",
+      message: `"${year.name}" and all its terms will be permanently deleted.`,
+      variant: "danger", confirmLabel: "Delete",
+    });
+    if (!ok) return;
+    try {
+      await api.delete(`/settings/academic-years/${id}`);
+      years = years.filter(y => y.id !== id);
+      toast.success("Year deleted");
+    } catch (e) { toast.error(apiError(e)); }
+  }
+
+  async function createTerm(yearId: string) {
+    if (!newTerm.name.trim() || !newTerm.start_date || !newTerm.end_date) {
+      termFormErr = "Name and both dates are required."; return;
+    }
+    termSaving = true; termFormErr = "";
+    try {
+      const { data } = await api.post<AcademicTerm>(`/settings/academic-years/${yearId}/terms`, {
+        name: newTerm.name.trim(), start_date: newTerm.start_date, end_date: newTerm.end_date,
+      });
+      years = years.map(y => y.id === yearId ? { ...y, terms: [...y.terms, data] } : y);
+      newTerm = { name: "", start_date: "", end_date: "" };
+      addingTermFor = null; toast.success("Term added");
+    } catch (e) { termFormErr = apiError(e); }
+    finally { termSaving = false; }
+  }
+
+  async function activateTerm(termId: string, yearId: string) {
+    try {
+      const { data } = await api.post<AcademicTerm>(`/settings/terms/${termId}/activate`);
+      years = years.map(y => ({
+        ...y,
+        terms: y.terms.map(t => ({ ...t, is_current: t.id === termId })),
+      }));
+      toast.success(`${data.name} is now the current term`);
+    } catch (e) { toast.error(apiError(e)); }
+  }
+
+  function startEditTerm(term: AcademicTerm) {
+    editingTerm = term.id;
+    editTermForm = { name: term.name, start_date: term.start_date, end_date: term.end_date };
+  }
+
+  async function saveEditTerm(termId: string, yearId: string) {
+    if (!editTermForm.name.trim()) return;
+    editTermSaving = true;
+    try {
+      const { data } = await api.patch<AcademicTerm>(`/settings/terms/${termId}`, {
+        name: editTermForm.name.trim(),
+        start_date: editTermForm.start_date || undefined,
+        end_date:   editTermForm.end_date   || undefined,
+      });
+      years = years.map(y =>
+        y.id === yearId ? { ...y, terms: y.terms.map(t => t.id === termId ? { ...t, ...data } : t) } : y
+      );
+      editingTerm = null; toast.success("Term updated");
+    } catch (e) { toast.error(apiError(e)); }
+    finally { editTermSaving = false; }
+  }
+
+  async function deleteTerm(termId: string, yearId: string) {
+    const term = years.find(y => y.id === yearId)?.terms.find(t => t.id === termId);
+    if (!term) return;
+    const ok = await confirmDialog.show({
+      title: "Delete term?",
+      message: `"${term.name}" will be permanently deleted.`,
+      variant: "danger", confirmLabel: "Delete",
+    });
+    if (!ok) return;
+    try {
+      await api.delete(`/settings/terms/${termId}`);
+      years = years.map(y =>
+        y.id === yearId ? { ...y, terms: y.terms.filter(t => t.id !== termId) } : y
+      );
+      toast.success("Term deleted");
+    } catch (e) { toast.error(apiError(e)); }
+  }
+
+  $: if (tab === "academic" && !yearsLoaded && !yearsLoading) {
+    loadYears();
+  }
+
+  // ── Houses ────────────────────────────────────────────────────────
+  interface HousemasterInfo { id: string; full_name: string; staff_id: string | null; }
+  interface House {
+    id: string; name: string; color: string | null;
+    is_active: boolean; housemaster: HousemasterInfo | null;
+  }
+  interface StaffOption { id: string; label: string; }
+
+  let houses: House[]       = [];
+  let housesLoaded          = false;
+  let housesLoading         = false;
+  let housesError           = "";
+  let staffOptions: StaffOption[] = [];
+  let staffOptionsLoaded    = false;
+
+  let addingHouse           = false;
+  let newHouse              = { name: "", color: "#4f46e5", housemaster_id: "" };
+  let houseSaving           = false;
+  let houseFormErr          = "";
+
+  let editingHouse: string | null = null;
+  let editHouseForm         = { name: "", color: "#4f46e5", housemaster_id: "", is_active: true };
+  let editHouseSaving       = false;
+
+  async function loadHouses() {
+    housesLoading = true; housesError = "";
+    try {
+      const { data } = await api.get<House[]>("/settings/houses");
+      houses = data;
+      housesLoaded = true;
+    } catch (e) { housesError = apiError(e); }
+    finally { housesLoading = false; }
+  }
+
+  async function loadStaffOptions() {
+    if (staffOptionsLoaded) return;
+    try {
+      const { data } = await api.get<{ items: { id: string; first_name: string; last_name: string }[] }>(
+        "/staff", { params: { is_active: true, limit: 200 } }
+      );
+      staffOptions = data.items.map(s => ({ id: s.id, label: `${s.first_name} ${s.last_name}` }));
+      staffOptionsLoaded = true;
+    } catch { staffOptions = []; }
+  }
+
+  async function createHouse() {
+    if (!newHouse.name.trim()) { houseFormErr = "House name is required."; return; }
+    houseSaving = true; houseFormErr = "";
+    try {
+      const { data } = await api.post<House>("/settings/houses", {
+        name: newHouse.name.trim(),
+        color: newHouse.color || null,
+        housemaster_id: newHouse.housemaster_id || null,
+      });
+      houses = [...houses, data].sort((a, b) => a.name.localeCompare(b.name));
+      newHouse = { name: "", color: "#4f46e5", housemaster_id: "" };
+      addingHouse = false;
+      toast.success("House created");
+    } catch (e) { houseFormErr = apiError(e); }
+    finally { houseSaving = false; }
+  }
+
+  function startEditHouse(house: House) {
+    editingHouse = house.id;
+    editHouseForm = {
+      name: house.name,
+      color: house.color ?? "#4f46e5",
+      housemaster_id: house.housemaster?.id ?? "",
+      is_active: house.is_active,
+    };
+  }
+
+  async function saveEditHouse(id: string) {
+    if (!editHouseForm.name.trim()) return;
+    editHouseSaving = true;
+    try {
+      const { data } = await api.patch<House>(`/settings/houses/${id}`, {
+        name: editHouseForm.name.trim(),
+        color: editHouseForm.color || null,
+        housemaster_id: editHouseForm.housemaster_id || null,
+        is_active: editHouseForm.is_active,
+      });
+      houses = houses.map(h => h.id === id ? data : h).sort((a, b) => a.name.localeCompare(b.name));
+      editingHouse = null;
+      toast.success("House updated");
+    } catch (e) { toast.error(apiError(e)); }
+    finally { editHouseSaving = false; }
+  }
+
+  async function deleteHouse(id: string) {
+    const house = houses.find(h => h.id === id);
+    if (!house) return;
+    const ok = await confirmDialog.show({
+      title: "Delete house?",
+      message: `"${house.name}" will be permanently deleted.`,
+      variant: "danger", confirmLabel: "Delete",
+    });
+    if (!ok) return;
+    try {
+      await api.delete(`/settings/houses/${id}`);
+      houses = houses.filter(h => h.id !== id);
+      toast.success("House deleted");
+    } catch (e) { toast.error(apiError(e)); }
+  }
+
+  $: if (tab === "houses" && !housesLoaded && !housesLoading) {
+    loadHouses();
+    loadStaffOptions();
   }
 
   // ── User accounts ─────────────────────────────────────────────────
@@ -391,6 +698,16 @@
         <School2 size={14} /><span class="tab-label">School Profile</span>
       </button>
     {/if}
+    {#if canAcademic}
+      <button class="tab" class:active={tab === "academic"} on:click={() => tab = "academic"}>
+        <CalendarDays size={14} /><span class="tab-label">Academic Years</span>
+      </button>
+    {/if}
+    {#if canHouses && hasHouses}
+      <button class="tab" class:active={tab === "houses"} on:click={() => tab = "houses"}>
+        <Home size={14} /><span class="tab-label">Houses</span>
+      </button>
+    {/if}
     {#if canUsers}
       <button class="tab" class:active={tab === "positions"} on:click={() => tab = "positions"}>
         <Shield size={14} /><span class="tab-label">Roles</span>
@@ -399,7 +716,7 @@
         <Users size={14} /><span class="tab-label">Users</span>
       </button>
     {/if}
-    {#if canSchool || canUsers}
+    {#if canSchool || canUsers || canAcademic || canHouses}
       <button class="tab" class:active={tab === "logs"} on:click={() => tab = "logs"}>
         <ScrollText size={14} /><span class="tab-label">Logs</span>
       </button>
@@ -919,6 +1236,300 @@
           {/each}
         </div>
         {/if}
+      {/if}
+    {/if}
+
+    <!-- ══ ACADEMIC YEARS ═══════════════════════════════════════════════ -->
+    {#if tab === "academic"}
+      <PageHeader title="Academic Years" description="Manage academic years and terms. Activate a year and a term to power the dashboard's Term at a Glance widget.">
+        <Button on:click={() => { addingYear = !addingYear; yearFormErr = ""; newYear = { name: "", start_date: "", end_date: "" }; }}>
+          <Plus size={13} />{addingYear ? "Cancel" : "New Year"}
+        </Button>
+      </PageHeader>
+
+      {#if addingYear}
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field">
+                <label for="ny-name">Year name <span class="req">*</span></label>
+                <input id="ny-name" class="input" bind:value={newYear.name} placeholder="e.g. 2025/2026" />
+              </div>
+              <div class="field">
+                <label for="ny-start">Start date <span class="req">*</span></label>
+                <input id="ny-start" class="input" type="date" bind:value={newYear.start_date} />
+              </div>
+              <div class="field">
+                <label for="ny-end">End date <span class="req">*</span></label>
+                <input id="ny-end" class="input" type="date" bind:value={newYear.end_date} />
+              </div>
+            </div>
+            {#if yearFormErr}<div class="api-err" style="margin-top:10px;"><AlertCircle size={13} />{yearFormErr}</div>{/if}
+            <div class="actions">
+              <Button loading={yearSaving} on:click={createYear}>Create year</Button>
+              <Button variant="ghost" on:click={() => { addingYear = false; yearFormErr = ""; }}>Cancel</Button>
+            </div>
+          </div>
+        </div>
+      {/if}
+
+      {#if yearsLoading}
+        <div class="pos-loading"><Spinner /></div>
+      {:else if yearsError}
+        <div class="api-err" style="margin-bottom:14px;">
+          <AlertCircle size={13} />{yearsError}
+          <Button variant="ghost" size="sm" on:click={() => { yearsLoaded = false; loadYears(); }} style="margin-left:8px;">Retry</Button>
+        </div>
+      {:else if years.length === 0 && !addingYear}
+        <EmptyState message="No academic years set up yet. Create one to get started.">
+          <svelte:fragment slot="icon"><CalendarDays size={28} /></svelte:fragment>
+          <Button on:click={() => { addingYear = true; }}><Plus size={13} />Add first year</Button>
+        </EmptyState>
+      {:else}
+        <div class="ay-list">
+          {#each years as year (year.id)}
+            {@const isExpanded = expandedYear === year.id}
+
+            <div class="ay-card" class:ay-current={year.is_current} class:ay-expanded={isExpanded}>
+
+              <!-- Year header row -->
+              <div class="ay-head">
+                <button class="ay-toggle" type="button"
+                  on:click={() => { expandedYear = isExpanded ? null : year.id; }}>
+                  <ChevronDown size={14} class="ay-chevron {isExpanded ? 'open' : ''}" />
+                  {#if year.is_current}<span class="ay-current-badge">Current</span>{/if}
+
+                  {#if editingYear === year.id}
+                    <!-- name shown via input below -->
+                  {:else}
+                    <span class="ay-name">{year.name}</span>
+                  {/if}
+
+                  <span class="ay-dates hide-mobile">
+                    {fmtD(year.start_date)} – {fmtD(year.end_date)}
+                  </span>
+                  <span class="ay-term-count">
+                    {year.terms.length} term{year.terms.length !== 1 ? "s" : ""}
+                  </span>
+                </button>
+
+                <!-- Inline name edit (outside toggle so clicks don't collapse) -->
+                {#if editingYear === year.id}
+                  <div class="ay-edit-row">
+                    <input class="input" style="max-width:160px;" bind:value={editYearForm.name} placeholder="Year name" />
+                    <input class="input" type="date" style="max-width:150px;" bind:value={editYearForm.start_date} />
+                    <input class="input" type="date" style="max-width:150px;" bind:value={editYearForm.end_date} />
+                    <button class="icon-act" title="Save" on:click={() => saveEditYear(year.id)}>
+                      {#if editYearSaving}<Loader2 size={13} class="spin" />{:else}<Check size={13} />{/if}
+                    </button>
+                    <button class="icon-act" title="Cancel" on:click={() => editingYear = null}><X size={13} /></button>
+                  </div>
+                {/if}
+
+                <!-- Actions -->
+                {#if editingYear !== year.id}
+                  {#if !year.is_current}
+                    <Button size="sm" variant="ghost" on:click={() => activateYear(year.id)}>
+                      Set current
+                    </Button>
+                  {/if}
+                  <button class="icon-act" title="Edit" on:click={() => startEditYear(year)}><Pencil size={13} /></button>
+                  {#if !year.is_current}
+                    <button class="icon-act danger" title="Delete" on:click={() => deleteYear(year.id)}><Trash2 size={13} /></button>
+                  {/if}
+                {/if}
+              </div>
+
+              <!-- Expanded: terms panel -->
+              {#if isExpanded}
+                <div class="ay-terms-panel">
+
+                  {#each year.terms as term (term.id)}
+                    <div class="term-row" class:term-current={term.is_current}>
+                      {#if editingTerm === term.id}
+                        <div class="term-edit-row">
+                          <input class="input" style="max-width:130px;" bind:value={editTermForm.name} placeholder="Term name" />
+                          <input class="input" type="date" style="max-width:150px;" bind:value={editTermForm.start_date} />
+                          <input class="input" type="date" style="max-width:150px;" bind:value={editTermForm.end_date} />
+                          <button class="icon-act" title="Save" on:click={() => saveEditTerm(term.id, year.id)}>
+                            {#if editTermSaving}<Loader2 size={13} class="spin" />{:else}<Check size={13} />{/if}
+                          </button>
+                          <button class="icon-act" title="Cancel" on:click={() => editingTerm = null}><X size={13} /></button>
+                        </div>
+                      {:else}
+                        <div class="term-info">
+                          {#if term.is_current}
+                            <span class="term-dot" title="Current term"></span>
+                          {:else}
+                            <span class="term-dot term-dot-inactive"></span>
+                          {/if}
+                          <span class="term-name">{term.name}</span>
+                          <span class="term-dates hide-mobile">
+                            {fmtD(term.start_date)} – {fmtD(term.end_date)}
+                          </span>
+                          {#if term.block_owing_students}
+                            <span class="term-block-badge" title="Students with outstanding fees are blocked">Fees blocked</span>
+                          {/if}
+                        </div>
+                        <div class="term-actions">
+                          {#if !term.is_current && year.is_current}
+                            <Button size="sm" variant="ghost" on:click={() => activateTerm(term.id, year.id)}>
+                              Set current
+                            </Button>
+                          {/if}
+                          <button class="icon-act" title="Edit" on:click={() => startEditTerm(term)}><Pencil size={13} /></button>
+                          {#if !term.is_current}
+                            <button class="icon-act danger" title="Delete" on:click={() => deleteTerm(term.id, year.id)}><Trash2 size={13} /></button>
+                          {/if}
+                        </div>
+                      {/if}
+                    </div>
+                  {/each}
+
+                  {#if year.terms.length === 0 && addingTermFor !== year.id}
+                    <p class="no-terms-hint">No terms added yet. Add terms to set up the academic calendar.</p>
+                  {/if}
+
+                  <!-- Add term form -->
+                  {#if addingTermFor === year.id}
+                    <div class="term-add-form">
+                      <div class="form-grid">
+                        <div class="field">
+                          <label for="nt-name-{year.id}">Term name <span class="req">*</span></label>
+                          <input id="nt-name-{year.id}" class="input" bind:value={newTerm.name} placeholder="e.g. Term 1" />
+                        </div>
+                        <div class="field">
+                          <label for="nt-start-{year.id}">Start date <span class="req">*</span></label>
+                          <input id="nt-start-{year.id}" class="input" type="date" bind:value={newTerm.start_date} />
+                        </div>
+                        <div class="field">
+                          <label for="nt-end-{year.id}">End date <span class="req">*</span></label>
+                          <input id="nt-end-{year.id}" class="input" type="date" bind:value={newTerm.end_date} />
+                        </div>
+                      </div>
+                      {#if termFormErr}<div class="api-err" style="margin-top:8px;"><AlertCircle size={13} />{termFormErr}</div>{/if}
+                      <div class="actions" style="margin-top:10px;">
+                        <Button size="sm" loading={termSaving} on:click={() => createTerm(year.id)}>Add term</Button>
+                        <Button size="sm" variant="ghost" on:click={() => { addingTermFor = null; termFormErr = ""; }}>Cancel</Button>
+                      </div>
+                    </div>
+                  {:else}
+                    <button class="add-term-btn"
+                      on:click={() => { addingTermFor = year.id; newTerm = { name: "", start_date: "", end_date: "" }; termFormErr = ""; }}>
+                      <Plus size={12} /> Add term
+                    </button>
+                  {/if}
+
+                </div>
+              {/if}
+
+            </div>
+          {/each}
+        </div>
+      {/if}
+    {/if}
+
+    <!-- ══ HOUSES ═══════════════════════════════════════════════════════ -->
+    {#if tab === "houses"}
+      <PageHeader title="Houses" description="Manage school houses and assign housemasters.">
+        <Button on:click={() => { addingHouse = !addingHouse; houseFormErr = ""; newHouse = { name: "", color: "#4f46e5", housemaster_id: "" }; loadStaffOptions(); }}>
+          <Plus size={13} />{addingHouse ? "Cancel" : "New House"}
+        </Button>
+      </PageHeader>
+
+      {#if addingHouse}
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field">
+                <label for="nh-name">House name <span class="req">*</span></label>
+                <input id="nh-name" class="input" bind:value={newHouse.name} placeholder="e.g. Adinkra House" />
+              </div>
+              <div class="field">
+                <label for="nh-color">Colour</label>
+                <div class="color-field">
+                  <input id="nh-color" type="color" class="color-input" bind:value={newHouse.color} />
+                  <span class="color-hex">{newHouse.color}</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="nh-hm">Housemaster</label>
+                <select id="nh-hm" class="input" bind:value={newHouse.housemaster_id}>
+                  <option value="">— None —</option>
+                  {#each staffOptions as s}
+                    <option value={s.id}>{s.label}</option>
+                  {/each}
+                </select>
+              </div>
+            </div>
+            {#if houseFormErr}<div class="api-err" style="margin-top:10px;"><AlertCircle size={13} />{houseFormErr}</div>{/if}
+            <div class="actions">
+              <Button loading={houseSaving} on:click={createHouse}>Create house</Button>
+              <Button variant="ghost" on:click={() => { addingHouse = false; houseFormErr = ""; }}>Cancel</Button>
+            </div>
+          </div>
+        </div>
+      {/if}
+
+      {#if housesLoading}
+        <div class="pos-loading"><Spinner /></div>
+      {:else if housesError}
+        <div class="api-err" style="margin-bottom:14px;">
+          <AlertCircle size={13} />{housesError}
+          <Button variant="ghost" size="sm" on:click={() => { housesLoaded = false; loadHouses(); }} style="margin-left:8px;">Retry</Button>
+        </div>
+      {:else if houses.length === 0 && !addingHouse}
+        <EmptyState message="No houses set up yet. Create one to get started.">
+          <svelte:fragment slot="icon"><Home size={28} /></svelte:fragment>
+          <Button on:click={() => { addingHouse = true; loadStaffOptions(); }}><Plus size={13} />Add first house</Button>
+        </EmptyState>
+      {:else}
+        <div class="house-list">
+          {#each houses as house (house.id)}
+            <div class="house-row" class:house-inactive={!house.is_active}>
+              {#if editingHouse === house.id}
+                <div class="house-edit-row">
+                  <input class="input" style="max-width:180px;" bind:value={editHouseForm.name} placeholder="House name" />
+                  <div class="color-field">
+                    <input type="color" class="color-input" bind:value={editHouseForm.color} />
+                    <span class="color-hex">{editHouseForm.color}</span>
+                  </div>
+                  <select class="input" style="max-width:180px;" bind:value={editHouseForm.housemaster_id}>
+                    <option value="">— None —</option>
+                    {#each staffOptions as s}
+                      <option value={s.id}>{s.label}</option>
+                    {/each}
+                  </select>
+                  <label class="toggle-label">
+                    <input type="checkbox" bind:checked={editHouseForm.is_active} />
+                    Active
+                  </label>
+                  <button class="icon-act" title="Save" on:click={() => saveEditHouse(house.id)}>
+                    {#if editHouseSaving}<Loader2 size={13} class="spin" />{:else}<Check size={13} />{/if}
+                  </button>
+                  <button class="icon-act" title="Cancel" on:click={() => editingHouse = null}><X size={13} /></button>
+                </div>
+              {:else}
+                <div class="house-info">
+                  <span class="house-swatch" style="background:{house.color ?? '#94a3b8'}"></span>
+                  <span class="house-name">{house.name}</span>
+                  {#if house.housemaster}
+                    <span class="house-hm">{house.housemaster.full_name}</span>
+                  {:else}
+                    <span class="house-hm house-hm-empty">No housemaster</span>
+                  {/if}
+                  {#if !house.is_active}
+                    <span class="house-inactive-badge">Inactive</span>
+                  {/if}
+                </div>
+                <div class="house-actions">
+                  <button class="icon-act" title="Edit" on:click={() => { startEditHouse(house); loadStaffOptions(); }}><Pencil size={13} /></button>
+                  <button class="icon-act danger" title="Delete" on:click={() => deleteHouse(house.id)}><Trash2 size={13} /></button>
+                </div>
+              {/if}
+            </div>
+          {/each}
+        </div>
       {/if}
     {/if}
 
@@ -1504,6 +2115,179 @@ select.input {
   .user-row { grid-template-columns: 1fr auto auto; }
   .user-roles { display: none; }
   .user-login { display: none; }
+}
+
+/* ── Academic Years ──────────────────────────────────────────────── */
+.ay-list { display: flex; flex-direction: column; gap: 8px; }
+
+.ay-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  background: var(--surface-1);
+  overflow: hidden;
+  transition: border-color 0.12s;
+}
+.ay-card.ay-current { border-color: color-mix(in srgb, var(--accent) 35%, var(--border-subtle)); }
+.ay-card.ay-expanded { border-color: color-mix(in srgb, var(--accent) 25%, var(--border-subtle)); }
+
+.ay-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 4px;
+  flex-wrap: wrap;
+}
+
+.ay-toggle {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1; min-width: 0; padding: 8px 10px;
+  background: none; border: none; cursor: pointer; text-align: left;
+  border-radius: 7px; transition: background 0.1s;
+}
+.ay-toggle:hover { background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
+
+.ay-current-badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 99px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.ay-name    { font-size: 13.5px; font-weight: 600; color: var(--tx-high); }
+.ay-dates   { font-size: 12px; color: var(--tx-low); white-space: nowrap; }
+.ay-term-count { font-size: 11.5px; color: var(--tx-low); white-space: nowrap; }
+
+:global(.ay-chevron)      { color: var(--tx-low); transition: transform 0.18s ease; flex-shrink: 0; }
+:global(.ay-chevron.open) { transform: rotate(180deg); }
+
+.ay-edit-row {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  padding: 4px 0;
+}
+
+/* Terms panel */
+.ay-terms-panel {
+  border-top: 1px solid var(--border-subtle);
+  padding: 8px 16px 12px;
+  background: var(--surface-0);
+  display: flex; flex-direction: column; gap: 0;
+}
+
+.term-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 9px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 60%, transparent);
+}
+.term-row:last-of-type { border-bottom: none; }
+.term-row.term-current { background: color-mix(in srgb, var(--accent) 3%, transparent);
+  margin: 0 -16px; padding-left: 16px; padding-right: 16px; }
+
+.term-info  { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; flex-wrap: wrap; }
+.term-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+
+.term-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  background: var(--accent);
+}
+.term-dot.term-dot-inactive { background: var(--border-strong); }
+
+.term-name  { font-size: 13px; font-weight: 600; color: var(--tx-high); white-space: nowrap; }
+.term-dates { font-size: 12px; color: var(--tx-low); white-space: nowrap; }
+
+.term-block-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 99px;
+  background: color-mix(in srgb, var(--warn-text) 10%, transparent);
+  color: var(--warn-text);
+  border: 1px solid color-mix(in srgb, var(--warn-text) 20%, transparent);
+  white-space: nowrap;
+}
+
+.term-edit-row {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  padding: 4px 0; flex: 1;
+}
+
+.no-terms-hint {
+  font-size: 12.5px; color: var(--tx-low); padding: 10px 0;
+  margin: 0; text-align: center;
+}
+
+.term-add-form {
+  margin-top: 10px; padding: 14px;
+  background: var(--surface-1); border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+}
+
+.add-term-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 10px; padding: 5px 12px;
+  border: 1px dashed var(--border-strong); border-radius: 6px;
+  background: transparent; color: var(--tx-low); font-size: 12.5px;
+  cursor: pointer; transition: color 0.1s, border-color 0.1s, background 0.1s;
+}
+.add-term-btn:hover {
+  color: var(--accent); border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+@media (max-width: 520px) {
+  .ay-edit-row, .term-edit-row { flex-direction: column; align-items: stretch; }
+  .ay-edit-row .input, .term-edit-row .input { max-width: 100% !important; }
+}
+
+/* ── Houses ──────────────────────────────────────────────────────── */
+.house-list { display: flex; flex-direction: column; gap: 2px; }
+
+.house-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 10px 14px;
+  background: var(--surface-1); border: 1px solid var(--border-subtle);
+  border-radius: 9px;
+  transition: border-color 0.12s;
+}
+.house-row:hover { border-color: color-mix(in srgb, var(--accent) 25%, var(--border-subtle)); }
+.house-inactive { opacity: 0.6; }
+
+.house-info { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; flex-wrap: wrap; }
+.house-actions { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+
+.house-swatch {
+  width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid color-mix(in srgb, currentColor 10%, transparent);
+  box-shadow: 0 0 0 1px var(--border-subtle);
+}
+.house-name { font-size: 13.5px; font-weight: 600; color: var(--tx-high); }
+.house-hm   { font-size: 12px; color: var(--tx-low); }
+.house-hm-empty { font-style: italic; }
+.house-inactive-badge {
+  font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 99px;
+  background: var(--surface-2); color: var(--tx-low); border: 1px solid var(--border-subtle);
+}
+
+.house-edit-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 1;
+}
+
+.color-field { display: flex; align-items: center; gap: 7px; }
+.color-input {
+  width: 34px; height: 34px; border-radius: 7px; border: 1px solid var(--border-subtle);
+  padding: 2px; cursor: pointer; background: var(--surface-1);
+}
+.color-hex { font-size: 12px; color: var(--tx-low); font-family: monospace; }
+
+.toggle-label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12.5px; color: var(--tx-mid); cursor: pointer; white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .house-edit-row { flex-direction: column; align-items: stretch; }
+  .house-edit-row .input,
+  .house-edit-row .color-field { max-width: 100% !important; }
 }
 
 /* ── Logs placeholder ────────────────────────────────────────────── */

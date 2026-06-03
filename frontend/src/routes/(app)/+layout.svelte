@@ -2,7 +2,7 @@
   import { goto } from "$app/navigation";
   import { page, navigating } from "$app/stores";
   import { auth, isAuthenticated, currentUser } from "$stores/auth";
-  import { schoolBranding } from "$stores/school";
+  import { schoolBranding, schoolContext } from "$stores/school";
   import { Avatar, Toaster, ConfirmDialog } from "$components";
   import { PanelLeft, Bell, Sun, Moon, Monitor, LogOut, Settings } from "@lucide/svelte";
   import { onMount } from "svelte";
@@ -73,6 +73,8 @@
   }
 
   async function handleLogout() {
+    schoolContext.clear();
+    schoolContextReady = false;
     await auth.logout();
     goto("/login");
   }
@@ -83,6 +85,15 @@
     return currentPath === path || currentPath.startsWith(path + "/");
   }
   $: pageTitle = currentPath.split("/").filter(Boolean)[0]?.replace(/-/g, " ") ?? "Dashboard";
+
+  // ── School context ─────────────────────────────────────────────
+  // Load once when auth resolves so education_levels / has_houses are
+  // available globally for nav gating and per-page feature checks.
+  let schoolContextReady = false;
+  $: if ($auth.user && !$auth.loading && !schoolContextReady) {
+    schoolContextReady = true;
+    schoolContext.load();
+  }
 
   // ── Auth guards ────────────────────────────────────────────────
   $: isSuperAdmin = $currentUser?.system_role === "SUPERADMIN";
@@ -100,16 +111,18 @@
   // SUPERADMIN bypasses all checks.
   $: perms = ($currentUser?.permissions ?? {}) as Record<string, boolean>;
 
-  // Rebuild visible groups whenever permissions or role changes.
+  // Rebuild visible groups whenever permissions, role, or school levels change.
   // Groups with zero visible items are dropped entirely (no phantom dividers).
-  // Inlined (not a helper fn) so Svelte tracks perms + isSuperAdmin as dependencies.
+  // Inlined (not a helper fn) so Svelte tracks all three dependencies.
+  $: schoolLevels = $schoolContext?.education_levels ?? [];
   $: visibleGroups = NAV
     .map((group: NavGroup) => ({
       ...group,
       items: group.items.filter(item => {
         if (isSuperAdmin) return true;
-        if (!item.anyPermission?.length) return true;
-        return item.anyPermission.some(k => perms[k] === true);
+        if (item.anyPermission?.length && !item.anyPermission.some(k => perms[k] === true)) return false;
+        if (item.requiresLevel?.length && !item.requiresLevel.some(l => schoolLevels.includes(l))) return false;
+        return true;
       }),
     }))
     .filter(group => group.items.length > 0);

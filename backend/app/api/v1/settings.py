@@ -7,7 +7,7 @@ from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, SessionDep, require
 from app.core.permissions import Permission
-from app.models.academic import AcademicTerm, AcademicYear, Class, ClassSubject, ClassTeacher, LearningArea, SchoolSubject, SubjectTeacher
+from app.models.academic import AcademicTerm, AcademicYear, Class, ClassSubject, ClassTeacher, House, LearningArea, SchoolSubject, SubjectTeacher
 from app.models.student import StudentClassEnrollment
 from app.models.school import School
 from app.models.staff import PositionPermission, StaffMember, StaffPosition
@@ -23,6 +23,7 @@ from app.schemas.settings import (
     ClassSubjectCreate, ClassSubjectUpdate, ClassSubjectResponse,
     SubjectTeacherInfo, SubjectTeacherAssign,
     LearningAreaCreate, LearningAreaResponse, LearningAreaUpdate,
+    HouseCreate, HouseUpdate, HouseResponse,
     SchoolProfileUpdate, EDUCATION_LEVEL_MAP,
     UserAccountResponse, UserAccountUpdate,
 )
@@ -52,6 +53,14 @@ def _require_shs(school: School) -> None:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
             "Learning areas are only available for schools with SHS education level",
+        )
+
+
+def _require_houses(school: School) -> None:
+    if not school.has_houses:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "Houses are not enabled for this school",
         )
 
 
@@ -222,7 +231,7 @@ async def activate_academic_year(year_id: UUID, user: CurrentUser, session: Sess
     await session.commit()
     year = await session.scalar(
         select(AcademicYear)
-        .where(AcademicYear.id == year_id)
+        .where(AcademicYear.id == year_id, AcademicYear.school_id == school_id)
         .options(selectinload(AcademicYear.terms))
     )
     return AcademicYearResponse.model_validate(year)
@@ -274,7 +283,11 @@ async def create_term(
 @router.patch("/terms/{term_id}", response_model=AcademicTermResponse,
               dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def update_term(term_id: UUID, body: AcademicTermUpdate, user: CurrentUser, session: SessionDep):
-    term = await session.get(AcademicTerm, term_id)
+    term = await session.scalar(
+        select(AcademicTerm)
+        .join(AcademicYear, AcademicTerm.academic_year_id == AcademicYear.id)
+        .where(AcademicTerm.id == term_id, AcademicYear.school_id == _school_id(user))
+    )
     if not term:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Term not found")
     for field, value in body.model_dump(exclude_none=True).items():
@@ -287,7 +300,11 @@ async def update_term(term_id: UUID, body: AcademicTermUpdate, user: CurrentUser
 @router.post("/terms/{term_id}/activate", response_model=AcademicTermResponse,
              dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def activate_term(term_id: UUID, user: CurrentUser, session: SessionDep):
-    term = await session.get(AcademicTerm, term_id)
+    term = await session.scalar(
+        select(AcademicTerm)
+        .join(AcademicYear, AcademicTerm.academic_year_id == AcademicYear.id)
+        .where(AcademicTerm.id == term_id, AcademicYear.school_id == _school_id(user))
+    )
     if not term:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Term not found")
     # Clear current on sibling terms in the same year
@@ -304,7 +321,11 @@ async def activate_term(term_id: UUID, user: CurrentUser, session: SessionDep):
 @router.delete("/terms/{term_id}", status_code=204,
                dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def delete_term(term_id: UUID, user: CurrentUser, session: SessionDep):
-    term = await session.get(AcademicTerm, term_id)
+    term = await session.scalar(
+        select(AcademicTerm)
+        .join(AcademicYear, AcademicTerm.academic_year_id == AcademicYear.id)
+        .where(AcademicTerm.id == term_id, AcademicYear.school_id == _school_id(user))
+    )
     if not term:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Term not found")
     if term.is_current:
@@ -377,6 +398,85 @@ async def delete_school_subject(subject_id: UUID, user: CurrentUser, session: Se
     await session.commit()
 
 
+# ── Houses (SHS only, has_houses flag required) ───────────────────────────────
+
+@router.get("/houses", response_model=list[HouseResponse],
+            dependencies=[require(Permission.MANAGE_HOUSES)])
+async def list_houses(user: CurrentUser, session: SessionDep):
+    school = await session.get(School, _school_id(user))
+    _require_houses(school)
+    rows = await session.scalars(
+        select(House)
+        .where(House.school_id == _school_id(user))
+        .options(selectinload(House.housemaster))
+        .order_by(House.name)
+    )
+    return [HouseResponse.model_validate(h) for h in rows]
+
+
+@router.post("/houses", response_model=HouseResponse, status_code=201,
+             dependencies=[require(Permission.MANAGE_HOUSES)])
+async def create_house(body: HouseCreate, user: CurrentUser, session: SessionDep):
+    school = await session.get(School, _school_id(user))
+    _require_houses(school)
+    if body.housemaster_id:
+        hm = await session.scalar(
+            select(StaffMember).where(
+                StaffMember.id == body.housemaster_id,
+                StaffMember.school_id == _school_id(user),
+            )
+        )
+        if not hm:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Staff member not found")
+    house = House(school_id=_school_id(user), **body.model_dump())
+    session.add(house)
+    await session.commit()
+    await session.refresh(house, ["housemaster"])
+    return HouseResponse.model_validate(house)
+
+
+@router.patch("/houses/{house_id}", response_model=HouseResponse,
+              dependencies=[require(Permission.MANAGE_HOUSES)])
+async def update_house(house_id: UUID, body: HouseUpdate, user: CurrentUser, session: SessionDep):
+    school = await session.get(School, _school_id(user))
+    _require_houses(school)
+    house = await session.scalar(
+        select(House)
+        .where(House.id == house_id, House.school_id == _school_id(user))
+        .options(selectinload(House.housemaster))
+    )
+    if not house:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "House not found")
+    if "housemaster_id" in body.model_fields_set and body.housemaster_id:
+        hm = await session.scalar(
+            select(StaffMember).where(
+                StaffMember.id == body.housemaster_id,
+                StaffMember.school_id == _school_id(user),
+            )
+        )
+        if not hm:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Staff member not found")
+    for field, value in body.model_dump(exclude_unset=True).items():
+        setattr(house, field, value)
+    await session.commit()
+    await session.refresh(house, ["housemaster"])
+    return HouseResponse.model_validate(house)
+
+
+@router.delete("/houses/{house_id}", status_code=204,
+               dependencies=[require(Permission.MANAGE_HOUSES)])
+async def delete_house(house_id: UUID, user: CurrentUser, session: SessionDep):
+    school = await session.get(School, _school_id(user))
+    _require_houses(school)
+    house = await session.scalar(
+        select(House).where(House.id == house_id, House.school_id == _school_id(user))
+    )
+    if not house:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "House not found")
+    await session.delete(house)
+    await session.commit()
+
+
 # ── Learning Areas (SHS only) ─────────────────────────────────────────────────
 
 @router.get("/learning-areas", response_model=PagedResponse[LearningAreaResponse],
@@ -425,6 +525,8 @@ async def create_learning_area(
 async def update_learning_area(
     la_id: UUID, body: LearningAreaUpdate, user: CurrentUser, session: SessionDep
 ):
+    school = await session.get(School, _school_id(user))
+    _require_shs(school)
     la = await session.scalar(
         select(LearningArea)
         .where(LearningArea.id == la_id, LearningArea.school_id == _school_id(user))
@@ -441,6 +543,8 @@ async def update_learning_area(
 @router.delete("/learning-areas/{la_id}", status_code=204,
                dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
 async def delete_learning_area(la_id: UUID, user: CurrentUser, session: SessionDep):
+    school = await session.get(School, _school_id(user))
+    _require_shs(school)
     la = await session.scalar(
         select(LearningArea)
         .where(LearningArea.id == la_id, LearningArea.school_id == _school_id(user))

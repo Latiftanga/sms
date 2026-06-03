@@ -8,6 +8,12 @@ export interface SchoolBranding {
   accent_color: string;
 }
 
+export interface SchoolContext {
+  education_levels: string[];
+  facility_type: string;
+  has_houses: boolean;
+}
+
 const CACHE_KEY = "sis-school-branding";
 
 function getInitial(): SchoolBranding | null {
@@ -54,3 +60,33 @@ function createSchoolStore() {
 }
 
 export const schoolBranding = createSchoolStore();
+
+// ── School context (authenticated) ────────────────────────────────────────────
+// Holds school capabilities: education levels, facility type, houses.
+// Loaded once in the app shell after auth resolves; cleared on logout.
+function createSchoolContextStore() {
+  const { subscribe, set } = writable<SchoolContext | null>(null);
+
+  return {
+    subscribe,
+
+    async load() {
+      try {
+        const { data } = await api.get<SchoolContext>("/settings/school");
+        set({
+          education_levels: data.education_levels ?? [],
+          facility_type: data.facility_type ?? "DAY",
+          has_houses: data.has_houses ?? false,
+        });
+      } catch {
+        // unauthenticated or network error — leave as null
+      }
+    },
+
+    clear() {
+      set(null);
+    },
+  };
+}
+
+export const schoolContext = createSchoolContextStore();
