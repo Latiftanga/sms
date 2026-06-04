@@ -99,11 +99,13 @@ async def list_students(
                 year_name=row.year_name,
             ))
 
-        # Resolve class names in one query
+        # Resolve class names in one query (eager-load learning_area for SHS class names)
         all_class_ids = {i.class_id for i in items if i.class_id}
         if all_class_ids:
             class_rows = await session.scalars(
-                select(Class).where(Class.id.in_(all_class_ids))
+                select(Class)
+                .options(selectinload(Class.learning_area))
+                .where(Class.id.in_(all_class_ids))
             )
             class_map = {c.id: c.name for c in class_rows}
             for item in items:
