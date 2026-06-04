@@ -11,7 +11,7 @@
   } from "@lucide/svelte";
 
   interface Guardian { id: string; first_name: string; last_name: string; relationship_type: string; phone: string | null; email: string | null; is_primary_contact: boolean; }
-  interface Enrollment { id: string; class_name: string; year_name: string; register_number: string | null; student_type: string; status: string; }
+  interface Enrollment { id: string; class_name: string; year_name: string; register_number: string | null; student_type: string; status: string; house_name: string | null; }
   interface Student {
     id: string; first_name: string; middle_name: string | null; last_name: string;
     full_name: string; gender: string; date_of_birth: string | null;
@@ -232,7 +232,7 @@
           <div class="enroll-row">
             <div>
               <p class="enroll-class">{e.class_name}</p>
-              <p class="enroll-year">{e.year_name} · {e.student_type === "DAY" ? "Day" : "Boarding"}</p>
+              <p class="enroll-year">{e.year_name} · {e.student_type === "DAY" ? "Day" : "Boarding"}{e.house_name ? ` · ${e.house_name}` : ""}</p>
             </div>
             <div class="enroll-right">
               {#if e.register_number}<span class="reg-no">{e.register_number}</span>{/if}

@@ -2,9 +2,10 @@ from uuid import UUID
 
 from fastapi import HTTPException, status
 from sqlalchemy import and_, func, select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.academic import AcademicYear, Class
+from app.models.academic import AcademicYear, Class, House
 from app.models.school import School, SchoolConfig
 from app.models.student import Guardian, Student, StudentClassEnrollment
 from app.schemas.student import EnrollmentResponse, GuardianResponse, StudentResponse
@@ -62,8 +63,12 @@ async def _enrollment_response(
     enrollment: StudentClassEnrollment,
     session: AsyncSession,
 ) -> EnrollmentResponse:
-    cls = await session.get(Class, enrollment.class_id)
+    cls = await session.scalar(
+        select(Class).options(selectinload(Class.learning_area))
+        .where(Class.id == enrollment.class_id)
+    )
     year = await session.get(AcademicYear, enrollment.academic_year_id)
+    house = await session.get(House, enrollment.house_id) if enrollment.house_id else None
     return EnrollmentResponse(
         id=enrollment.id,
         created_at=enrollment.created_at,
@@ -77,6 +82,7 @@ async def _enrollment_response(
         register_number=enrollment.register_number,
         status=enrollment.status,
         house_id=enrollment.house_id,
+        house_name=house.name if house else None,
         left_date=enrollment.left_date,
         left_reason=enrollment.left_reason,
     )

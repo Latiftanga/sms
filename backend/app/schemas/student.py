@@ -132,6 +132,7 @@ class EnrollmentResponse(IDSchema, TimestampSchema):
     register_number: str | None
     status: str
     house_id: UUID | None
+    house_name: str | None
     left_date: date | None
     left_reason: str | None
 

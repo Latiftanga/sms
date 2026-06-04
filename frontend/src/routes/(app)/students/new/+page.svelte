@@ -1,10 +1,11 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { api } from "$api/client";
-  import { schoolBranding } from "$stores/school";
+  import { schoolBranding, schoolContext } from "$stores/school";
   import { ArrowLeft, Plus, Trash2, UserPlus } from "@lucide/svelte";
 
   interface ClassItem { id: string; name: string; }
+  interface HouseItem { id: string; name: string; color: string | null; }
 
   // ── Form state ─────────────────────────────────────────────────────
   let step = 1; // 1 = student details, 2 = enrollment
@@ -20,8 +21,11 @@
 
   // Enrollment fields
   let classes: ClassItem[] = [];
-  let classId = "", studentType = "DAY";
+  let houses: HouseItem[] = [];
+  let classId = "", studentType = "DAY", houseId = "";
   let classesLoading = false;
+
+  $: hasHouses = $schoolContext?.has_houses ?? false;
 
   let saving = false;
   let errors: Record<string, string> = {};
@@ -29,8 +33,12 @@
   async function loadClasses() {
     classesLoading = true;
     try {
-      const { data } = await api.get<{ items: ClassItem[] }>("/settings/classes", { params: { limit: 200 } });
-      classes = data.items;
+      const [classRes, houseRes] = await Promise.all([
+        api.get<{ items: ClassItem[] }>("/settings/classes", { params: { limit: 200 } }),
+        hasHouses ? api.get<HouseItem[]>("/settings/houses") : Promise.resolve({ data: [] }),
+      ]);
+      classes = classRes.data.items;
+      houses = houseRes.data as HouseItem[];
       if (classes.length > 0) classId = classes[0].id;
     } catch { /* non-fatal */ } finally {
       classesLoading = false;
@@ -88,6 +96,7 @@
         await api.post(`/students/${student.id}/enroll`, {
           class_id: classId,
           student_type: studentType,
+          house_id: houseId || null,
         });
       }
 
@@ -287,6 +296,17 @@
             <option value="BOARDING">Boarding student</option>
           </select>
         </div>
+        {#if hasHouses && houses.length > 0}
+          <div class="field">
+            <label>House</label>
+            <select bind:value={houseId}>
+              <option value="">— Not assigned —</option>
+              {#each houses as h}
+                <option value={h.id}>{h.name}</option>
+              {/each}
+            </select>
+          </div>
+        {/if}
       </div>
     {/if}
   </div>
