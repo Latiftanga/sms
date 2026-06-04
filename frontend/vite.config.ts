@@ -9,20 +9,13 @@ export default defineConfig({
     sveltekit(),
     VitePWA({
       registerType: "autoUpdate",
-      devOptions: { enabled: true },
+      devOptions: { enabled: false },
       workbox: {
-        // Cache class and student lists for offline use
-        runtimeCaching: [
-          {
-            urlPattern: /\/api\/v1\/(classes|students)/,
-            handler: "StaleWhileRevalidate",
-            options: {
-              cacheName: "api-data",
-              expiration: { maxAgeSeconds: 60 * 60 * 4 }, // 4 hours
-            },
-          },
-        ],
+        // Never cache API endpoints — all require Authorization headers.
+        // Caching them causes Workbox to strip auth headers or serve stale 401s.
+        runtimeCaching: [],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        navigateFallback: null,
       },
       manifest: {
         name: "TTEK-SIS",
