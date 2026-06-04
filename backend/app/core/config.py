@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     # ── App ───────────────────────────────────────────────────────
     APP_ENV: str = "development"
-    APP_NAME: str = "School Management System"
+    APP_NAME: str = "TTEK SMS"
     SECRET_KEY: str
     DEBUG: bool = False
     FRONTEND_URL: str = "http://localhost:5173"
