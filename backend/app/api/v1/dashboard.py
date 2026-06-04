@@ -8,6 +8,7 @@ from app.api.deps import CurrentUser, RedisDep, SessionDep
 from app.core.permissions import Permission
 from app.models.academic import AcademicTerm, AcademicYear, Class, ClassTeacher
 from app.models.staff import StaffMember
+from app.models.student import Student
 from app.models.user import User
 from app.services.permissions import resolve_all_permissions
 
@@ -30,6 +31,7 @@ class AdminStats(BaseModel):
     staff_no_account: int
     classes_total: int
     classes_no_teacher: int
+    students_total: int
 
 
 class MyClass(BaseModel):
@@ -125,11 +127,19 @@ async def _admin_stats(school_id: UUID, session) -> AdminStats:
     else:
         classes_no_teacher = classes_total
 
+    students_total = await session.scalar(
+        select(func.count(Student.id)).where(
+            Student.school_id == school_id,
+            Student.is_active.is_(True),
+        )
+    ) or 0
+
     return AdminStats(
         staff_total=staff_total,
         staff_no_account=staff_no_account,
         classes_total=classes_total,
         classes_no_teacher=classes_no_teacher,
+        students_total=students_total,
     )
 
 

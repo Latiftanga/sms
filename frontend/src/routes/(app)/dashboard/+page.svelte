@@ -20,6 +20,7 @@
   interface AdminStats {
     staff_total: number; staff_no_account: number;
     classes_total: number; classes_no_teacher: number;
+    students_total: number;
   }
   interface MyClass {
     id: string; name: string; education_level: string;
@@ -142,6 +143,16 @@
   {@const s = data.admin}
 
   <div class="kpi-grid">
+    <!-- Total Students -->
+    <a href="/students" class="kpi-card kpi-link">
+      <div class="kpi-top">
+        <span class="kpi-label">Students</span>
+        <div class="kpi-icon"><GraduationCap size={15} /></div>
+      </div>
+      <div class="kpi-value">{s.students_total}</div>
+      <div class="kpi-sub neutral">Active students</div>
+    </a>
+
     <!-- Active Staff -->
     <a href="/staff" class="kpi-card kpi-link">
       <div class="kpi-top">
