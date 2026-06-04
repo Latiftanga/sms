@@ -202,12 +202,12 @@ async def seed_basic(session, positions):
 
     joined = date(2020, 9, 1)
     staff = [
-        ("Abena",  "Mensah",   "FEMALE", "NON-TEACHING", None,           "admin@demo-basic.edu.gh",    "Admin1234!",   "ADMIN"),
-        ("Kweku",  "Asante",   "MALE",   "TEACHING",     "HEADTEACHER",  "head@demo-basic.edu.gh",     "Head1234!",    "HEADTEACHER"),
-        ("Ama",    "Boateng",  "FEMALE", "TEACHING",     "TEACHER",      "teacher1@demo-basic.edu.gh", "Teacher1234!", "CLASS_TEACHER"),
-        ("Kofi",   "Osei",     "MALE",   "TEACHING",     "TEACHER",      "teacher2@demo-basic.edu.gh", "Teacher1234!", "CLASS_TEACHER"),
-        ("Akua",   "Frimpong", "FEMALE", "TEACHING",     "TEACHER",      "teacher3@demo-basic.edu.gh", "Teacher1234!", "CLASS_TEACHER"),
-        ("Yaw",    "Darko",    "MALE",   "NON-TEACHING", None,           "bursar@demo-basic.edu.gh",   "Bursar1234!",  "BURSAR"),
+        ("Abena",  "Mensah",   "FEMALE", "NON-TEACHING", None,           "admin@demo-basic.ttek-sms.com",    "Admin1234!",   "ADMIN"),
+        ("Kweku",  "Asante",   "MALE",   "TEACHING",     "HEADTEACHER",  "head@demo-basic.ttek-sms.com",     "Head1234!",    "HEADTEACHER"),
+        ("Ama",    "Boateng",  "FEMALE", "TEACHING",     "TEACHER",      "teacher1@demo-basic.ttek-sms.com", "Teacher1234!", "CLASS_TEACHER"),
+        ("Kofi",   "Osei",     "MALE",   "TEACHING",     "TEACHER",      "teacher2@demo-basic.ttek-sms.com", "Teacher1234!", "CLASS_TEACHER"),
+        ("Akua",   "Frimpong", "FEMALE", "TEACHING",     "TEACHER",      "teacher3@demo-basic.ttek-sms.com", "Teacher1234!", "CLASS_TEACHER"),
+        ("Yaw",    "Darko",    "MALE",   "NON-TEACHING", None,           "bursar@demo-basic.ttek-sms.com",   "Bursar1234!",  "BURSAR"),
     ]
     for first, last, gender, cat, desig, email, pw, pos_code in staff:
         created = await _ensure_staff_user(
@@ -246,15 +246,15 @@ async def seed_shs(session, positions):
 
     joined = date(2019, 9, 1)
     staff = [
-        ("Akosua", "Amoah",    "FEMALE", "NON-TEACHING", None,             "admin@demo-shs.edu.gh",      "Admin1234!",   "ADMIN"),
-        ("Kwame",  "Mensah",   "MALE",   "TEACHING",     "HEADTEACHER",    "head@demo-shs.edu.gh",       "Head1234!",    "HEADTEACHER"),
-        ("Efua",   "Agyemang", "FEMALE", "TEACHING",     "ASSISTANT_HEAD", "asst.head@demo-shs.edu.gh",  "Head1234!",    "ASSISTANT_HEAD"),
-        ("Kojo",   "Boateng",  "MALE",   "NON-TEACHING", None,             "bursar@demo-shs.edu.gh",     "Bursar1234!",  "BURSAR"),
-        ("Yaw",    "Peprah",   "MALE",   "NON-TEACHING", None,             "housemaster@demo-shs.edu.gh","House1234!",   "SENIOR_HOUSEMASTER"),
-        ("Abena",  "Owusu",    "FEMALE", "TEACHING",     "TEACHER",        "teacher1@demo-shs.edu.gh",   "Teacher1234!", "CLASS_TEACHER"),
-        ("Fiifi",  "Asante",   "MALE",   "TEACHING",     "TEACHER",        "teacher2@demo-shs.edu.gh",   "Teacher1234!", "CLASS_TEACHER"),
-        ("Adwoa",  "Darko",    "FEMALE", "TEACHING",     "TEACHER",        "teacher3@demo-shs.edu.gh",   "Teacher1234!", "CLASS_TEACHER"),
-        ("Kwesi",  "Frimpong", "MALE",   "TEACHING",     "TEACHER",        "teacher4@demo-shs.edu.gh",   "Teacher1234!", "CLASS_TEACHER"),
+        ("Akosua", "Amoah",    "FEMALE", "NON-TEACHING", None,             "admin@demo-shs.ttek-sms.com",      "Admin1234!",   "ADMIN"),
+        ("Kwame",  "Mensah",   "MALE",   "TEACHING",     "HEADTEACHER",    "head@demo-shs.ttek-sms.com",       "Head1234!",    "HEADTEACHER"),
+        ("Efua",   "Agyemang", "FEMALE", "TEACHING",     "ASSISTANT_HEAD", "asst.head@demo-shs.ttek-sms.com",  "Head1234!",    "ASSISTANT_HEAD"),
+        ("Kojo",   "Boateng",  "MALE",   "NON-TEACHING", None,             "bursar@demo-shs.ttek-sms.com",     "Bursar1234!",  "BURSAR"),
+        ("Yaw",    "Peprah",   "MALE",   "NON-TEACHING", None,             "housemaster@demo-shs.ttek-sms.com","House1234!",   "SENIOR_HOUSEMASTER"),
+        ("Abena",  "Owusu",    "FEMALE", "TEACHING",     "TEACHER",        "teacher1@demo-shs.ttek-sms.com",   "Teacher1234!", "CLASS_TEACHER"),
+        ("Fiifi",  "Asante",   "MALE",   "TEACHING",     "TEACHER",        "teacher2@demo-shs.ttek-sms.com",   "Teacher1234!", "CLASS_TEACHER"),
+        ("Adwoa",  "Darko",    "FEMALE", "TEACHING",     "TEACHER",        "teacher3@demo-shs.ttek-sms.com",   "Teacher1234!", "CLASS_TEACHER"),
+        ("Kwesi",  "Frimpong", "MALE",   "TEACHING",     "TEACHER",        "teacher4@demo-shs.ttek-sms.com",   "Teacher1234!", "CLASS_TEACHER"),
     ]
     for first, last, gender, cat, desig, email, pw, pos_code in staff:
         created = await _ensure_staff_user(
@@ -320,18 +320,18 @@ async def main():
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
  Demo Basic School
-   admin       admin@demo-basic.edu.gh        Admin1234!
-   headteacher head@demo-basic.edu.gh         Head1234!
-   teachers    teacher1–3@demo-basic.edu.gh   Teacher1234!
-   bursar      bursar@demo-basic.edu.gh       Bursar1234!
+   admin       admin@demo-basic.ttek-sms.com        Admin1234!
+   headteacher head@demo-basic.ttek-sms.com         Head1234!
+   teachers    teacher1–3@demo-basic.ttek-sms.com   Teacher1234!
+   bursar      bursar@demo-basic.ttek-sms.com       Bursar1234!
 
  Demo Senior High School
-   admin       admin@demo-shs.edu.gh          Admin1234!
-   headteacher head@demo-shs.edu.gh           Head1234!
-   asst. head  asst.head@demo-shs.edu.gh      Head1234!
-   bursar      bursar@demo-shs.edu.gh         Bursar1234!
-   housemaster housemaster@demo-shs.edu.gh    House1234!
-   teachers    teacher1–4@demo-shs.edu.gh     Teacher1234!
+   admin       admin@demo-shs.ttek-sms.com          Admin1234!
+   headteacher head@demo-shs.ttek-sms.com           Head1234!
+   asst. head  asst.head@demo-shs.ttek-sms.com      Head1234!
+   bursar      bursar@demo-shs.ttek-sms.com         Bursar1234!
+   housemaster housemaster@demo-shs.ttek-sms.com    House1234!
+   teachers    teacher1–4@demo-shs.ttek-sms.com     Teacher1234!
 
  Platform superadmin
    admin@demo.school                          Admin1234!
