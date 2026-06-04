@@ -311,6 +311,11 @@ class ClassTeacherAssign(OrmBase):
 
 # ── School profile (PATCH) ────────────────────────────────────────────────────
 
+_VALID_FACILITY_TYPES = {"DAY", "BOARDING", "MIXED"}
+_VALID_EDUCATION_LEVELS = {"EARLY_CHILDHOOD", "BASIC", "JHS", "SHS", "TECHNICAL"}
+_VALID_ATTENDANCE_MODES = {"DAILY", "LESSON"}
+
+
 class SchoolProfileUpdate(OrmBase):
     name: str | None = None
     phone: str | None = None
@@ -321,6 +326,9 @@ class SchoolProfileUpdate(OrmBase):
     motto: str | None = None
     accent_color: str | None = None
     attendance_mode: str | None = None
+    facility_type: str | None = None
+    has_houses: bool | None = None
+    education_levels: list[str] | None = None
 
     @field_validator("accent_color")
     @classmethod
@@ -332,9 +340,33 @@ class SchoolProfileUpdate(OrmBase):
     @field_validator("attendance_mode")
     @classmethod
     def validate_attendance_mode(cls, v: str | None) -> str | None:
-        if v is not None and v not in ("DAILY", "LESSON"):
-            raise ValueError("attendance_mode must be DAILY or LESSON")
+        if v is not None and v not in _VALID_ATTENDANCE_MODES:
+            raise ValueError(f"attendance_mode must be one of: {', '.join(_VALID_ATTENDANCE_MODES)}")
         return v
+
+    @field_validator("facility_type")
+    @classmethod
+    def validate_facility_type(cls, v: str | None) -> str | None:
+        if v is not None and v not in _VALID_FACILITY_TYPES:
+            raise ValueError(f"facility_type must be one of: {', '.join(_VALID_FACILITY_TYPES)}")
+        return v
+
+    @field_validator("education_levels")
+    @classmethod
+    def validate_education_levels(cls, v: list[str] | None) -> list[str] | None:
+        if v is not None:
+            invalid = set(v) - _VALID_EDUCATION_LEVELS
+            if invalid:
+                raise ValueError(f"Invalid education levels: {', '.join(sorted(invalid))}. Valid: {', '.join(sorted(_VALID_EDUCATION_LEVELS))}")
+        return v
+
+    @model_validator(mode="after")
+    def validate_houses_consistency(self) -> "SchoolProfileUpdate":
+        if self.has_houses is True and self.facility_type == "DAY":
+            raise ValueError(
+                "has_houses cannot be True for a DAY school — set facility_type to BOARDING or MIXED"
+            )
+        return self
 
 # Rebuild forward reference
 AcademicYearResponse.model_rebuild()

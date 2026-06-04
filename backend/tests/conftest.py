@@ -20,7 +20,7 @@ import pytest_asyncio
 from alembic import command
 from alembic.config import Config
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import text
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
@@ -254,7 +254,45 @@ async def superadmin_user(session: AsyncSession) -> User:
 
 
 from app.models.staff import PositionPermission
-from app.core.permissions import ALL_PERMISSIONS
+from app.core.permissions import ALL_PERMISSIONS, POSITION_DEFAULTS
+
+
+@pytest_asyncio.fixture(autouse=True)
+async def seed_system_positions(session: AsyncSession, clean_db) -> None:
+    """Re-seed non-ADMIN system position templates after each cascade truncation.
+
+    CASCADE truncation of `school` wipes `staff_position` entirely (including
+    system templates with school_id=NULL). This fixture runs after every clean_db
+    so tests that call invite/role endpoints always have role templates available.
+
+    ADMIN is intentionally excluded: the admin_position fixture creates it
+    with NO permissions so that tests expecting 403 work correctly;
+    admin_user_all_perms then grants all permissions explicitly.
+    """
+    for code, perms in POSITION_DEFAULTS.items():
+        if code == "ADMIN":
+            continue
+        name = code.replace("_", " ").title()
+        pos = StaffPosition(name=name, code=code, is_system_template=True, school_id=None)
+        session.add(pos)
+        await session.flush()
+        for perm_key, granted in perms.items():
+            session.add(PositionPermission(position_id=pos.id, permission_key=perm_key, granted=granted))
+    await session.commit()
+
+
+@pytest_asyncio.fixture
+async def admin_position(session: AsyncSession, seed_system_positions) -> StaffPosition:
+    """Create a fresh ADMIN position with NO permissions.
+
+    Tests that need permissions must use admin_user_all_perms or add them explicitly.
+    """
+    pos = StaffPosition(
+        school_id=None, name="Admin", code="ADMIN", is_system_template=True
+    )
+    session.add(pos)
+    await session.commit()
+    return pos
 
 
 @pytest_asyncio.fixture
