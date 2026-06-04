@@ -6,8 +6,8 @@
   import { schoolBranding } from "$stores/school";
   import Badge from "$components/ui/Badge.svelte";
   import {
-    UserPlus, Upload, Download, Search, ChevronLeft, ChevronRight,
-    Users, AlertCircle, CheckCircle2, X,
+    UserPlus, Upload, Search, ChevronLeft, ChevronRight,
+    Users, AlertCircle,
   } from "@lucide/svelte";
 
   interface StudentListItem {
@@ -36,44 +36,6 @@
   let classes: ClassItem[] = [];
 
   let searchTimer: ReturnType<typeof setTimeout>;
-
-  // ── Bulk upload ───────────────────────────────────────────────────
-  let importing = false;
-  let importResult: { created: number; skipped: number; errors: { row: number; field: string | null; message: string }[] } | null = null;
-
-  async function downloadTemplate() {
-    try {
-      const res = await api.get("/students/bulk/template", { responseType: "blob" });
-      const blob = new Blob([res.data], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      const disposition: string = res.headers?.["content-disposition"] ?? "";
-      a.download = disposition.match(/filename="?([^"]+)"?/)?.[1] ?? "Student_Import.xlsx";
-      a.href = url; a.click();
-      URL.revokeObjectURL(url);
-    } catch { error = "Could not download template."; }
-  }
-
-  async function handleImport(e: Event) {
-    const input = e.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-    importing = true; importResult = null;
-    const form = new FormData();
-    form.append("file", file);
-    try {
-      const res = await api.post("/students/bulk", form, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      importResult = res.data;
-      if ((importResult?.created ?? 0) > 0) { skip = 0; load(); }
-    } catch (e: unknown) {
-      const err = e as { response?: { data?: { detail?: string } } };
-      importResult = { created: 0, skipped: 0, errors: [{ row: 0, field: null, message: err?.response?.data?.detail ?? "Upload failed." }] };
-    } finally { importing = false; input.value = ""; }
-  }
 
   async function loadClasses() {
     try {
@@ -128,45 +90,15 @@
   </div>
   {#if canEnroll}
     <div class="header-actions">
-      <button class="btn-ghost" on:click={downloadTemplate} title="Download import template">
-        <Download size={14} /> Template
+      <button class="btn-ghost" on:click={() => goto("/students/import")}>
+        <Upload size={13} /> Bulk Import
       </button>
-      <label class="btn-ghost" class:loading={importing} title="Import from Excel">
-        <Upload size={14} /> {importing ? "Importing…" : "Import"}
-        <input type="file" accept=".xlsx,.xls,.csv" on:change={handleImport} style="display:none" />
-      </label>
       <a href="/students/new" class="btn-primary">
         <UserPlus size={14} /> Add Student
       </a>
     </div>
   {/if}
 </div>
-
-<!-- ── Import result banner ───────────────────────────────────────── -->
-{#if importResult}
-  <div class="import-result" class:has-errors={importResult.errors.length > 0 && importResult.created === 0}>
-    <div class="import-summary">
-      {#if importResult.created > 0}
-        <span class="ok-text"><CheckCircle2 size={14} /> {importResult.created} student{importResult.created !== 1 ? "s" : ""} imported</span>
-      {/if}
-      {#if importResult.skipped > 0}
-        <span class="muted">{importResult.skipped} skipped</span>
-      {/if}
-      {#if importResult.errors.length > 0}
-        <span class="warn-text">{importResult.errors.length} error{importResult.errors.length !== 1 ? "s" : ""}</span>
-      {/if}
-      <button class="close-btn" on:click={() => importResult = null}><X size={13} /></button>
-    </div>
-    {#if importResult.errors.length > 0}
-      <ul class="error-list">
-        {#each importResult.errors.slice(0, 8) as e}
-          <li>Row {e.row}{e.field ? ` · ${e.field}` : ""}: {e.message}</li>
-        {/each}
-        {#if importResult.errors.length > 8}<li>…and {importResult.errors.length - 8} more</li>{/if}
-      </ul>
-    {/if}
-  </div>
-{/if}
 
 <!-- ── Filters ────────────────────────────────────────────────────── -->
 <div class="filters">
@@ -327,24 +259,6 @@
   transition: opacity 0.15s;
 }
 .btn-primary:hover { opacity: 0.88; }
-
-/* Import result */
-.import-result {
-  background: var(--surface-1); border: 1px solid var(--border-subtle);
-  border-radius: 10px; padding: 12px 16px; margin-bottom: 14px;
-  font-size: 13px;
-}
-.import-result.has-errors { border-color: color-mix(in srgb, #ef4444 30%, var(--border-subtle)); }
-.import-summary { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
-.import-summary:last-child { margin-bottom: 0; }
-.ok-text   { display: flex; align-items: center; gap: 5px; color: var(--ok-text, #065f46); font-weight: 500; }
-.warn-text { color: #d97706; font-weight: 500; }
-.muted     { color: var(--tx-low); }
-.close-btn { margin-left: auto; background: none; border: none; cursor: pointer; color: var(--tx-low); padding: 2px; }
-.close-btn:hover { color: var(--tx-high); }
-.error-list { margin: 6px 0 0; padding: 0 0 0 16px; font-size: 12px; color: #dc2626; }
-.error-list li { margin-bottom: 3px; }
-.btn-ghost.loading { opacity: 0.6; pointer-events: none; }
 
 /* Filters */
 .filters {
