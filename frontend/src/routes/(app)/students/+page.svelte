@@ -5,6 +5,7 @@
   import { auth } from "$stores/auth";
   import { schoolBranding } from "$stores/school";
   import Badge from "$components/ui/Badge.svelte";
+  import Button from "$components/ui/Button.svelte";
   import {
     UserPlus, Upload, Search, ChevronLeft, ChevronRight,
     Users, AlertCircle,
@@ -90,12 +91,12 @@
   </div>
   {#if canEnroll}
     <div class="header-actions">
-      <button class="btn-ghost" on:click={() => goto("/students/import")}>
+      <Button variant="ghost" size="sm" on:click={() => goto("/students/import")}>
         <Upload size={13} /> Bulk Import
-      </button>
-      <a href="/students/new" class="btn-primary">
-        <UserPlus size={14} /> Add Student
-      </a>
+      </Button>
+      <Button size="sm" on:click={() => goto("/students/new")}>
+        <UserPlus size={13} /> Add Student
+      </Button>
     </div>
   {/if}
 </div>
