@@ -93,6 +93,7 @@
   $: if ($auth.user && !$auth.loading && !schoolContextReady) {
     schoolContextReady = true;
     schoolContext.load();
+    schoolBranding.loadFromAuth();
   }
 
   // ── Auth guards ────────────────────────────────────────────────

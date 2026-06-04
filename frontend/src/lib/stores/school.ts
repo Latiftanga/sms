@@ -39,6 +39,8 @@ function createSchoolStore() {
   return {
     subscribe,
 
+    // Called before login — resolves branding from subdomain/custom domain,
+    // falls back to generic platform branding when no match.
     async load() {
       try {
         const { data } = await api.get<SchoolBranding>("/public/school");
@@ -47,6 +49,25 @@ function createSchoolStore() {
         applyAccent(data.accent_color);
       } catch {
         // Use cached value if fetch fails — accent already applied from localStorage
+      }
+    },
+
+    // Called after login — overwrites with the authenticated user's real school
+    // branding so the sidebar always shows the correct name, logo, and accent.
+    async loadFromAuth() {
+      try {
+        const { data } = await api.get<SchoolBranding & { education_levels?: string[] }>("/settings/school");
+        const branding: SchoolBranding = {
+          name: data.name,
+          motto: data.motto ?? null,
+          logo_url: data.logo_url ?? null,
+          accent_color: data.accent_color,
+        };
+        set(branding);
+        localStorage.setItem(CACHE_KEY, JSON.stringify(branding));
+        applyAccent(branding.accent_color);
+      } catch {
+        // unauthenticated or network error — keep existing branding
       }
     },
 
