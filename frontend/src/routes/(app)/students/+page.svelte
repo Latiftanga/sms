@@ -4,11 +4,10 @@
   import { api } from "$api/client";
   import { auth } from "$stores/auth";
   import { schoolBranding } from "$stores/school";
-  import { schoolContext } from "$stores/school";
   import Badge from "$components/ui/Badge.svelte";
   import {
     UserPlus, Upload, Download, Search, ChevronLeft, ChevronRight,
-    GraduationCap, Users, AlertCircle, CheckCircle2, X,
+    Users, AlertCircle, CheckCircle2, X,
   } from "@lucide/svelte";
 
   interface StudentListItem {
@@ -43,14 +42,18 @@
   let importResult: { created: number; skipped: number; errors: { row: number; field: string | null; message: string }[] } | null = null;
 
   async function downloadTemplate() {
-    const res = await fetch("/api/v1/students/bulk/template", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("access_token") ?? sessionStorage.getItem("access_token") ?? ""}` },
-    });
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url;
-    a.download = res.headers.get("content-disposition")?.match(/filename="(.+)"/)?.[1] ?? "student_import.xlsx";
-    a.click(); URL.revokeObjectURL(url);
+    try {
+      const res = await api.get("/students/bulk/template", { responseType: "blob" });
+      const blob = new Blob([res.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const disposition: string = res.headers?.["content-disposition"] ?? "";
+      a.download = disposition.match(/filename="?([^"]+)"?/)?.[1] ?? "Student_Import.xlsx";
+      a.href = url; a.click();
+      URL.revokeObjectURL(url);
+    } catch { error = "Could not download template."; }
   }
 
   async function handleImport(e: Event) {
@@ -61,14 +64,15 @@
     const form = new FormData();
     form.append("file", file);
     try {
-      const token = localStorage.getItem("access_token") ?? sessionStorage.getItem("access_token") ?? "";
-      const res = await fetch("/api/v1/students/bulk", {
-        method: "POST", headers: { Authorization: `Bearer ${token}` }, body: form,
+      const res = await api.post("/students/bulk", form, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      importResult = await res.json();
+      importResult = res.data;
       if ((importResult?.created ?? 0) > 0) { skip = 0; load(); }
-    } catch { importResult = { created: 0, skipped: 0, errors: [{ row: 0, field: null, message: "Upload failed." }] }; }
-    finally { importing = false; input.value = ""; }
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { detail?: string } } };
+      importResult = { created: 0, skipped: 0, errors: [{ row: 0, field: null, message: err?.response?.data?.detail ?? "Upload failed." }] };
+    } finally { importing = false; input.value = ""; }
   }
 
   async function loadClasses() {

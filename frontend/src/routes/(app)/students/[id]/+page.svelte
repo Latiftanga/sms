@@ -491,5 +491,13 @@
 .empty-title { font-size: 14px; font-weight: 600; color: var(--tx-high); margin: 0; }
 .empty-body  { font-size: 13px; color: var(--tx-low); margin: 0; max-width: 340px; line-height: 1.55; }
 .error-text  { color: #dc2626; font-size: 13px; }
-.sk-title { height: 22px; width: 200px; border-radius: 6px; background: var(--surface-2); }
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--border-subtle) 50%, var(--surface-2) 75%);
+  background-size: 800px 100%; animation: shimmer 1.4s infinite linear; border-radius: 6px;
+}
+.sk-title { height: 22px; width: 200px; }
 </style>
