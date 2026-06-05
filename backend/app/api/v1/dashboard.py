@@ -6,7 +6,8 @@ from sqlalchemy import func, select
 
 from app.api.deps import CurrentUser, RedisDep, SessionDep
 from app.core.permissions import Permission
-from app.models.academic import AcademicTerm, AcademicYear, Class, ClassTeacher, SchoolCalendar
+from app.models.academic import AcademicTerm, AcademicYear, Class, ClassTeacher, LearningArea, SchoolCalendar
+from sqlalchemy.orm import selectinload
 from app.models.attendance import AttendanceRecord
 from app.models.staff import StaffMember
 from app.models.student import Student, StudentClassEnrollment, StudentTermEnrollment
@@ -187,6 +188,7 @@ async def _my_classes(staff_member_id: UUID, school_id: UUID, session) -> list[M
 
     rows = await session.execute(
         select(Class)
+        .options(selectinload(Class.learning_area))
         .join(ClassTeacher, ClassTeacher.class_id == Class.id)
         .where(
             ClassTeacher.staff_member_id == staff_member_id,
