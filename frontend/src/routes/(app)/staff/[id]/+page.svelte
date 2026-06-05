@@ -400,16 +400,24 @@
   let selectedRoleId = "";
   let roleAdding = false;
 
+  // Class assignment (shown when selected role is CLASS_TEACHER)
+  let classes: { id: string; name: string }[] = [];
+  let selectedClassId = "";
+  $: selectedRoleCode = allRoles.find(r => r.id === selectedRoleId)?.code ?? "";
+  $: isClassTeacherRole = selectedRoleCode === "CLASS_TEACHER";
+
   async function loadPerms() {
     if (!member?.has_account) return;
     permsLoading = true;
     try {
-      const [permsRes, rolesRes] = await Promise.all([
+      const [permsRes, rolesRes, classRes] = await Promise.all([
         api.get<StaffPermissionsResponse>(`/staff/${staffId}/permissions`),
         api.get<Role[]>("/settings/positions"),
+        api.get<{ items: { id: string; name: string }[] }>("/settings/classes", { params: { limit: 200 } }),
       ]);
       staffPerms = permsRes.data;
       allRoles = rolesRes.data;
+      classes = classRes.data.items;
     } catch { /* ignore */ } finally {
       permsLoading = false;
     }
@@ -424,12 +432,21 @@
 
   async function addRole() {
     if (!selectedRoleId) return;
+    if (isClassTeacherRole && !selectedClassId) {
+      toast.error("Select a class to assign this teacher to.");
+      return;
+    }
     roleAdding = true;
     try {
       await api.post(`/staff/${staffId}/roles`, { role_id: selectedRoleId });
+      if (isClassTeacherRole && selectedClassId) {
+        await api.put(`/settings/classes/${selectedClassId}/teacher`, {
+          staff_member_id: member.id,
+        });
+      }
       await loadPerms();
-      addingRole = false; selectedRoleId = "";
-      toast.success("Role assigned");
+      addingRole = false; selectedRoleId = ""; selectedClassId = "";
+      toast.success(isClassTeacherRole ? "Class teacher role and class assignment saved" : "Role assigned");
     } catch (e) {
       toast.error(apiError(e));
     } finally { roleAdding = false; }
@@ -1235,15 +1252,33 @@
               </div>
 
               {#if addingRole}
-                <div class="add-role-row">
-                  <select class="input" bind:value={selectedRoleId}>
-                    <option value="">— Select a role —</option>
-                    {#each availableRoles as r}
-                      <option value={r.id}>{r.name}</option>
-                    {/each}
-                  </select>
-                  <Button size="sm" loading={roleAdding} on:click={addRole} disabled={!selectedRoleId}>Assign</Button>
-                  <Button variant="ghost" size="sm" on:click={() => { addingRole = false; selectedRoleId = ""; }}>Cancel</Button>
+                <div class="add-role-form">
+                  <div class="add-role-row">
+                    <select class="input" bind:value={selectedRoleId} on:change={() => selectedClassId = ""}>
+                      <option value="">— Select a role —</option>
+                      {#each availableRoles as r}
+                        <option value={r.id}>{r.name}</option>
+                      {/each}
+                    </select>
+                    {#if isClassTeacherRole}
+                      <select class="input" bind:value={selectedClassId}>
+                        <option value="">— Select a class —</option>
+                        {#each classes as c}
+                          <option value={c.id}>{c.name}</option>
+                        {/each}
+                      </select>
+                    {/if}
+                    <Button size="sm" loading={roleAdding} on:click={addRole}
+                      disabled={!selectedRoleId || (isClassTeacherRole && !selectedClassId)}>
+                      Assign
+                    </Button>
+                    <Button variant="ghost" size="sm" on:click={() => { addingRole = false; selectedRoleId = ""; selectedClassId = ""; }}>Cancel</Button>
+                  </div>
+                  {#if isClassTeacherRole}
+                    <p class="role-hint">
+                      This will assign the Class Teacher role <em>and</em> set them as the teacher for the selected class in the current academic year.
+                    </p>
+                  {/if}
                 </div>
               {/if}
             </div>
@@ -1923,11 +1958,17 @@
     font-size: 0.8125rem; color: var(--tx-low); font-style: italic;
   }
 
+  .add-role-form { display: flex; flex-direction: column; gap: 8px; padding-top: 4px; }
   .add-role-row {
-    display: flex; gap: 8px; align-items: center;
-    padding-top: 4px;
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
   }
-  .add-role-row .input { flex: 1; max-width: 280px; }
+  .add-role-row .input { flex: 1; min-width: 160px; max-width: 280px; }
+  .role-hint {
+    margin: 0; font-size: 0.78rem; color: var(--tx-low); line-height: 1.4;
+    padding: 6px 10px; border-radius: 6px;
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 15%, transparent);
+  }
 
   .perms-section {
     display: flex; flex-direction: column; gap: 10px;
