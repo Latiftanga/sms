@@ -7,6 +7,8 @@ from sqlalchemy import func, select
 from app.api.deps import CurrentUser, RedisDep, SessionDep
 from app.core.permissions import Permission
 from app.models.academic import AcademicTerm, AcademicYear, Class, ClassSubject, ClassTeacher, LearningArea, SchoolCalendar, SubjectTeacher
+from app.models.assessment import StudentSubjectRegistration
+from app.models.student import StudentClassEnrollment as _SCE, StudentTermEnrollment as _STE
 from sqlalchemy.orm import selectinload
 from app.models.attendance import AttendanceRecord
 from app.models.staff import StaffMember
@@ -42,6 +44,8 @@ class MySubject(BaseModel):
     class_subject_id: str
     subject_name: str
     subject_code: str
+    registered_count: int    # students registered for this subject this term
+    total_students: int      # total students in the class this term
 
 
 class MyClass(BaseModel):
@@ -183,13 +187,74 @@ async def _admin_stats(school_id: UUID, session) -> AdminStats:
     )
 
 
+async def _subject_list(
+    staff_member_id: UUID, class_ids: list[UUID],
+    current_year, current_term, session
+) -> dict[str, list[MySubject]]:
+    """Build subject list with registration counts for each class."""
+    if not class_ids or not current_term:
+        return {}
+
+    # All subject assignments for this teacher across the given classes
+    st_rows = await session.execute(
+        select(ClassSubject, Class)
+        .join(Class, ClassSubject.class_id == Class.id)
+        .options(selectinload(Class.learning_area))
+        .join(SubjectTeacher, SubjectTeacher.class_subject_id == ClassSubject.id)
+        .where(
+            SubjectTeacher.staff_member_id == staff_member_id,
+            SubjectTeacher.academic_year_id == current_year.id,
+            SubjectTeacher.is_active.is_(True),
+            ClassSubject.is_active.is_(True),
+            ClassSubject.class_id.in_(class_ids),
+        )
+        .order_by(ClassSubject.subject_name)
+    )
+
+    # Total enrolled students per class this term
+    total_per_class: dict[str, int] = {}
+    for class_id in class_ids:
+        total = await session.scalar(
+            select(func.count(_SCE.id))
+            .join(_STE, _STE.student_class_enrollment_id == _SCE.id)
+            .where(
+                _SCE.class_id == class_id,
+                _SCE.academic_year_id == current_year.id,
+                _SCE.status == "ACTIVE",
+                _STE.academic_term_id == current_term.id,
+            )
+        ) or 0
+        total_per_class[str(class_id)] = total
+
+    # Registration counts per class_subject
+    result: dict[str, list[MySubject]] = {}
+    for cs, cls in st_rows:
+        class_key = str(cls.id)
+        registered = await session.scalar(
+            select(func.count(StudentSubjectRegistration.id)).where(
+                StudentSubjectRegistration.class_subject_id == cs.id,
+                StudentSubjectRegistration.is_active.is_(True),
+            )
+        ) or 0
+        result.setdefault(class_key, []).append(
+            MySubject(
+                class_subject_id=str(cs.id),
+                subject_name=cs.subject_name,
+                subject_code=cs.subject_code,
+                registered_count=registered,
+                total_students=total_per_class.get(class_key, 0),
+            )
+        )
+    return result
+
+
 async def _my_classes(
     staff_member_id: UUID, school_id: UUID, session
 ) -> tuple[list[MyClass], bool]:
     """
     Returns (classes, is_class_teacher).
-    Class teachers get their assigned class(es) with no subject detail.
-    Subject teachers get the distinct classes they teach with their subjects listed.
+    Class teachers get their class(es) + subject assignments with registration status.
+    Subject teachers get the distinct classes they teach with subjects listed.
     """
     current_year = await session.scalar(
         select(AcademicYear).where(
@@ -199,6 +264,13 @@ async def _my_classes(
     )
     if not current_year:
         return [], False
+
+    current_term = await session.scalar(
+        select(AcademicTerm).where(
+            AcademicTerm.academic_year_id == current_year.id,
+            AcademicTerm.is_current.is_(True),
+        )
+    )
 
     # 1. Check class teacher assignment first
     ct_rows = await session.execute(
@@ -214,12 +286,16 @@ async def _my_classes(
     )
     class_teacher_classes = list(ct_rows.scalars())
     if class_teacher_classes:
+        class_ids = [c.id for c in class_teacher_classes]
+        subj_map = await _subject_list(
+            staff_member_id, class_ids, current_year, current_term, session
+        )
         return [
             MyClass(
                 id=str(c.id), name=c.name,
                 education_level=c.education_level,
                 level=c.level, year=c.year, stream=c.stream,
-                subjects=[],
+                subjects=subj_map.get(str(c.id), []),
             )
             for c in class_teacher_classes
         ], True
@@ -239,29 +315,27 @@ async def _my_classes(
         )
         .order_by(Class.level, Class.year, Class.stream, ClassSubject.subject_name)
     )
+    all_pairs = list(st_rows)
+    if not all_pairs:
+        return [], False
 
-    # Group subjects by class
-    class_subjects: dict[str, tuple[Class, list[MySubject]]] = {}
-    for cs, cls in st_rows:
-        key = str(cls.id)
-        if key not in class_subjects:
-            class_subjects[key] = (cls, [])
-        class_subjects[key][1].append(
-            MySubject(
-                class_subject_id=str(cs.id),
-                subject_name=cs.subject_name,
-                subject_code=cs.subject_code,
-            )
-        )
+    class_ids = list({cls.id for _, cls in all_pairs})
+    subj_map = await _subject_list(
+        staff_member_id, class_ids, current_year, current_term, session
+    )
+
+    seen: dict[str, Class] = {}
+    for _, cls in all_pairs:
+        seen[str(cls.id)] = cls
 
     return [
         MyClass(
             id=key, name=cls.name,
             education_level=cls.education_level,
             level=cls.level, year=cls.year, stream=cls.stream,
-            subjects=subjects,
+            subjects=subj_map.get(key, []),
         )
-        for key, (cls, subjects) in class_subjects.items()
+        for key, cls in seen.items()
     ], False
 
 

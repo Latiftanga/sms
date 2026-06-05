@@ -204,6 +204,61 @@ async def _ensure_house(session, *, school_id, name, color):
     return False
 
 
+async def _ensure_school_subject(session, *, school_id, name, code):
+    from app.models.academic import SchoolSubject
+    existing = await session.scalar(
+        select(SchoolSubject).where(SchoolSubject.school_id == school_id, SchoolSubject.name == name)
+    )
+    if existing:
+        return existing, False
+    subj = SchoolSubject(id=_id(), school_id=school_id, name=name, code=code, is_active=True)
+    session.add(subj)
+    await session.flush()
+    return subj, True
+
+
+async def _ensure_class_subject(session, *, class_id, subject_name, subject_code, is_core=True):
+    from app.models.academic import ClassSubject
+    existing = await session.scalar(
+        select(ClassSubject).where(
+            ClassSubject.class_id == class_id,
+            ClassSubject.subject_code == subject_code,
+        )
+    )
+    if existing:
+        return existing, False
+    cs = ClassSubject(
+        id=_id(), class_id=class_id,
+        subject_name=subject_name, subject_code=subject_code,
+        is_core=is_core, is_active=True,
+    )
+    session.add(cs)
+    await session.flush()
+    return cs, True
+
+
+async def _ensure_subject_teacher(session, *, class_subject_id, staff_member_id, academic_year_id):
+    from app.models.academic import SubjectTeacher
+    existing = await session.scalar(
+        select(SubjectTeacher).where(
+            SubjectTeacher.class_subject_id == class_subject_id,
+            SubjectTeacher.staff_member_id == staff_member_id,
+            SubjectTeacher.academic_year_id == academic_year_id,
+        )
+    )
+    if existing:
+        return False
+    session.add(SubjectTeacher(
+        id=_id(),
+        class_subject_id=class_subject_id,
+        staff_member_id=staff_member_id,
+        academic_year_id=academic_year_id,
+        is_active=True,
+    ))
+    await session.flush()
+    return True
+
+
 async def _assign_class_teacher(session, *, staff_member_id, class_id, academic_year_id):
     """Assign a staff member as class teacher for a class in a given year (idempotent)."""
     from app.models.academic import ClassTeacher
@@ -286,7 +341,7 @@ async def seed_basic(session, positions):
     if new_classes:
         print(f"  + {new_classes} class(es) created (KG 1–2, Basic 1–6)")
 
-    # Assign the class teacher to Basic 1A
+    # Assign the class teacher to KG 1A
     if first_class and staff_map.get("CLASS_TEACHER") and year:
         assigned = await _assign_class_teacher(
             session,
@@ -296,6 +351,45 @@ async def seed_basic(session, positions):
         )
         if assigned:
             print(f"  + Class teacher assigned to {first_class.name}")
+
+    # School subjects (Basic)
+    basic_subjects = [
+        ("Mathematics",        "MATH"),
+        ("English Language",   "ENG"),
+        ("Integrated Science", "SCI"),
+        ("Social Studies",     "SOC"),
+        ("RME",                "RME"),
+    ]
+    new_subj = 0
+    for sname, scode in basic_subjects:
+        _, new = await _ensure_school_subject(session, school_id=school.id, name=sname, code=scode)
+        if new:
+            new_subj += 1
+    if new_subj:
+        print(f"  + {new_subj} school subject(s) created")
+
+    # Assign all subjects to KG 1A, and make class teacher the subject teacher
+    # for Mathematics and English (as a realistic demo)
+    if first_class and staff_map.get("CLASS_TEACHER") and year:
+        teacher = staff_map["CLASS_TEACHER"]
+        new_cs = 0
+        for sname, scode in basic_subjects:
+            cs, new = await _ensure_class_subject(
+                session, class_id=first_class.id,
+                subject_name=sname, subject_code=scode,
+                is_core=(scode != "RME"),
+            )
+            if new:
+                new_cs += 1
+            # Class teacher teaches all subjects in a Basic school
+            await _ensure_subject_teacher(
+                session,
+                class_subject_id=cs.id,
+                staff_member_id=teacher.id,
+                academic_year_id=year.id,
+            )
+        if new_cs:
+            print(f"  + {new_cs} subject(s) assigned to {first_class.name}")
 
 
 # ── SHS ───────────────────────────────────────────────────────────────────────
@@ -393,6 +487,46 @@ async def seed_shs(session, positions):
         )
         if assigned:
             print(f"  + Class teacher assigned to {first_class.name}")
+
+    # School subjects (SHS core — apply to SHS 1 SCI A as demo)
+    shs_subjects = [
+        ("Core Mathematics",    "CMATH", True),
+        ("Core English",        "CENG",  True),
+        ("Integrated Science",  "CSCI",  True),
+        ("Social Studies",      "SSOC",  True),
+        ("Elective Mathematics","EMATH", False),
+        ("Physics",             "PHY",   False),
+        ("Chemistry",           "CHEM",  False),
+    ]
+    new_subj = 0
+    for sname, scode, _ in shs_subjects:
+        _, new = await _ensure_school_subject(
+            session, school_id=school.id, name=sname, code=scode
+        )
+        if new:
+            new_subj += 1
+    if new_subj:
+        print(f"  + {new_subj} school subject(s) created")
+
+    # Assign subjects to SHS 1 SCI A and make the class teacher the subject teacher
+    if first_class and staff_map.get("CLASS_TEACHER") and year:
+        teacher = staff_map["CLASS_TEACHER"]
+        new_cs = 0
+        for sname, scode, is_core in shs_subjects:
+            cs, new = await _ensure_class_subject(
+                session, class_id=first_class.id,
+                subject_name=sname, subject_code=scode, is_core=is_core,
+            )
+            if new:
+                new_cs += 1
+            await _ensure_subject_teacher(
+                session,
+                class_subject_id=cs.id,
+                staff_member_id=teacher.id,
+                academic_year_id=year.id,
+            )
+        if new_cs:
+            print(f"  + {new_cs} subject(s) assigned to {first_class.name}")
 
 
 # ── Post-seed helpers ─────────────────────────────────────────────────────────
