@@ -8,6 +8,7 @@ from sqlalchemy.orm import selectinload
 from app.api.deps import CurrentUser, SessionDep, require
 from app.api.v1.settings._helpers import _school_id, _current_year, _require_shs
 from app.core.permissions import Permission
+from app.services.calendar_generator import generate_term_calendar
 from app.models.academic import (
     AcademicTerm, AcademicYear, Class, ClassSubject, ClassTeacher,
     LearningArea, SchoolSubject, SubjectTeacher,
@@ -198,9 +199,26 @@ async def activate_term(term_id: UUID, user: CurrentUser, session: SessionDep):
     )
     for t in siblings:
         t.is_current = t.id == term_id
+    await session.flush()
+    await generate_term_calendar(term, str(_school_id(user)), session, str(user.id))
     await session.commit()
     await session.refresh(term)
     return AcademicTermResponse.model_validate(term)
+
+
+@router.post("/terms/{term_id}/generate-calendar", status_code=204,
+             dependencies=[require(Permission.MANAGE_ACADEMIC_STRUCTURE)])
+async def regenerate_calendar(term_id: UUID, user: CurrentUser, session: SessionDep):
+    """Regenerate the school calendar for a term (idempotent — safe to re-run)."""
+    term = await session.scalar(
+        select(AcademicTerm)
+        .join(AcademicYear, AcademicTerm.academic_year_id == AcademicYear.id)
+        .where(AcademicTerm.id == term_id, AcademicYear.school_id == _school_id(user))
+    )
+    if not term:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Term not found")
+    await generate_term_calendar(term, str(_school_id(user)), session, str(user.id))
+    await session.commit()
 
 
 @router.delete("/terms/{term_id}", status_code=204,

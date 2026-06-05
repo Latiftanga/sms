@@ -6,9 +6,10 @@ from sqlalchemy import func, select
 
 from app.api.deps import CurrentUser, RedisDep, SessionDep
 from app.core.permissions import Permission
-from app.models.academic import AcademicTerm, AcademicYear, Class, ClassTeacher
+from app.models.academic import AcademicTerm, AcademicYear, Class, ClassTeacher, SchoolCalendar
+from app.models.attendance import AttendanceRecord
 from app.models.staff import StaffMember
-from app.models.student import Student
+from app.models.student import Student, StudentClassEnrollment, StudentTermEnrollment
 from app.models.user import User
 from app.services.permissions import resolve_all_permissions
 
@@ -32,6 +33,8 @@ class AdminStats(BaseModel):
     classes_total: int
     classes_no_teacher: int
     students_total: int
+    attendance_submitted_today: int   # classes with attendance marked today
+    attendance_classes_today: int     # total classes that should have attendance today
 
 
 class MyClass(BaseModel):
@@ -134,12 +137,41 @@ async def _admin_stats(school_id: UUID, session) -> AdminStats:
         )
     ) or 0
 
+    # Today's attendance coverage
+    from datetime import date as _date
+    today = _date.today()
+    today_cal = await session.scalar(
+        select(SchoolCalendar).where(
+            SchoolCalendar.school_id == school_id,
+            SchoolCalendar.date == today,
+            SchoolCalendar.day_type == "SCHOOL_DAY",
+        )
+    )
+    att_submitted = 0
+    if today_cal and classes_total:
+        # Count distinct classes that have at least one attendance record today
+        att_submitted = await session.scalar(
+            select(func.count(func.distinct(StudentClassEnrollment.class_id)))
+            .join(StudentTermEnrollment,
+                  StudentTermEnrollment.student_class_enrollment_id == StudentClassEnrollment.id)
+            .join(AttendanceRecord,
+                  AttendanceRecord.student_term_enrollment_id == StudentTermEnrollment.id)
+            .where(
+                StudentClassEnrollment.class_id.in_(
+                    select(Class.id).where(Class.school_id == school_id, Class.is_active.is_(True))
+                ),
+                AttendanceRecord.school_calendar_id == today_cal.id,
+            )
+        ) or 0
+
     return AdminStats(
         staff_total=staff_total,
         staff_no_account=staff_no_account,
         classes_total=classes_total,
         classes_no_teacher=classes_no_teacher,
         students_total=students_total,
+        attendance_submitted_today=att_submitted,
+        attendance_classes_today=classes_total if today_cal else 0,
     )
 
 

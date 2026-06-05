@@ -116,21 +116,21 @@ async def _ensure_year_and_terms(session, *, school_id, education_levels):
 
     year = await session.scalar(
         select(AcademicYear).where(
-            AcademicYear.school_id == school_id, AcademicYear.name == "2024/2025"
+            AcademicYear.school_id == school_id, AcademicYear.name == "2025/2026"
         )
     )
     if not year:
         year = AcademicYear(
-            id=_id(), school_id=school_id, name="2024/2025",
-            start_date=date(2024, 9, 2), end_date=date(2025, 8, 1), is_current=True,
+            id=_id(), school_id=school_id, name="2025/2026",
+            start_date=date(2025, 9, 1), end_date=date(2026, 8, 1), is_current=True,
         )
         session.add(year)
         await session.flush()
 
     terms = [
-        ("Term 1", date(2024,  9,  2), date(2024, 12, 13), False),
-        ("Term 2", date(2025,  1, 13), date(2025,  4, 11), True),
-        ("Term 3", date(2025,  5,  5), date(2025,  8,  1), False),
+        ("Term 1", date(2025,  9,  1), date(2025, 12, 12), False),
+        ("Term 2", date(2026,  1, 12), date(2026,  4, 10), False),
+        ("Term 3", date(2026,  5,  4), date(2026,  8,  1), True),   # today is in Term 3
     ]
     for name, start, end, is_current in terms:
         exists = await session.scalar(
@@ -301,6 +301,93 @@ async def seed_shs(session, positions):
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 
+async def _promote_students(session):
+    """Promote any students enrolled in a non-current year into the current year."""
+    from app.models.academic import AcademicTerm, AcademicYear
+    from app.models.student import StudentClassEnrollment, StudentTermEnrollment
+
+    schools = (await session.scalars(
+        select(AcademicYear).where(AcademicYear.is_current.is_(True))
+    )).all()
+
+    for current_year in schools:
+        terms = (await session.scalars(
+            select(AcademicTerm).where(AcademicTerm.academic_year_id == current_year.id)
+        )).all()
+        if not terms:
+            continue
+
+        # Find students still enrolled in a previous year for this school
+        old_enrollments = (await session.scalars(
+            select(StudentClassEnrollment)
+            .join(AcademicYear, StudentClassEnrollment.academic_year_id == AcademicYear.id)
+            .where(
+                AcademicYear.school_id == current_year.school_id,
+                AcademicYear.is_current.is_(False),
+                StudentClassEnrollment.status == "ACTIVE",
+            )
+        )).all()
+
+        for old_enr in old_enrollments:
+            # Skip if already enrolled in current year
+            exists = await session.scalar(
+                select(StudentClassEnrollment).where(
+                    StudentClassEnrollment.student_id == old_enr.student_id,
+                    StudentClassEnrollment.academic_year_id == current_year.id,
+                )
+            )
+            if exists:
+                continue
+
+            new_enr = StudentClassEnrollment(
+                id=_id(),
+                student_id=old_enr.student_id,
+                class_id=old_enr.class_id,
+                academic_year_id=current_year.id,
+                student_type=old_enr.student_type,
+                house_id=old_enr.house_id,
+                register_number=old_enr.register_number,
+                status="ACTIVE",
+            )
+            session.add(new_enr)
+            await session.flush()
+
+            for term in terms:
+                session.add(StudentTermEnrollment(
+                    id=_id(),
+                    student_class_enrollment_id=new_enr.id,
+                    academic_term_id=term.id,
+                    enrolled_date=date.today(),
+                    fee_status="NOT_APPLICABLE",
+                ))
+
+        if old_enrollments:
+            print(f"  + Promoted {len(old_enrollments)} student enrollments to {current_year.name}")
+
+
+async def _generate_calendars(session):
+    """Generate school calendars for all current terms that have none yet."""
+    from app.models.academic import AcademicTerm, AcademicYear, SchoolCalendar
+    from app.services.calendar_generator import generate_term_calendar
+    from sqlalchemy import func
+
+    current_terms = await session.scalars(
+        select(AcademicTerm)
+        .join(AcademicYear, AcademicTerm.academic_year_id == AcademicYear.id)
+        .where(AcademicTerm.is_current.is_(True))
+    )
+    for term in current_terms:
+        existing = await session.scalar(
+            select(func.count(SchoolCalendar.id)).where(
+                SchoolCalendar.academic_term_id == term.id
+            )
+        )
+        if not existing:
+            year = await session.get(AcademicYear, term.academic_year_id)
+            days = await generate_term_calendar(term, str(year.school_id), session)
+            print(f"  + Calendar generated for term {term.name} ({days} school days)")
+
+
 async def main():
     from app.core.db import AsyncSessionLocal
 
@@ -312,6 +399,9 @@ async def main():
 
         await seed_basic(session, positions)
         await seed_shs(session, positions)
+        await session.flush()
+        await _promote_students(session)
+        await _generate_calendars(session)
         await session.commit()
 
     print("""

@@ -21,6 +21,8 @@
     staff_total: number; staff_no_account: number;
     classes_total: number; classes_no_teacher: number;
     students_total: number;
+    attendance_submitted_today: number;
+    attendance_classes_today: number;
   }
   interface MyClass {
     id: string; name: string; education_level: string;
@@ -151,6 +153,28 @@
       </div>
       <div class="kpi-value">{s.students_total}</div>
       <div class="kpi-sub neutral">Active students</div>
+    </a>
+
+    <!-- Attendance Today -->
+    <a href="/attendance" class="kpi-card kpi-link"
+       class:kpi-warn={s.attendance_classes_today > 0 && s.attendance_submitted_today < s.attendance_classes_today}>
+      <div class="kpi-top">
+        <span class="kpi-label">Attendance Today</span>
+        <div class="kpi-icon"><ClipboardCheck size={15} /></div>
+      </div>
+      {#if s.attendance_classes_today === 0}
+        <div class="kpi-value">—</div>
+        <div class="kpi-sub neutral">No school day today</div>
+      {:else}
+        <div class="kpi-value">{s.attendance_submitted_today}/{s.attendance_classes_today}</div>
+        <div class="kpi-sub"
+          class:warn-text={s.attendance_submitted_today < s.attendance_classes_today}
+          class:ok-text={s.attendance_submitted_today === s.attendance_classes_today}>
+          {s.attendance_submitted_today === s.attendance_classes_today
+            ? "All classes submitted"
+            : `${s.attendance_classes_today - s.attendance_submitted_today} class${s.attendance_classes_today - s.attendance_submitted_today !== 1 ? "es" : ""} pending`}
+        </div>
+      {/if}
     </a>
 
     <!-- Active Staff -->
