@@ -10,7 +10,7 @@
   import { api } from "$lib/api/client";
 
   // ── Current term ──────────────────────────────────────────────
-  interface TermInfo { name: string; year_name: string; }
+  interface TermInfo { term_name: string; year_name: string; }
   let currentTerm: TermInfo | null = null;
 
   async function loadCurrentTerm() {
@@ -172,7 +172,7 @@
       {#if currentTerm}
         <div class="term-chip">
           <CalendarDays size={11} />
-          <span>{currentTerm.name} · {currentTerm.year_name}</span>
+          <span>{currentTerm.term_name} · {currentTerm.year_name}</span>
         </div>
       {/if}
 
