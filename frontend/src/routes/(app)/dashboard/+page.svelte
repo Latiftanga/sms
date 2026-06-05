@@ -731,14 +731,14 @@
 .tc-check-row:first-child { border-top: none; }
 
 /* States */
-.tc-check-done   { background: color-mix(in srgb, #22c55e 4%, transparent); }
-.tc-check-urgent { background: color-mix(in srgb, #ef4444 5%, transparent); }
-.tc-check-warn   { background: color-mix(in srgb, #f59e0b 5%, transparent); }
+.tc-check-done   { background: color-mix(in srgb, var(--ok-dot)   5%, transparent); }
+.tc-check-urgent { background: color-mix(in srgb, var(--err-dot)  6%, transparent); }
+.tc-check-warn   { background: color-mix(in srgb, var(--warn-dot) 6%, transparent); }
 .tc-check-idle   { opacity: 0.6; }
 
-.tc-check-done:hover   { background: color-mix(in srgb, #22c55e 9%, transparent); }
-.tc-check-urgent:hover { background: color-mix(in srgb, #ef4444 10%, transparent); }
-.tc-check-warn:hover   { background: color-mix(in srgb, #f59e0b 10%, transparent); }
+.tc-check-done:hover   { background: color-mix(in srgb, var(--ok-dot)   10%, transparent); }
+.tc-check-urgent:hover { background: color-mix(in srgb, var(--err-dot)  12%, transparent); }
+.tc-check-warn:hover   { background: color-mix(in srgb, var(--warn-dot) 12%, transparent); }
 
 /* Icon column */
 .tc-check-icon {
@@ -746,9 +746,9 @@
   font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center;
   margin-top: 1px;
 }
-.tc-check-done   .tc-check-icon { background: color-mix(in srgb, #22c55e 18%, transparent); color: #15803d; }
-.tc-check-urgent .tc-check-icon { background: color-mix(in srgb, #ef4444 18%, transparent); color: #dc2626; }
-.tc-check-warn   .tc-check-icon { background: color-mix(in srgb, #f59e0b 18%, transparent); color: #d97706; }
+.tc-check-done   .tc-check-icon { background: var(--ok-bg);   color: var(--ok-dot); }
+.tc-check-urgent .tc-check-icon { background: var(--err-bg);  color: var(--err-dot); }
+.tc-check-warn   .tc-check-icon { background: var(--warn-bg); color: var(--warn-dot); }
 .tc-check-idle   .tc-check-icon { background: var(--surface-2); color: var(--tx-low); }
 
 /* Text */
@@ -756,15 +756,15 @@
   flex: 1; font-size: 13px; font-weight: 500;
   color: var(--tx-high); line-height: 1.4;
 }
-.tc-check-urgent .tc-check-label { color: #dc2626; font-weight: 600; }
-.tc-check-done   .tc-check-label { color: #15803d; }
-.tc-check-warn   .tc-check-label { color: #d97706; font-weight: 600; }
+.tc-check-urgent .tc-check-label { color: var(--err-text);  font-weight: 600; }
+.tc-check-done   .tc-check-label { color: var(--ok-text); }
+.tc-check-warn   .tc-check-label { color: var(--warn-text); font-weight: 600; }
 
 .tc-check-action {
   font-size: 11px; color: var(--tx-low); flex-shrink: 0; margin-top: 2px;
 }
 .tc-check-cta {
-  font-size: 11.5px; font-weight: 700; color: #dc2626; flex-shrink: 0; margin-top: 2px;
+  font-size: 11.5px; font-weight: 700; color: var(--err-text); flex-shrink: 0; margin-top: 2px;
 }
 
 /* Check body (for multi-line rows with pills) */
@@ -779,12 +779,14 @@
 }
 .tc-subj-pill:hover { opacity: 0.8; }
 .tc-pill-warn {
-  background: color-mix(in srgb, #f59e0b 15%, transparent);
-  color: #92400e; border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  border: 1px solid color-mix(in srgb, var(--warn-dot) 35%, transparent);
 }
 .tc-pill-done {
-  background: color-mix(in srgb, #22c55e 12%, transparent);
-  color: #14532d; border: 1px solid color-mix(in srgb, #22c55e 25%, transparent);
+  background: var(--ok-bg);
+  color: var(--ok-text);
+  border: 1px solid color-mix(in srgb, var(--ok-dot) 30%, transparent);
 }
 .tc-pill-count {
   font-size: 10px; font-weight: 700;
