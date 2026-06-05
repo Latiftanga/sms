@@ -354,46 +354,69 @@
         <div class="class-list">
           {#each data.my_classes as cls}
             <div class="class-item">
-              <div class="class-badge">{cls.level.charAt(0)}{cls.year ?? ""}</div>
-              <div class="class-body">
-                <p class="class-name">{cls.name}</p>
-                {#if cls.subjects.length > 0}
-                  {@const pending = cls.subjects.filter(s => s.registered_count === 0 && s.total_students > 0).length}
-                  <p class="class-sub" class:subjects-sub={isSubjectTeacher}>
-                    {cls.subjects.length} subject{cls.subjects.length !== 1 ? "s" : ""}
-                    {#if pending > 0}
-                      <span class="pending-badge">{pending} unregistered</span>
-                    {/if}
-                  </p>
-                {:else}
-                  <p class="class-sub">{cls.education_level.replace("_", " ")}</p>
-                {/if}
+              <!-- Main row: badge + name + primary actions -->
+              <div class="class-main-row">
+                <div class="class-badge">{cls.level.charAt(0)}{cls.year ?? ""}</div>
+                <div class="class-body">
+                  <p class="class-name">{cls.name}</p>
+                  {#if cls.subjects.length > 0}
+                    {@const pending = cls.subjects.filter(s => s.registered_count === 0 && s.total_students > 0).length}
+                    <p class="class-sub">
+                      {cls.subjects.length} subject{cls.subjects.length !== 1 ? "s" : ""}
+                      {#if pending > 0}
+                        <span class="pending-badge">{pending} unregistered</span>
+                      {/if}
+                    </p>
+                  {:else}
+                    <p class="class-sub">{cls.education_level.replace("_", " ")}</p>
+                  {/if}
+                </div>
+                <div class="class-actions">
+                  {#if !isSubjectTeacher}
+                    <a href="/attendance/mark?class_id={cls.id}" class="class-btn">
+                      <ClipboardCheck size={13} /> Attendance
+                    </a>
+                    <a href="/students?class_id={cls.id}" class="class-btn">
+                      <UsersRound size={13} /> Students
+                    </a>
+                  {/if}
+                  <a href="/scores?class={cls.id}" class="class-btn">
+                    <PenLine size={13} /> Scores
+                  </a>
+                </div>
               </div>
-              <div class="class-actions">
-                {#if !isSubjectTeacher}
-                  <a href="/attendance/mark?class_id={cls.id}" class="class-btn">
-                    <ClipboardCheck size={13} /> Attendance
-                  </a>
-                  <a href="/students?class_id={cls.id}" class="class-btn">
-                    <UsersRound size={13} /> Students
-                  </a>
-                {/if}
-                {#each cls.subjects as subj}
-                  <a href="/subject-registration/{subj.class_subject_id}" class="class-btn"
-                     class:class-btn-warn={subj.registered_count === 0 && subj.total_students > 0}
-                     class:class-btn-ok={subj.registered_count > 0}
-                     title="{subj.registered_count}/{subj.total_students} students registered">
-                    <UsersRound size={13} />
-                    {subj.subject_name}
-                    {#if subj.total_students > 0}
-                      <span class="subj-count">{subj.registered_count}/{subj.total_students}</span>
-                    {/if}
-                  </a>
-                {/each}
-                <a href="/scores?class={cls.id}" class="class-btn">
-                  <PenLine size={13} /> Scores
-                </a>
-              </div>
+              <!-- Subject list: compact vertical list with status -->
+              {#if cls.subjects.length > 0}
+                <div class="subj-list">
+                  {#each cls.subjects as subj}
+                    {@const done = subj.registered_count > 0 && subj.registered_count >= subj.total_students}
+                    {@const partial = subj.registered_count > 0 && subj.registered_count < subj.total_students}
+                    {@const pending = subj.registered_count === 0 && subj.total_students > 0}
+                    {@const noStudents = subj.total_students === 0}
+                    <a href="/subject-registration/{subj.class_subject_id}" class="subj-row-item"
+                       title="Register students for {subj.subject_name}">
+                      <span class="subj-dot"
+                        class:dot-ok={done}
+                        class:dot-partial={partial}
+                        class:dot-warn={pending}
+                        class:dot-idle={noStudents}
+                      ></span>
+                      <span class="subj-name">{subj.subject_name}</span>
+                      <span class="subj-status"
+                        class:status-ok={done}
+                        class:status-partial={partial}
+                        class:status-warn={pending}
+                        class:status-idle={noStudents}
+                      >
+                        {#if noStudents}No students
+                        {:else if done}All registered
+                        {:else}{subj.registered_count}/{subj.total_students}
+                        {/if}
+                      </span>
+                    </a>
+                  {/each}
+                </div>
+              {/if}
             </div>
           {/each}
         </div>
@@ -650,12 +673,13 @@
 /* ── Class list (teacher view) ───────────────────────────────────── */
 .class-list { display: flex; flex-direction: column; }
 .class-item {
-  display: flex; align-items: center; gap: 14px;
+  display: flex; flex-direction: column;
   padding: 12px 16px; border-top: 1px solid var(--border-subtle);
-  transition: background 0.1s;
+  transition: background 0.1s; gap: 8px;
 }
 .class-item:first-child { border-top: none; }
 .class-item:hover { background: var(--surface-2); }
+.class-main-row { display: flex; align-items: center; gap: 14px; }
 
 .class-badge {
   width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
@@ -665,22 +689,44 @@
 }
 .class-body { flex: 1; min-width: 0; }
 .class-name { font-size: 13px; font-weight: 600; color: var(--tx-high); margin: 0 0 2px; }
-.subjects-sub { color: var(--accent) !important; font-style: normal !important; font-weight: 500; }
+.subjects-sub { font-style: normal !important; font-weight: 500; }
 .pending-badge {
   display: inline-flex; align-items: center;
   font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 99px;
   background: color-mix(in srgb, #f59e0b 15%, transparent);
   color: #d97706; margin-left: 4px;
 }
-.class-btn-warn { border-color: color-mix(in srgb, #f59e0b 40%, transparent) !important; color: #d97706 !important; }
-.class-btn-warn:hover { background: color-mix(in srgb, #f59e0b 12%, transparent) !important; }
-.class-btn-ok { border-color: color-mix(in srgb, #22c55e 35%, transparent) !important; color: #15803d !important; }
-.class-btn-ok:hover { background: color-mix(in srgb, #22c55e 10%, transparent) !important; }
-.subj-count {
-  font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 99px;
-  background: color-mix(in srgb, currentColor 12%, transparent);
-  margin-left: 2px;
+/* Subject list — compact vertical rows below the class main row */
+.subj-list {
+  border-top: 1px solid var(--border-subtle);
+  display: flex; flex-direction: column;
 }
+.subj-row-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 0 7px 54px; /* indent to align under class name */
+  text-decoration: none; transition: background 0.1s;
+  border-top: 1px solid color-mix(in srgb, var(--border-subtle) 50%, transparent);
+}
+.subj-row-item:first-child { border-top: none; }
+.subj-row-item:hover { background: var(--surface-2); margin: 0 -16px; padding-left: 70px; padding-right: 16px; }
+.subj-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.dot-ok      { background: #22c55e; }
+.dot-partial { background: #f59e0b; }
+.dot-warn    { background: #ef4444; }
+.dot-idle    { background: var(--border-subtle); }
+.subj-name {
+  flex: 1; font-size: 12.5px; font-weight: 500; color: var(--tx-high);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.subj-status {
+  font-size: 11px; font-weight: 600; flex-shrink: 0;
+}
+.status-ok      { color: #15803d; }
+.status-partial { color: #d97706; }
+.status-warn    { color: #dc2626; }
+.status-idle    { color: var(--tx-low); font-weight: 400; }
 .class-sub  { font-size: 11px; color: var(--tx-low); margin: 0; text-transform: capitalize; }
 
 .class-actions { display: flex; gap: 6px; flex-shrink: 0; }
