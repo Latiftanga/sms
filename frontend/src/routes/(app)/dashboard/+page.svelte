@@ -433,7 +433,6 @@
         </p>
       </div>
     {/if}
-  </div>
 
     <aside class="dash-aside">
       <div class="panel">
