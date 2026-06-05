@@ -112,15 +112,16 @@
   <div>
     <h1 class="greeting">{greeting}, {firstName}.</h1>
     <p class="sub">
-      {#if $schoolBranding?.motto}"{$schoolBranding.motto}"
-      {:else if data?.role === "admin"}Here's your school at a glance.
-      {:else if data?.role === "class_teacher" || data?.role === "subject_teacher"}Ready for today's classes.
+      {#if data?.role === "admin"}
+        {$schoolBranding?.motto ? `"${$schoolBranding.motto}"` : "Here's your school at a glance."}
+      {:else if data?.role === "class_teacher"}Ready for today's classes.
+      {:else if data?.role === "subject_teacher"}Ready for today's lessons.
       {:else}Welcome back.{/if}
     </p>
   </div>
   <div class="header-meta">
     <span class="today-pill"><CalendarCheck size={12} />{today}</span>
-    {#if term}
+    {#if term && (data?.role === "admin" || !data?.role)}
       <Badge variant="accent">{term.name} · {term.year_name}</Badge>
     {/if}
   </div>
@@ -347,11 +348,6 @@
 
     <!-- Left: class cards -->
     <div class="tc-main">
-      <div class="tc-header">
-        <h2 class="tc-title">{isSubjectTeacher ? "My Teaching Assignments" : "My Classes"}</h2>
-        {#if term}<span class="tc-term">{term.name} · {term.year_name}</span>{/if}
-      </div>
-
     {#if data.my_classes && data.my_classes.length > 0}
       <div class="tc-grid">
         {#each data.my_classes as cls}
@@ -676,9 +672,6 @@
 /* ── Class list (teacher view) ───────────────────────────────────── */
 /* ── Teacher view ────────────────────────────────────────────────── */
 .tc-main { display: flex; flex-direction: column; gap: 0; min-width: 0; }
-.tc-header { margin-bottom: 14px; }
-.tc-title { font-size: 15px; font-weight: 700; color: var(--tx-high); margin: 0 0 2px; }
-.tc-term  { font-size: 12px; color: var(--tx-low); }
 
 .tc-grid {
   display: flex; flex-direction: column; gap: 12px;
