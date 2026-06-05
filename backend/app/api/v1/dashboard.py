@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 
 from app.api.deps import CurrentUser, RedisDep, SessionDep
 from app.core.permissions import Permission
-from app.models.academic import AcademicTerm, AcademicYear, Class, ClassTeacher, LearningArea, SchoolCalendar
+from app.models.academic import AcademicTerm, AcademicYear, Class, ClassSubject, ClassTeacher, LearningArea, SchoolCalendar, SubjectTeacher
 from sqlalchemy.orm import selectinload
 from app.models.attendance import AttendanceRecord
 from app.models.staff import StaffMember
@@ -38,6 +38,11 @@ class AdminStats(BaseModel):
     attendance_classes_today: int     # total classes that should have attendance today
 
 
+class MySubject(BaseModel):
+    subject_name: str
+    subject_code: str
+
+
 class MyClass(BaseModel):
     id: str
     name: str
@@ -45,13 +50,14 @@ class MyClass(BaseModel):
     level: str
     year: int | None
     stream: str | None
+    subjects: list[MySubject]   # populated for subject teachers; empty for class teachers
 
 
 class DashboardSummary(BaseModel):
-    role: str                           # admin | teacher | staff | student | parent
+    role: str                           # admin | class_teacher | subject_teacher | staff | student | parent
     current_term: TermSummary | None
     admin: AdminStats | None            # only for admin role
-    my_classes: list[MyClass] | None    # only for teacher role
+    my_classes: list[MyClass] | None    # class_teacher and subject_teacher roles
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -176,7 +182,14 @@ async def _admin_stats(school_id: UUID, session) -> AdminStats:
     )
 
 
-async def _my_classes(staff_member_id: UUID, school_id: UUID, session) -> list[MyClass]:
+async def _my_classes(
+    staff_member_id: UUID, school_id: UUID, session
+) -> tuple[list[MyClass], bool]:
+    """
+    Returns (classes, is_class_teacher).
+    Class teachers get their assigned class(es) with no subject detail.
+    Subject teachers get the distinct classes they teach with their subjects listed.
+    """
     current_year = await session.scalar(
         select(AcademicYear).where(
             AcademicYear.school_id == school_id,
@@ -184,9 +197,10 @@ async def _my_classes(staff_member_id: UUID, school_id: UUID, session) -> list[M
         )
     )
     if not current_year:
-        return []
+        return [], False
 
-    rows = await session.execute(
+    # 1. Check class teacher assignment first
+    ct_rows = await session.execute(
         select(Class)
         .options(selectinload(Class.learning_area))
         .join(ClassTeacher, ClassTeacher.class_id == Class.id)
@@ -197,17 +211,53 @@ async def _my_classes(staff_member_id: UUID, school_id: UUID, session) -> list[M
         )
         .order_by(Class.level, Class.year, Class.stream)
     )
+    class_teacher_classes = list(ct_rows.scalars())
+    if class_teacher_classes:
+        return [
+            MyClass(
+                id=str(c.id), name=c.name,
+                education_level=c.education_level,
+                level=c.level, year=c.year, stream=c.stream,
+                subjects=[],
+            )
+            for c in class_teacher_classes
+        ], True
+
+    # 2. Fall back to subject teacher assignments
+    st_rows = await session.execute(
+        select(ClassSubject, Class)
+        .join(Class, ClassSubject.class_id == Class.id)
+        .options(selectinload(Class.learning_area))
+        .join(SubjectTeacher, SubjectTeacher.class_subject_id == ClassSubject.id)
+        .where(
+            SubjectTeacher.staff_member_id == staff_member_id,
+            SubjectTeacher.academic_year_id == current_year.id,
+            SubjectTeacher.is_active.is_(True),
+            ClassSubject.is_active.is_(True),
+            Class.is_active.is_(True),
+        )
+        .order_by(Class.level, Class.year, Class.stream, ClassSubject.subject_name)
+    )
+
+    # Group subjects by class
+    class_subjects: dict[str, tuple[Class, list[MySubject]]] = {}
+    for cs, cls in st_rows:
+        key = str(cls.id)
+        if key not in class_subjects:
+            class_subjects[key] = (cls, [])
+        class_subjects[key][1].append(
+            MySubject(subject_name=cs.subject_name, subject_code=cs.subject_code)
+        )
+
     return [
         MyClass(
-            id=str(c.id),
-            name=c.name,
-            education_level=c.education_level,
-            level=c.level,
-            year=c.year,
-            stream=c.stream,
+            id=key, name=cls.name,
+            education_level=cls.education_level,
+            level=cls.level, year=cls.year, stream=cls.stream,
+            subjects=subjects,
         )
-        for c in rows.scalars()
-    ]
+        for key, (cls, subjects) in class_subjects.items()
+    ], False
 
 
 # ── Endpoint ──────────────────────────────────────────────────────────────────
@@ -229,15 +279,18 @@ async def summary(user: CurrentUser, redis: RedisDep, session: SessionDep):
     is_admin = perms.get(Permission.MANAGE_STAFF) or perms.get(Permission.MANAGE_SCHOOL_CONFIG)
     is_teacher = perms.get(Permission.MARK_ATTENDANCE) or perms.get(Permission.ENTER_SCORES)
 
-    role = "admin" if is_admin else "teacher" if is_teacher else "staff"
-
     current_term = await _current_term(school_id, session)
     admin_stats = await _admin_stats(school_id, session) if is_admin else None
-    my_classes = (
-        await _my_classes(user.staff_member_id, school_id, session)
-        if is_teacher and user.staff_member_id
-        else None
-    )
+
+    my_classes = None
+    role = "staff"
+
+    if is_admin:
+        role = "admin"
+    elif is_teacher and user.staff_member_id:
+        classes, is_class_teacher = await _my_classes(user.staff_member_id, school_id, session)
+        my_classes = classes
+        role = "class_teacher" if is_class_teacher else "subject_teacher"
 
     return DashboardSummary(
         role=role,

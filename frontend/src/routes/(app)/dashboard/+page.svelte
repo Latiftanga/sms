@@ -24,9 +24,11 @@
     attendance_submitted_today: number;
     attendance_classes_today: number;
   }
+  interface MySubject { subject_name: string; subject_code: string; }
   interface MyClass {
     id: string; name: string; education_level: string;
     level: string; year: number | null; stream: string | null;
+    subjects: MySubject[];
   }
   interface DashboardSummary {
     role: string;
@@ -96,7 +98,9 @@
       { label: "My Profile",      icon: User,           href: "/profile"            },
     ],
   };
-  $: quickActions = QUICK_ACTIONS[data?.role ?? "staff"] ?? QUICK_ACTIONS.staff;
+  // Map both teacher subtypes to the same quick actions key
+  $: _roleKey = (data?.role === "class_teacher" || data?.role === "subject_teacher") ? "teacher" : (data?.role ?? "staff");
+  $: quickActions = QUICK_ACTIONS[_roleKey] ?? QUICK_ACTIONS.staff;
 </script>
 
 <svelte:head>
@@ -110,7 +114,7 @@
     <p class="sub">
       {#if $schoolBranding?.motto}"{$schoolBranding.motto}"
       {:else if data?.role === "admin"}Here's your school at a glance.
-      {:else if data?.role === "teacher"}Ready for today's classes.
+      {:else if data?.role === "class_teacher" || data?.role === "subject_teacher"}Ready for today's classes.
       {:else}Welcome back.{/if}
     </p>
   </div>
@@ -336,12 +340,13 @@
     </aside>
   </div>
 
-<!-- ── TEACHER VIEW ───────────────────────────────────────────────────────── -->
-{:else if data?.role === "teacher"}
+<!-- ── TEACHER VIEW (class teacher + subject teacher) ────────────────────── -->
+{:else if data?.role === "class_teacher" || data?.role === "subject_teacher"}
+  {@const isSubjectTeacher = data?.role === "subject_teacher"}
   <div class="dash-body">
     <div class="panel">
       <div class="panel-head">
-        <span class="panel-title">My Classes</span>
+        <span class="panel-title">{isSubjectTeacher ? "My Teaching Assignments" : "My Classes"}</span>
         {#if term}<Badge variant="subtle">{term.year_name}</Badge>{/if}
       </div>
 
@@ -352,15 +357,23 @@
               <div class="class-badge">{cls.level.charAt(0)}{cls.year ?? ""}</div>
               <div class="class-body">
                 <p class="class-name">{cls.name}</p>
-                <p class="class-sub">{cls.education_level.replace("_", " ")}</p>
+                {#if isSubjectTeacher && cls.subjects.length > 0}
+                  <p class="class-sub subjects-sub">
+                    {cls.subjects.map(s => s.subject_name).join(" · ")}
+                  </p>
+                {:else}
+                  <p class="class-sub">{cls.education_level.replace("_", " ")}</p>
+                {/if}
               </div>
               <div class="class-actions">
-                <a href="/attendance/mark?class_id={cls.id}" class="class-btn">
-                  <ClipboardCheck size={13} /> Attendance
-                </a>
-                <a href="/students?class_id={cls.id}" class="class-btn">
-                  <UsersRound size={13} /> Students
-                </a>
+                {#if !isSubjectTeacher}
+                  <a href="/attendance/mark?class_id={cls.id}" class="class-btn">
+                    <ClipboardCheck size={13} /> Attendance
+                  </a>
+                  <a href="/students?class_id={cls.id}" class="class-btn">
+                    <UsersRound size={13} /> Students
+                  </a>
+                {/if}
                 <a href="/scores?class={cls.id}" class="class-btn">
                   <PenLine size={13} /> Scores
                 </a>
@@ -371,8 +384,12 @@
       {:else}
         <div class="empty-state">
           <div class="empty-icon"><GraduationCap size={26} /></div>
-          <p class="empty-title">No classes assigned yet</p>
-          <p class="empty-body">Your class teacher assignments for {term?.year_name ?? "this year"} will appear here once configured by the admin.</p>
+          <p class="empty-title">No assignments yet</p>
+          <p class="empty-body">
+            {isSubjectTeacher
+              ? "Your subject assignments for " + (term?.year_name ?? "this year") + " will appear here once configured by the admin."
+              : "Your class teacher assignments for " + (term?.year_name ?? "this year") + " will appear here once configured by the admin."}
+          </p>
         </div>
       {/if}
     </div>
@@ -632,6 +649,7 @@
 }
 .class-body { flex: 1; min-width: 0; }
 .class-name { font-size: 13px; font-weight: 600; color: var(--tx-high); margin: 0 0 2px; }
+.subjects-sub { color: var(--accent) !important; font-style: normal !important; font-weight: 500; }
 .class-sub  { font-size: 11px; color: var(--tx-low); margin: 0; text-transform: capitalize; }
 
 .class-actions { display: flex; gap: 6px; flex-shrink: 0; }
