@@ -4,10 +4,10 @@ Seed two demo schools for development and testing.
   1. Demo Basic School  — Basic/JHS, day school
   2. Demo Senior High School — SHS, boarding with houses
 
+One user per role. Fully idempotent — prints only what was actually created.
+
 Usage:
     docker compose run --rm api python scripts/seed_schools.py
-
-Idempotent — safe to run multiple times (skips existing records).
 """
 import asyncio
 import sys
@@ -17,7 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 
 def _id() -> uuid.UUID:
@@ -26,6 +26,8 @@ def _id() -> uuid.UUID:
 def _now() -> datetime:
     return datetime.now(timezone.utc)
 
+
+# ── Low-level helpers ─────────────────────────────────────────────────────────
 
 async def _get_position(session, code: str):
     from app.models.staff import StaffPosition
@@ -36,26 +38,46 @@ async def _get_position(session, code: str):
         )
     )
     if not pos:
-        raise RuntimeError(f"System position '{code}' not found — have you run migrations?")
+        raise RuntimeError(f"System position '{code}' not found — run migrations first.")
     return pos
 
 
-async def _ensure_staff_user(
-    session, *,
-    school_id: uuid.UUID,
-    first_name: str, last_name: str, gender: str,
-    category: str, designation: str | None, employment_type: str,
-    date_joined: date,
-    email: str, password: str,
-    position_code: str, positions: dict,
-    assigner_id: uuid.UUID | None = None,
-):
+async def _ensure_school(session, *, code, name, slug, education_levels,
+                          facility_type, has_houses, accent_color, motto=None):
+    from app.models.school import School, SchoolConfig, SchoolSchedule
+    school = await session.scalar(select(School).where(School.code == code))
+    if school:
+        return school, False
+    school = School(
+        id=_id(), name=name, code=code, slug=slug,
+        country="Ghana", education_levels=education_levels,
+        facility_type=facility_type, has_houses=has_houses,
+        has_fees_module=True, accent_color=accent_color,
+        motto=motto, is_active=True,
+    )
+    session.add(school)
+    await session.flush()
+    session.add(SchoolConfig(id=_id(), school_id=school.id))
+    session.add(SchoolSchedule(id=_id(), school_id=school.id, school_days=[1, 2, 3, 4, 5]))
+    await session.flush()
+    return school, True
+
+
+async def _ensure_staff_user(session, *, school_id, first_name, last_name,
+                               gender, category, designation, employment_type,
+                               date_joined, email, password, position_code,
+                               positions, assigner_id=None):
     from app.core.security import hash_password
     from app.models.staff import StaffMember
     from app.models.user import User, UserRole
 
-    if await session.scalar(select(User).where(User.email == email)):
-        return False
+    existing = await session.scalar(select(User).where(User.email == email))
+    if existing:
+        # Return the linked staff member so callers can use it (e.g. class assignment)
+        staff = await session.scalar(
+            select(StaffMember).where(StaffMember.id == existing.staff_member_id)
+        ) if existing.staff_member_id else None
+        return staff, False
 
     staff = StaffMember(
         id=_id(), school_id=school_id,
@@ -85,30 +107,7 @@ async def _ensure_staff_user(
         assigned_at=_now(),
     ))
     await session.flush()
-    return True
-
-
-async def _ensure_school(session, *, code, name, slug, education_levels,
-                          facility_type, has_houses, accent_color, motto=None):
-    from app.models.school import School, SchoolConfig, SchoolSchedule
-
-    school = await session.scalar(select(School).where(School.code == code))
-    if school:
-        return school, False
-
-    school = School(
-        id=_id(), name=name, code=code, slug=slug,
-        country="Ghana", education_levels=education_levels,
-        facility_type=facility_type, has_houses=has_houses,
-        has_fees_module=True, accent_color=accent_color,
-        motto=motto, is_active=True,
-    )
-    session.add(school)
-    await session.flush()
-    session.add(SchoolConfig(id=_id(), school_id=school.id))
-    session.add(SchoolSchedule(id=_id(), school_id=school.id, school_days=[1, 2, 3, 4, 5]))
-    await session.flush()
-    return school, True
+    return staff, True
 
 
 async def _ensure_year_and_terms(session, *, school_id, education_levels):
@@ -119,6 +118,7 @@ async def _ensure_year_and_terms(session, *, school_id, education_levels):
             AcademicYear.school_id == school_id, AcademicYear.name == "2025/2026"
         )
     )
+    created_year = False
     if not year:
         year = AcademicYear(
             id=_id(), school_id=school_id, name="2025/2026",
@@ -126,25 +126,35 @@ async def _ensure_year_and_terms(session, *, school_id, education_levels):
         )
         session.add(year)
         await session.flush()
+        created_year = True
 
-    terms = [
+    terms_def = [
         ("Term 1", date(2025,  9,  1), date(2025, 12, 12), False),
         ("Term 2", date(2026,  1, 12), date(2026,  4, 10), False),
-        ("Term 3", date(2026,  5,  4), date(2026,  8,  1), True),   # today is in Term 3
+        ("Term 3", date(2026,  5,  4), date(2026,  8,  1), True),
     ]
-    for name, start, end, is_current in terms:
+    created_terms = 0
+    for tname, start, end, is_current in terms_def:
         exists = await session.scalar(
             select(AcademicTerm).where(
-                AcademicTerm.academic_year_id == year.id, AcademicTerm.name == name
+                AcademicTerm.academic_year_id == year.id, AcademicTerm.name == tname
             )
         )
         if not exists:
             session.add(AcademicTerm(
-                id=_id(), academic_year_id=year.id, name=name,
+                id=_id(), academic_year_id=year.id, name=tname,
                 start_date=start, end_date=end,
                 education_levels=education_levels, is_current=is_current,
             ))
+            created_terms += 1
     await session.flush()
+
+    if created_year:
+        print(f"  + Academic year 2025/2026 with {created_terms} terms")
+    elif created_terms:
+        print(f"  + {created_terms} new term(s) added to 2025/2026")
+
+    return year
 
 
 async def _ensure_learning_area(session, *, school_id, name, short_name):
@@ -153,30 +163,34 @@ async def _ensure_learning_area(session, *, school_id, name, short_name):
         select(LearningArea).where(LearningArea.school_id == school_id, LearningArea.name == name)
     )
     if la:
-        return la
+        return la, False
     la = LearningArea(id=_id(), school_id=school_id, name=name, short_name=short_name, is_active=True)
     session.add(la)
     await session.flush()
-    return la
+    return la, True
 
 
 async def _ensure_class(session, *, school_id, education_level, level,
                          year=None, learning_area_id=None, stream=None):
     from app.models.academic import Class
-    exists = await session.scalar(
+    cls = await session.scalar(
         select(Class).where(
             Class.school_id == school_id, Class.level == level,
             Class.year == year, Class.stream == stream,
             Class.learning_area_id == learning_area_id,
         )
     )
-    if not exists:
-        session.add(Class(
-            id=_id(), school_id=school_id,
-            education_level=education_level, level=level,
-            year=year, learning_area_id=learning_area_id, stream=stream,
-            is_active=True,
-        ))
+    if cls:
+        return cls, False
+    cls = Class(
+        id=_id(), school_id=school_id,
+        education_level=education_level, level=level,
+        year=year, learning_area_id=learning_area_id, stream=stream,
+        is_active=True,
+    )
+    session.add(cls)
+    await session.flush()
+    return cls, True
 
 
 async def _ensure_house(session, *, school_id, name, color):
@@ -186,6 +200,32 @@ async def _ensure_house(session, *, school_id, name, color):
     )
     if not exists:
         session.add(House(id=_id(), school_id=school_id, name=name, color=color, is_active=True))
+        return True
+    return False
+
+
+async def _assign_class_teacher(session, *, staff_member_id, class_id, academic_year_id):
+    """Assign a staff member as class teacher for a class in a given year (idempotent)."""
+    from app.models.academic import ClassTeacher
+    existing = await session.scalar(
+        select(ClassTeacher).where(
+            ClassTeacher.class_id == class_id,
+            ClassTeacher.academic_year_id == academic_year_id,
+        )
+    )
+    if existing:
+        if existing.staff_member_id != staff_member_id:
+            existing.staff_member_id = staff_member_id
+            return True
+        return False
+    session.add(ClassTeacher(
+        id=_id(),
+        class_id=class_id,
+        staff_member_id=staff_member_id,
+        academic_year_id=academic_year_id,
+    ))
+    await session.flush()
+    return True
 
 
 # ── Basic School ──────────────────────────────────────────────────────────────
@@ -201,35 +241,61 @@ async def seed_basic(session, positions):
     print(f"\n[Basic] {'Created' if created else 'Exists'}: {school.name}")
 
     joined = date(2020, 9, 1)
-    staff = [
-        ("Abena",  "Mensah",   "FEMALE", "NON-TEACHING", None,           "admin@demo-basic.ttek-sms.com",    "Admin1234!",   "ADMIN"),
-        ("Kweku",  "Asante",   "MALE",   "TEACHING",     "HEADTEACHER",  "head@demo-basic.ttek-sms.com",     "Head1234!",    "HEADTEACHER"),
-        ("Ama",    "Boateng",  "FEMALE", "TEACHING",     "TEACHER",      "teacher1@demo-basic.ttek-sms.com", "Teacher1234!", "CLASS_TEACHER"),
-        ("Kofi",   "Osei",     "MALE",   "TEACHING",     "TEACHER",      "teacher2@demo-basic.ttek-sms.com", "Teacher1234!", "CLASS_TEACHER"),
-        ("Akua",   "Frimpong", "FEMALE", "TEACHING",     "TEACHER",      "teacher3@demo-basic.ttek-sms.com", "Teacher1234!", "CLASS_TEACHER"),
-        ("Yaw",    "Darko",    "MALE",   "NON-TEACHING", None,           "bursar@demo-basic.ttek-sms.com",   "Bursar1234!",  "BURSAR"),
+
+    # One user per role — no duplicate teachers
+    staff_defs = [
+        ("Abena",  "Mensah",  "FEMALE", "NON-TEACHING", None,          "admin@demo-basic.ttek-sms.com",   "Admin1234!",   "ADMIN"),
+        ("Kweku",  "Asante",  "MALE",   "TEACHING",     "HEADTEACHER", "head@demo-basic.ttek-sms.com",    "Head1234!",    "HEADTEACHER"),
+        ("Ama",    "Boateng", "FEMALE", "TEACHING",     "TEACHER",     "teacher@demo-basic.ttek-sms.com", "Teacher1234!", "CLASS_TEACHER"),
+        ("Yaw",    "Darko",   "MALE",   "NON-TEACHING", None,          "bursar@demo-basic.ttek-sms.com",  "Bursar1234!",  "BURSAR"),
     ]
-    for first, last, gender, cat, desig, email, pw, pos_code in staff:
-        created = await _ensure_staff_user(
+
+    staff_map: dict[str, object] = {}
+    for first, last, gender, cat, desig, email, pw, pos_code in staff_defs:
+        staff, new = await _ensure_staff_user(
             session, school_id=school.id,
             first_name=first, last_name=last, gender=gender,
             category=cat, designation=desig, employment_type="PERMANENT",
             date_joined=joined, email=email, password=pw,
             position_code=pos_code, positions=positions,
         )
-        if created:
-            print(f"  + {email:<40} {pw}")
+        staff_map[pos_code] = staff
+        if new:
+            print(f"  + {email:<42} {pw}")
 
-    await _ensure_year_and_terms(session, school_id=school.id, education_levels=["BASIC"])
+    year = await _ensure_year_and_terms(session, school_id=school.id, education_levels=["BASIC"])
 
-    for level, yr, stream in [
+    # Classes
+    class_defs = [
         ("KG",    1, "A"), ("KG",    2, "A"),
         ("Basic", 1, "A"), ("Basic", 2, "A"), ("Basic", 3, "A"),
         ("Basic", 4, "A"), ("Basic", 5, "A"), ("Basic", 6, "A"),
-    ]:
-        await _ensure_class(session, school_id=school.id,
-                             education_level="BASIC", level=level, year=yr, stream=stream)
-    print(f"  + 8 classes (KG 1–2, Basic 1–6)")
+    ]
+    new_classes = 0
+    first_class = None
+    for level, yr, stream in class_defs:
+        cls, new = await _ensure_class(
+            session, school_id=school.id,
+            education_level="BASIC", level=level, year=yr, stream=stream,
+        )
+        if new:
+            new_classes += 1
+        if first_class is None:
+            first_class = cls
+
+    if new_classes:
+        print(f"  + {new_classes} class(es) created (KG 1–2, Basic 1–6)")
+
+    # Assign the class teacher to Basic 1A
+    if first_class and staff_map.get("CLASS_TEACHER") and year:
+        assigned = await _assign_class_teacher(
+            session,
+            staff_member_id=staff_map["CLASS_TEACHER"].id,
+            class_id=first_class.id,
+            academic_year_id=year.id,
+        )
+        if assigned:
+            print(f"  + Class teacher assigned to {first_class.name}")
 
 
 # ── SHS ───────────────────────────────────────────────────────────────────────
@@ -245,79 +311,108 @@ async def seed_shs(session, positions):
     print(f"\n[SHS]   {'Created' if created else 'Exists'}: {school.name}")
 
     joined = date(2019, 9, 1)
-    staff = [
-        ("Akosua", "Amoah",    "FEMALE", "NON-TEACHING", None,             "admin@demo-shs.ttek-sms.com",      "Admin1234!",   "ADMIN"),
-        ("Kwame",  "Mensah",   "MALE",   "TEACHING",     "HEADTEACHER",    "head@demo-shs.ttek-sms.com",       "Head1234!",    "HEADTEACHER"),
-        ("Efua",   "Agyemang", "FEMALE", "TEACHING",     "ASSISTANT_HEAD", "asst.head@demo-shs.ttek-sms.com",  "Head1234!",    "ASSISTANT_HEAD"),
-        ("Kojo",   "Boateng",  "MALE",   "NON-TEACHING", None,             "bursar@demo-shs.ttek-sms.com",     "Bursar1234!",  "BURSAR"),
-        ("Yaw",    "Peprah",   "MALE",   "NON-TEACHING", None,             "housemaster@demo-shs.ttek-sms.com","House1234!",   "SENIOR_HOUSEMASTER"),
-        ("Abena",  "Owusu",    "FEMALE", "TEACHING",     "TEACHER",        "teacher1@demo-shs.ttek-sms.com",   "Teacher1234!", "CLASS_TEACHER"),
-        ("Fiifi",  "Asante",   "MALE",   "TEACHING",     "TEACHER",        "teacher2@demo-shs.ttek-sms.com",   "Teacher1234!", "CLASS_TEACHER"),
-        ("Adwoa",  "Darko",    "FEMALE", "TEACHING",     "TEACHER",        "teacher3@demo-shs.ttek-sms.com",   "Teacher1234!", "CLASS_TEACHER"),
-        ("Kwesi",  "Frimpong", "MALE",   "TEACHING",     "TEACHER",        "teacher4@demo-shs.ttek-sms.com",   "Teacher1234!", "CLASS_TEACHER"),
+
+    staff_defs = [
+        ("Akosua", "Amoah",    "FEMALE", "NON-TEACHING", None,             "admin@demo-shs.ttek-sms.com",       "Admin1234!",   "ADMIN"),
+        ("Kwame",  "Mensah",   "MALE",   "TEACHING",     "HEADTEACHER",    "head@demo-shs.ttek-sms.com",        "Head1234!",    "HEADTEACHER"),
+        ("Efua",   "Agyemang", "FEMALE", "TEACHING",     "ASSISTANT_HEAD", "asst.head@demo-shs.ttek-sms.com",   "Head1234!",    "ASSISTANT_HEAD"),
+        ("Kojo",   "Boateng",  "MALE",   "NON-TEACHING", None,             "bursar@demo-shs.ttek-sms.com",      "Bursar1234!",  "BURSAR"),
+        ("Yaw",    "Peprah",   "MALE",   "NON-TEACHING", None,             "housemaster@demo-shs.ttek-sms.com", "House1234!",   "SENIOR_HOUSEMASTER"),
+        ("Abena",  "Owusu",    "FEMALE", "TEACHING",     "TEACHER",        "teacher@demo-shs.ttek-sms.com",     "Teacher1234!", "CLASS_TEACHER"),
     ]
-    for first, last, gender, cat, desig, email, pw, pos_code in staff:
-        created = await _ensure_staff_user(
+
+    staff_map: dict[str, object] = {}
+    for first, last, gender, cat, desig, email, pw, pos_code in staff_defs:
+        staff, new = await _ensure_staff_user(
             session, school_id=school.id,
             first_name=first, last_name=last, gender=gender,
             category=cat, designation=desig, employment_type="PERMANENT",
             date_joined=joined, email=email, password=pw,
             position_code=pos_code, positions=positions,
         )
-        if created:
-            print(f"  + {email:<40} {pw}")
+        staff_map[pos_code] = staff
+        if new:
+            print(f"  + {email:<42} {pw}")
 
-    await _ensure_year_and_terms(session, school_id=school.id, education_levels=["SHS"])
+    year = await _ensure_year_and_terms(session, school_id=school.id, education_levels=["SHS"])
 
+    # Learning areas
     la_defs = [
         ("General Science", "SCI"), ("General Arts",   "ART"),
         ("Business",        "BUS"), ("Home Economics", "HEC"),
     ]
     las = {}
+    new_las = 0
     for name, short in la_defs:
-        las[short] = await _ensure_learning_area(
+        la, new = await _ensure_learning_area(
             session, school_id=school.id, name=name, short_name=short
         )
-    print(f"  + {len(la_defs)} learning areas")
+        las[short] = la
+        if new:
+            new_las += 1
+    if new_las:
+        print(f"  + {new_las} learning area(s) created")
 
+    # Classes
+    new_classes = 0
+    first_class = None
     for yr in (1, 2, 3):
         for la_short in ("SCI", "ART", "BUS"):
-            await _ensure_class(
+            cls, new = await _ensure_class(
                 session, school_id=school.id,
                 education_level="SHS", level="SHS",
                 year=yr, learning_area_id=las[la_short].id, stream="A",
             )
-    print(f"  + 9 classes (SHS 1–3 × Science / Arts / Business)")
+            if new:
+                new_classes += 1
+            if first_class is None:
+                first_class = cls
+    if new_classes:
+        print(f"  + {new_classes} class(es) created (SHS 1–3 × Science / Arts / Business)")
 
+    # Houses
+    new_houses = 0
     for name, color in [
-        ("Aggrey House",   "#1565C0"),
-        ("Bannerman House","#B71C1C"),
-        ("Danquah House",  "#2E7D32"),
-        ("Nkrumah House",  "#F9A825"),
+        ("Aggrey House",    "#1565C0"),
+        ("Bannerman House", "#B71C1C"),
+        ("Danquah House",   "#2E7D32"),
+        ("Nkrumah House",   "#F9A825"),
     ]:
-        await _ensure_house(session, school_id=school.id, name=name, color=color)
-    print(f"  + 4 houses")
+        if await _ensure_house(session, school_id=school.id, name=name, color=color):
+            new_houses += 1
+    if new_houses:
+        print(f"  + {new_houses} house(s) created")
+
+    # Assign class teacher to SHS 1 SCI A
+    if first_class and staff_map.get("CLASS_TEACHER") and year:
+        assigned = await _assign_class_teacher(
+            session,
+            staff_member_id=staff_map["CLASS_TEACHER"].id,
+            class_id=first_class.id,
+            academic_year_id=year.id,
+        )
+        if assigned:
+            print(f"  + Class teacher assigned to {first_class.name}")
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
+# ── Post-seed helpers ─────────────────────────────────────────────────────────
 
 async def _promote_students(session):
-    """Promote any students enrolled in a non-current year into the current year."""
+    """Promote students enrolled in a non-current year into the current year."""
     from app.models.academic import AcademicTerm, AcademicYear
     from app.models.student import StudentClassEnrollment, StudentTermEnrollment
 
-    schools = (await session.scalars(
+    current_years = (await session.scalars(
         select(AcademicYear).where(AcademicYear.is_current.is_(True))
     )).all()
 
-    for current_year in schools:
+    for current_year in current_years:
         terms = (await session.scalars(
             select(AcademicTerm).where(AcademicTerm.academic_year_id == current_year.id)
         )).all()
         if not terms:
             continue
 
-        # Find students still enrolled in a previous year for this school
         old_enrollments = (await session.scalars(
             select(StudentClassEnrollment)
             .join(AcademicYear, StudentClassEnrollment.academic_year_id == AcademicYear.id)
@@ -328,8 +423,8 @@ async def _promote_students(session):
             )
         )).all()
 
+        promoted = 0
         for old_enr in old_enrollments:
-            # Skip if already enrolled in current year
             exists = await session.scalar(
                 select(StudentClassEnrollment).where(
                     StudentClassEnrollment.student_id == old_enr.student_id,
@@ -338,7 +433,6 @@ async def _promote_students(session):
             )
             if exists:
                 continue
-
             new_enr = StudentClassEnrollment(
                 id=_id(),
                 student_id=old_enr.student_id,
@@ -351,7 +445,6 @@ async def _promote_students(session):
             )
             session.add(new_enr)
             await session.flush()
-
             for term in terms:
                 session.add(StudentTermEnrollment(
                     id=_id(),
@@ -360,22 +453,23 @@ async def _promote_students(session):
                     enrolled_date=date.today(),
                     fee_status="NOT_APPLICABLE",
                 ))
+            promoted += 1
 
-        if old_enrollments:
-            print(f"  + Promoted {len(old_enrollments)} student enrollments to {current_year.name}")
+        if promoted:
+            print(f"  + Promoted {promoted} student(s) to {current_year.name}")
 
 
 async def _generate_calendars(session):
-    """Generate school calendars for all current terms that have none yet."""
+    """Generate school calendars for current terms that have none yet."""
     from app.models.academic import AcademicTerm, AcademicYear, SchoolCalendar
     from app.services.calendar_generator import generate_term_calendar
-    from sqlalchemy import func
 
-    current_terms = await session.scalars(
+    current_terms = (await session.scalars(
         select(AcademicTerm)
         .join(AcademicYear, AcademicTerm.academic_year_id == AcademicYear.id)
         .where(AcademicTerm.is_current.is_(True))
-    )
+    )).all()
+
     for term in current_terms:
         existing = await session.scalar(
             select(func.count(SchoolCalendar.id)).where(
@@ -385,8 +479,10 @@ async def _generate_calendars(session):
         if not existing:
             year = await session.get(AcademicYear, term.academic_year_id)
             days = await generate_term_calendar(term, str(year.school_id), session)
-            print(f"  + Calendar generated for term {term.name} ({days} school days)")
+            print(f"  + Calendar: {term.name} ({days} school days)")
 
+
+# ── Entry point ───────────────────────────────────────────────────────────────
 
 async def main():
     from app.core.db import AsyncSessionLocal
@@ -409,22 +505,22 @@ async def main():
  SEED COMPLETE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
- Demo Basic School
-   admin       admin@demo-basic.ttek-sms.com        Admin1234!
-   headteacher head@demo-basic.ttek-sms.com         Head1234!
-   teachers    teacher1–3@demo-basic.ttek-sms.com   Teacher1234!
-   bursar      bursar@demo-basic.ttek-sms.com       Bursar1234!
+ Demo Basic School             (BASIC-DEMO)
+   admin        admin@demo-basic.ttek-sms.com   Admin1234!
+   headteacher  head@demo-basic.ttek-sms.com    Head1234!
+   class teacher teacher@demo-basic.ttek-sms.com Teacher1234!
+   bursar        bursar@demo-basic.ttek-sms.com  Bursar1234!
 
- Demo Senior High School
-   admin       admin@demo-shs.ttek-sms.com          Admin1234!
-   headteacher head@demo-shs.ttek-sms.com           Head1234!
-   asst. head  asst.head@demo-shs.ttek-sms.com      Head1234!
-   bursar      bursar@demo-shs.ttek-sms.com         Bursar1234!
-   housemaster housemaster@demo-shs.ttek-sms.com    House1234!
-   teachers    teacher1–4@demo-shs.ttek-sms.com     Teacher1234!
+ Demo Senior High School       (SHS-DEMO)
+   admin         admin@demo-shs.ttek-sms.com    Admin1234!
+   headteacher   head@demo-shs.ttek-sms.com     Head1234!
+   asst. head    asst.head@demo-shs.ttek-sms.com Head1234!
+   bursar         bursar@demo-shs.ttek-sms.com   Bursar1234!
+   sr. housemaster housemaster@demo-shs.ttek-sms.com House1234!
+   class teacher   teacher@demo-shs.ttek-sms.com   Teacher1234!
 
  Platform superadmin
-   admin@demo.school                          Admin1234!
+   admin@demo.school                            Admin1234!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 """)
 
