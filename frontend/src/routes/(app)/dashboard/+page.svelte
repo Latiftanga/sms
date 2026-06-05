@@ -344,12 +344,13 @@
 {:else if data?.role === "class_teacher" || data?.role === "subject_teacher"}
   {@const isSubjectTeacher = data?.role === "subject_teacher"}
   <div class="dash-body">
-    <div class="tc-header">
-      <div>
+
+    <!-- Left: class cards -->
+    <div class="tc-main">
+      <div class="tc-header">
         <h2 class="tc-title">{isSubjectTeacher ? "My Teaching Assignments" : "My Classes"}</h2>
         {#if term}<span class="tc-term">{term.name} · {term.year_name}</span>{/if}
       </div>
-    </div>
 
     {#if data.my_classes && data.my_classes.length > 0}
       <div class="tc-grid">
@@ -433,6 +434,7 @@
         </p>
       </div>
     {/if}
+    </div><!-- end tc-main -->
 
     <aside class="dash-aside">
       <div class="panel">
@@ -673,14 +675,13 @@
 
 /* ── Class list (teacher view) ───────────────────────────────────── */
 /* ── Teacher view ────────────────────────────────────────────────── */
-.tc-header { margin-bottom: 16px; }
+.tc-main { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.tc-header { margin-bottom: 14px; }
 .tc-title { font-size: 15px; font-weight: 700; color: var(--tx-high); margin: 0 0 2px; }
 .tc-term  { font-size: 12px; color: var(--tx-low); }
 
 .tc-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 14px; align-items: start;
+  display: flex; flex-direction: column; gap: 12px;
 }
 
 .tc-card {
