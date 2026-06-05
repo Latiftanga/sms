@@ -558,8 +558,8 @@
       <ArrowLeft size={14} /> Staff
     </button>
 
-    <!-- Header card -->
-    <div class="profile-header">
+    <!-- Hero card -->
+    <div class="hero">
       <!-- Photo -->
       <div class="photo-wrap">
         <div class="photo-avatar" style="background:{CATEGORY_COLORS[member.category] ?? 'var(--accent)'}">
@@ -569,6 +569,7 @@
             {initials(member)}
           {/if}
         </div>
+        <span class="status-dot" class:dot-active={member.is_active} title={member.is_active ? "Active" : "Inactive"}></span>
         <label class="photo-btn" title="Change photo">
           {#if photoUploading}
             <Loader2 size={12} class="spin" />
@@ -580,55 +581,93 @@
       </div>
 
       <!-- Name + meta -->
-      <div class="profile-meta">
-        <h1 class="profile-name">{fullName}</h1>
-        <div class="profile-badges">
-          <Badge variant={member.is_active ? "ok" : "neutral"}>{member.is_active ? "Active" : "Inactive"}</Badge>
-          <Badge variant={member.category === "TEACHING" ? "accent" : "neutral"}>{humanise(member.category)}</Badge>
-          <span class="emp-chip emp-chip-{member.employment_type}">{humanise(member.employment_type)}</span>
-          {#if member.designation}
-            <span class="desig-chip">{humanise(member.designation)}</span>
+      <div class="hero-body">
+        <div class="hero-top">
+          <div>
+            <h1 class="hero-name">{fullName}</h1>
+            <div class="hero-sub">
+              {#if member.staff_id}
+                <code class="staff-id-code">ID: {member.staff_id}</code>
+              {/if}
+              <span class="cat-pill cat-pill-{member.category}">{humanise(member.category)}</span>
+              <span class="emp-pill emp-pill-{member.employment_type}">{humanise(member.employment_type)}</span>
+              {#if member.designation}
+                <span class="desig-pill">{humanise(member.designation)}</span>
+              {/if}
+            </div>
+            {#if member.current_rank}
+              <p class="current-rank-line">{member.current_rank}</p>
+            {/if}
+          </div>
+          <div class="hero-actions">
+            {#if !member.is_active && canManageStaff}
+              <Button variant="ghost" size="sm" loading={reactivating} on:click={reactivate}>
+                <UserCheck size={13} /> Reactivate
+              </Button>
+            {/if}
+            {#if !member.has_account && canManageUsers}
+              <Button variant="ghost" size="sm" on:click={openInviteForm}>
+                <UserCheck size={13} /> Send Invite
+              </Button>
+            {/if}
+            {#if !editing && canManageStaff}
+              <Button size="sm" on:click={startEdit}>
+                <Pencil size={13} /> Edit Profile
+              </Button>
+            {/if}
+          </div>
+        </div>
+
+        <!-- Stat strip -->
+        <div class="stat-strip">
+          <div class="stat">
+            <span class="stat-label">Status</span>
+            <span class="stat-val" class:stat-active={member.is_active} class:stat-inactive={!member.is_active}>
+              {member.is_active ? "Active" : "Inactive"}
+            </span>
+          </div>
+          {#if member.date_joined}
+            <div class="stat-div"></div>
+            <div class="stat">
+              <span class="stat-label">Date Joined</span>
+              <span class="stat-val">{fmt(member.date_joined)}</span>
+            </div>
           {/if}
-          {#if member.staff_id}
-            <span class="id-chip">ID: {member.staff_id}</span>
+          {#if member.phone}
+            <div class="stat-div"></div>
+            <div class="stat">
+              <span class="stat-label">Phone</span>
+              <span class="stat-val">{member.phone}</span>
+            </div>
+          {/if}
+          {#if member.personal_email}
+            <div class="stat-div"></div>
+            <div class="stat">
+              <span class="stat-label">Email</span>
+              <span class="stat-val">{member.personal_email}</span>
+            </div>
           {/if}
         </div>
-        {#if member.current_rank}
-          <p class="profile-rank">{member.current_rank}</p>
-        {/if}
-      </div>
-
-      <!-- Header actions -->
-      <div class="header-actions">
-        {#if !member.is_active && canManageStaff}
-          <Button variant="ghost" size="sm" loading={reactivating} on:click={reactivate}>
-            <UserCheck size={13} /> Reactivate
-          </Button>
-        {/if}
-        {#if !member.has_account && canManageUsers}
-          <Button variant="ghost" size="sm" on:click={openInviteForm}>
-            <UserCheck size={13} /> Send Invite
-          </Button>
-        {/if}
-        {#if !editing && canManageStaff}
-          <Button size="sm" on:click={startEdit}>
-            <Pencil size={13} /> Edit Profile
-          </Button>
-        {/if}
       </div>
     </div>
 
     <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab" class:active={tab === "profile"} on:click={() => tab = "profile"}>Profile</button>
-      <button class="tab" class:active={tab === "qualifications"} on:click={() => tab = "qualifications"}>
-        Qualifications <span class="tab-count">{member.qualifications.length}</span>
+    <nav class="tab-nav">
+      <button class="tn-item" class:tn-active={tab === "profile"} on:click={() => tab = "profile"}>
+        <User size={13} /> Profile
       </button>
-      <button class="tab" class:active={tab === "promotions"} on:click={() => tab = "promotions"}>
-        GES Rank History <span class="tab-count">{member.promotions.length}</span>
+      <button class="tn-item" class:tn-active={tab === "qualifications"} on:click={() => tab = "qualifications"}>
+        <GraduationCap size={13} /> Qualifications
+        {#if member.qualifications.length > 0}<span class="tn-count">{member.qualifications.length}</span>{/if}
       </button>
-      <button class="tab" class:active={tab === "account"} on:click={() => tab = "account"}>Account</button>
-    </div>
+      <button class="tn-item" class:tn-active={tab === "promotions"} on:click={() => tab = "promotions"}>
+        <TrendingUp size={13} /> GES Rank History
+        {#if member.promotions.length > 0}<span class="tn-count">{member.promotions.length}</span>{/if}
+      </button>
+      <button class="tn-item" class:tn-active={tab === "account"} on:click={() => tab = "account"}>
+        <Shield size={13} /> Account
+      </button>
+    </nav>
 
     <!-- ── Profile tab ──────────────────────────────────────────── -->
     {#if tab === "profile"}
@@ -796,119 +835,111 @@
           </div>
         </div>
       {:else}
-        <!-- View mode -->
-        <div class="info-grid">
-          <div class="section-card">
-            <div class="card-header">
-              <div class="card-hicon"><User size={14} /></div>
-              <span class="card-title">Personal Information</span>
-            </div>
-            <div class="card-body">
-              <dl class="prop-sheet">
-                <div class="prop-row">
-                  <dt>Full name</dt>
-                  <dd>{fullName}</dd>
-                </div>
-                <div class="prop-row">
-                  <dt>Gender</dt>
-                  <dd>{humanise(member.gender)}</dd>
-                </div>
-                <div class="prop-row">
-                  <dt>Date of birth</dt>
-                  <dd>{fmt(member.date_of_birth)}</dd>
-                </div>
-                <div class="prop-row">
-                  <dt>Phone</dt>
-                  <dd>{member.phone ?? "—"}</dd>
-                </div>
-                <div class="prop-row">
-                  <dt>Personal email</dt>
-                  <dd>{member.personal_email ?? "—"}</dd>
-                </div>
-                <div class="prop-row">
-                  <dt>Address</dt>
-                  <dd>{member.address ?? "—"}</dd>
-                </div>
-              </dl>
+        <!-- View mode — info-grid layout -->
+        <div class="profile-card">
+
+          <!-- Personal section -->
+          <div class="prof-section">
+            <p class="prof-section-label"><User size={11} /> Personal</p>
+            <div class="prof-grid">
+              <div class="prof-field">
+                <span class="pf-label">First name</span>
+                <span class="pf-val">{member.first_name}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">Middle name</span>
+                <span class="pf-val">{member.middle_name ?? "—"}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">Last name</span>
+                <span class="pf-val">{member.last_name}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">Gender</span>
+                <span class="pf-val">{humanise(member.gender)}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">Date of birth</span>
+                <span class="pf-val">{fmt(member.date_of_birth)}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">Address</span>
+                <span class="pf-val">{member.address ?? "—"}</span>
+              </div>
             </div>
           </div>
 
-          <div class="section-card">
-            <div class="card-header">
-              <div class="card-hicon"><Briefcase size={14} /></div>
-              <span class="card-title">Employment</span>
-            </div>
-            <div class="card-body">
-              <dl class="prop-sheet">
-                <div class="prop-row">
-                  <dt>Category</dt>
-                  <dd><span class="badge {categoryClass(member.category)}">{humanise(member.category)}</span></dd>
-                </div>
-                <div class="prop-row">
-                  <dt>Employment type</dt>
-                  <dd><span class="badge {employmentClass(member.employment_type)}">{humanise(member.employment_type)}</span></dd>
-                </div>
-                <div class="prop-row">
-                  <dt>Designation</dt>
-                  <dd>{humanise(member.designation)}</dd>
-                </div>
-                <div class="prop-row">
-                  <dt>Date joined</dt>
-                  <dd>{fmt(member.date_joined)}</dd>
-                </div>
-                <div class="prop-row">
-                  <dt>School staff ID</dt>
-                  <dd class="mono">{member.staff_id ?? "—"}</dd>
-                </div>
-              </dl>
+          <div class="prof-divider"></div>
+
+          <!-- Employment section -->
+          <div class="prof-section">
+            <p class="prof-section-label"><Briefcase size={11} /> Employment</p>
+            <div class="prof-grid">
+              <div class="prof-field">
+                <span class="pf-label">Category</span>
+                <span class="pf-val">{humanise(member.category)}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">Employment type</span>
+                <span class="pf-val">{humanise(member.employment_type)}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">Designation</span>
+                <span class="pf-val">{humanise(member.designation)}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">Date joined</span>
+                <span class="pf-val">{fmt(member.date_joined)}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">School staff ID</span>
+                <span class="pf-val pf-mono">{member.staff_id ?? "—"}</span>
+              </div>
             </div>
           </div>
 
-          <div class="section-card">
-            <div class="card-header">
-              <div class="card-hicon"><Shield size={14} /></div>
-              <span class="card-title">GES Details</span>
-            </div>
-            <div class="card-body">
-              <dl class="prop-sheet">
-                <div class="prop-row">
-                  <dt>GES staff ID</dt>
-                  <dd class="mono">{member.ges_staff_id ?? "—"}</dd>
-                </div>
-                <div class="prop-row">
-                  <dt>Registered no.</dt>
-                  <dd class="mono">{member.registered_no ?? "—"}</dd>
-                </div>
-                <div class="prop-row">
-                  <dt>Licence no.</dt>
-                  <dd class="mono">{member.licence_no ?? "—"}</dd>
-                </div>
-                <div class="prop-row">
-                  <dt>SSNIT no.</dt>
-                  <dd class="mono">{member.ssnit_no ?? "—"}</dd>
-                </div>
-              </dl>
+          <div class="prof-divider"></div>
+
+          <!-- GES Details section -->
+          <div class="prof-section">
+            <p class="prof-section-label"><Shield size={11} /> GES Details</p>
+            <div class="prof-grid">
+              <div class="prof-field">
+                <span class="pf-label">GES staff ID</span>
+                <span class="pf-val pf-mono">{member.ges_staff_id ?? "—"}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">Registered no.</span>
+                <span class="pf-val pf-mono">{member.registered_no ?? "—"}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">Licence no.</span>
+                <span class="pf-val pf-mono">{member.licence_no ?? "—"}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">SSNIT no.</span>
+                <span class="pf-val pf-mono">{member.ssnit_no ?? "—"}</span>
+              </div>
             </div>
           </div>
 
-          <div class="section-card">
-            <div class="card-header">
-              <div class="card-hicon"><Phone size={14} /></div>
-              <span class="card-title">Emergency Contact</span>
-            </div>
-            <div class="card-body">
-              <dl class="prop-sheet">
-                <div class="prop-row">
-                  <dt>Name</dt>
-                  <dd>{member.emergency_contact_name ?? "—"}</dd>
-                </div>
-                <div class="prop-row">
-                  <dt>Phone</dt>
-                  <dd>{member.emergency_contact_phone ?? "—"}</dd>
-                </div>
-              </dl>
+          <div class="prof-divider"></div>
+
+          <!-- Emergency contact section -->
+          <div class="prof-section">
+            <p class="prof-section-label"><Phone size={11} /> Emergency Contact</p>
+            <div class="prof-grid">
+              <div class="prof-field">
+                <span class="pf-label">Name</span>
+                <span class="pf-val">{member.emergency_contact_name ?? "—"}</span>
+              </div>
+              <div class="prof-field">
+                <span class="pf-label">Phone</span>
+                <span class="pf-val">{member.emergency_contact_phone ?? "—"}</span>
+              </div>
             </div>
           </div>
+
         </div>
       {/if}
 
@@ -1323,36 +1354,39 @@
 
 
 <style>
-  .page { display: flex; flex-direction: column; gap: 20px; }
+  .page { display: flex; flex-direction: column; gap: 16px; }
 
-  /* ── Back ───────────────────────────────────── */
-  .back-btn {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: none; border: none; cursor: pointer;
-    color: var(--tx-low); font-size: 0.875rem;
-    padding: 0; transition: color 0.12s;
-  }
-  .back-btn:hover { color: var(--tx-high); }
-
-  /* ── Profile header ─────────────────────────── */
-  .profile-header {
+  /* ── Hero ─────────────────────────────────────── */
+  .hero {
+    position: relative;
     display: flex; align-items: flex-start; gap: 20px;
-    background: var(--surface-0);
+    background: var(--surface-1);
     border: 1px solid var(--border-subtle);
-    border-radius: 14px; padding: 24px;
+    border-radius: 16px; padding: 24px 24px 20px;
+    box-shadow: var(--shadow-xs); overflow: hidden;
+  }
+  .hero::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0;
+    height: 3px; background: var(--accent); border-radius: 16px 16px 0 0;
   }
 
+  /* Photo wrap */
   .photo-wrap { position: relative; flex-shrink: 0; }
-
   .photo-avatar {
-    width: 80px; height: 80px; border-radius: 16px;
+    width: 72px; height: 72px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 1.5rem; font-weight: 800; color: #fff;
+    font-size: 1.375rem; font-weight: 800; color: #fff;
     overflow: hidden;
+    border: 3px solid var(--surface-0);
+    box-shadow: 0 0 0 1px var(--border-subtle);
   }
-
   .photo-img { width: 100%; height: 100%; object-fit: cover; }
-
+  .status-dot {
+    position: absolute; bottom: 2px; right: 24px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--tx-low); border: 2px solid var(--surface-1);
+  }
+  .status-dot.dot-active { background: #22c55e; }
   .photo-btn {
     position: absolute; bottom: -6px; right: -6px;
     width: 26px; height: 26px; border-radius: 50%;
@@ -1363,44 +1397,106 @@
   }
   .photo-btn:hover { background: var(--surface-1); border-color: var(--accent); }
 
-  .profile-meta { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  /* Hero body */
+  .hero-body { flex: 1; min-width: 0; }
+  .hero-top {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 12px; margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .hero-name { margin: 0 0 6px; font-size: 22px; font-weight: 800; color: var(--tx-high); letter-spacing: -0.3px; line-height: 1.1; }
+  .hero-sub { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .hero-actions { display: flex; gap: 8px; align-items: flex-start; flex-shrink: 0; }
+  .current-rank-line { margin: 6px 0 0; font-size: 12.5px; font-weight: 500; color: var(--tx-mid); }
 
-  .profile-name {
-    margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--tx-high);
+  .staff-id-code {
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 11.5px; font-weight: 600;
+    background: var(--surface-2); color: var(--tx-mid);
+    padding: 2px 8px; border-radius: 5px;
+    border: 1px solid var(--border-subtle);
   }
 
-  .profile-badges { display: flex; gap: 6px; flex-wrap: wrap; }
-
-  .profile-rank { margin: 0; font-size: 0.875rem; color: var(--tx-mid); font-weight: 500; }
-  .profile-desig { margin: 0; font-size: 0.8rem; color: var(--tx-low); }
-
-  .header-actions { display: flex; gap: 8px; align-items: flex-start; flex-shrink: 0; }
-
-  /* ── Tabs ────────────────────────────────────── */
-  .tabs {
-    display: flex; gap: 2px;
-    border-bottom: 1.5px solid var(--border-subtle);
+  .cat-pill, .emp-pill, .desig-pill {
+    display: inline-flex; align-items: center;
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.05em; padding: 3px 9px; border-radius: 99px;
+    white-space: nowrap;
   }
+  .desig-pill { background: var(--surface-2); color: var(--tx-mid); border: 1px solid var(--border-subtle); }
+  .cat-pill-TEACHING    { background: color-mix(in srgb, #3b82f6 12%, transparent); color: #2563eb; border: 1px solid color-mix(in srgb, #3b82f6 25%, transparent); }
+  .cat-pill-NON-TEACHING { background: color-mix(in srgb, #8b5cf6 12%, transparent); color: #7c3aed; border: 1px solid color-mix(in srgb, #8b5cf6 25%, transparent); }
+  .emp-pill-PERMANENT   { background: color-mix(in srgb, #10b981 12%, transparent); color: #059669; border: 1px solid color-mix(in srgb, #10b981 25%, transparent); }
+  .emp-pill-CONTRACT    { background: color-mix(in srgb, #f59e0b 12%, transparent); color: #d97706; border: 1px solid color-mix(in srgb, #f59e0b 25%, transparent); }
+  .emp-pill-VOLUNTEER   { background: color-mix(in srgb, #3b82f6 12%, transparent); color: #2563eb; border: 1px solid color-mix(in srgb, #3b82f6 25%, transparent); }
+  .emp-pill-GES_POSTED  { background: color-mix(in srgb, #8b5cf6 12%, transparent); color: #7c3aed; border: 1px solid color-mix(in srgb, #8b5cf6 25%, transparent); }
 
-  .tab {
-    padding: 8px 16px;
+  /* Stat strip */
+  .stat-strip {
+    display: flex; align-items: center; flex-wrap: wrap;
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .stat { display: flex; flex-direction: column; gap: 1px; padding: 0 16px 0 0; }
+  .stat-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tx-low); }
+  .stat-val   { font-size: 13px; font-weight: 600; color: var(--tx-high); }
+  .stat-active { color: #15803d; }
+  .stat-inactive { color: var(--tx-low); }
+  .stat-div { width: 1px; height: 24px; background: var(--border-subtle); margin: 0 16px 0 0; flex-shrink: 0; }
+
+  /* ── Tab nav (pill style) ─────────────────────── */
+  .tab-nav { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tn-item {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 8px;
+    font-size: 13px; font-weight: 500;
+    color: var(--tx-low); background: var(--surface-1);
+    border: 1px solid var(--border-subtle);
+    cursor: pointer; transition: all 0.12s; white-space: nowrap;
+  }
+  .tn-item:hover { color: var(--tx-high); background: var(--surface-2); }
+  .tn-item.tn-active {
+    color: var(--accent); background: var(--accent-subtle);
+    border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+  .tn-count {
+    background: var(--accent); color: var(--accent-fg, #fff);
+    font-size: 10px; font-weight: 700;
+    padding: 1px 6px; border-radius: 99px; min-width: 18px; text-align: center;
+  }
+  .tn-item:not(.tn-active) .tn-count { background: var(--surface-2); color: var(--tx-low); }
+
+  /* ── Profile view (info-grid) ─────────────────── */
+  .profile-card {
+    background: var(--surface-1); border: 1px solid var(--border-subtle);
+    border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-xs);
+  }
+  .prof-section { padding: 20px 24px; }
+  .prof-section-label {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--tx-low); margin: 0 0 16px;
+  }
+  .prof-divider { height: 1px; background: var(--border-subtle); }
+  .prof-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 24px;
+  }
+  @media (max-width: 680px) { .prof-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 400px) { .prof-grid { grid-template-columns: 1fr; } }
+  .prof-field { display: flex; flex-direction: column; gap: 3px; }
+  .pf-label { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--tx-low); }
+  .pf-val   { font-size: 13.5px; font-weight: 500; color: var(--tx-high); word-break: break-word; }
+  .pf-mono  { font-family: "SF Mono", "Fira Code", monospace; font-size: 12.5px; }
+
+  /* ── Back ───────────────────────────────────── */
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
     background: none; border: none; cursor: pointer;
-    font-size: 0.875rem; color: var(--tx-low);
-    border-bottom: 2px solid transparent;
-    margin-bottom: -1.5px;
-    display: flex; align-items: center; gap: 6px;
-    transition: color 0.12s, border-color 0.12s;
+    color: var(--tx-low); font-size: 0.875rem;
+    padding: 0; transition: color 0.12s;
   }
-  .tab:hover { color: var(--tx-mid); }
-  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .back-btn:hover { color: var(--tx-high); }
 
-  .tab-count {
-    padding: 1px 6px; border-radius: 10px;
-    background: var(--surface-1);
-    font-size: 0.7rem; font-weight: 600;
-    color: var(--tx-low);
-  }
-  .tab.active .tab-count { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+  /* (profile-header, tabs replaced by .hero + .tab-nav above) */
 
   /* ── Section cards ───────────────────────────── */
   .section-card {
