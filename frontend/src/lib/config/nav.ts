@@ -62,7 +62,9 @@ export const NAV: NavGroup[] = [
         href: "/students",
         label: "Students",
         icon: Users,
-        anyPermission: ["view_students", "enroll_students"],
+        // Class teachers access students via their dashboard class cards.
+        // The nav link is for admins/headteachers who manage enrollment.
+        anyPermission: ["enroll_students", "manage_staff"],
       },
       {
         href: "/attendance",
