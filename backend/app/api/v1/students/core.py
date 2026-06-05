@@ -4,10 +4,11 @@ from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import selectinload
 
-from app.api.deps import CurrentUser, SessionDep, require
+from app.api.deps import CurrentUser, RedisDep, SessionDep, require
 from app.core.permissions import Permission
-from app.models.academic import AcademicYear, Class
+from app.models.academic import AcademicYear, Class, ClassTeacher
 from app.models.student import Guardian, Student, StudentClassEnrollment
+from app.services.permissions import resolve_all_permissions
 from app.schemas.common import PagedResponse
 from app.schemas.student import (
     StudentCreate, StudentListItem, StudentResponse, StudentUpdate,
@@ -22,6 +23,7 @@ router = APIRouter(prefix="/students", tags=["students"])
             dependencies=[require(Permission.VIEW_STUDENTS)])
 async def list_students(
     user: CurrentUser,
+    redis: RedisDep,
     session: SessionDep,
     search: str | None = None,
     class_id: str | None = None,
@@ -31,6 +33,10 @@ async def list_students(
 ):
     school_id = user.school_id
 
+    # Determine scope: admins see all students; class teachers see only their assigned classes
+    perms = await resolve_all_permissions(user, redis, session)
+    is_admin = perms.get(Permission.MANAGE_STAFF) or perms.get(Permission.MANAGE_SCHOOL_CONFIG)
+
     # Current academic year for enrollment join
     current_year = await session.scalar(
         select(AcademicYear).where(
@@ -38,6 +44,20 @@ async def list_students(
             AcademicYear.is_current.is_(True),
         )
     )
+
+    # For non-admins: restrict to their assigned class(es) in the current year
+    allowed_class_ids: set[uuid.UUID] | None = None
+    if not is_admin and user.staff_member_id and current_year:
+        assigned = await session.scalars(
+            select(ClassTeacher.class_id).where(
+                ClassTeacher.staff_member_id == user.staff_member_id,
+                ClassTeacher.academic_year_id == current_year.id,
+            )
+        )
+        allowed_class_ids = set(assigned)
+        # If a specific class_id was requested, honour it only if it's in their scope
+        if class_id and uuid.UUID(class_id) not in allowed_class_ids:
+            return PagedResponse(items=[], total=0, skip=skip, limit=limit)
 
     conditions = [Student.school_id == school_id, Student.is_active == is_active]
     if search:
@@ -59,6 +79,11 @@ async def list_students(
         )
         if class_id:
             conditions.append(StudentClassEnrollment.class_id == uuid.UUID(class_id))
+        elif allowed_class_ids is not None:
+            # Class teacher scope — restrict to their assigned class(es)
+            if not allowed_class_ids:
+                return PagedResponse(items=[], total=0, skip=skip, limit=limit)
+            conditions.append(StudentClassEnrollment.class_id.in_(allowed_class_ids))
 
         rows = await session.execute(
             select(

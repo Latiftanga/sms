@@ -9,7 +9,7 @@
     AlertTriangle, CheckCircle2, Clock, ChevronRight,
     CalendarCheck, UserPlus, Settings, GraduationCap,
     ClipboardCheck, PenLine, Wallet, User, ArrowRight,
-    Lock,
+    Lock, UsersRound,
   } from "@lucide/svelte";
 
   // ── Types ──────────────────────────────────────────────────────────
@@ -355,8 +355,11 @@
                 <p class="class-sub">{cls.education_level.replace("_", " ")}</p>
               </div>
               <div class="class-actions">
-                <a href="/attendance?class={cls.id}" class="class-btn">
+                <a href="/attendance/mark?class_id={cls.id}" class="class-btn">
                   <ClipboardCheck size={13} /> Attendance
+                </a>
+                <a href="/students?class_id={cls.id}" class="class-btn">
+                  <UsersRound size={13} /> Students
                 </a>
                 <a href="/scores?class={cls.id}" class="class-btn">
                   <PenLine size={13} /> Scores
