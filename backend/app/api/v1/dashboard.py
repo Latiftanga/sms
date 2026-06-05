@@ -39,6 +39,7 @@ class AdminStats(BaseModel):
 
 
 class MySubject(BaseModel):
+    class_subject_id: str
     subject_name: str
     subject_code: str
 
@@ -246,7 +247,11 @@ async def _my_classes(
         if key not in class_subjects:
             class_subjects[key] = (cls, [])
         class_subjects[key][1].append(
-            MySubject(subject_name=cs.subject_name, subject_code=cs.subject_code)
+            MySubject(
+                class_subject_id=str(cs.id),
+                subject_name=cs.subject_name,
+                subject_code=cs.subject_code,
+            )
         )
 
     return [

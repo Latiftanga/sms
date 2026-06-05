@@ -4,9 +4,21 @@
   import { auth, isAuthenticated, currentUser } from "$stores/auth";
   import { schoolBranding, schoolContext } from "$stores/school";
   import { Avatar, Toaster, ConfirmDialog } from "$components";
-  import { PanelLeft, Bell, Sun, Moon, Monitor, LogOut, Settings } from "@lucide/svelte";
+  import { PanelLeft, Bell, Sun, Moon, Monitor, LogOut, Settings, CalendarDays } from "@lucide/svelte";
   import { onMount } from "svelte";
   import { NAV, type NavGroup } from "$lib/config/nav";
+  import { api } from "$lib/api/client";
+
+  // ── Current term ──────────────────────────────────────────────
+  interface TermInfo { name: string; year_name: string; }
+  let currentTerm: TermInfo | null = null;
+
+  async function loadCurrentTerm() {
+    try {
+      const { data } = await api.get<TermInfo | null>("/settings/current-term");
+      currentTerm = data;
+    } catch { /* non-fatal */ }
+  }
 
   // ── Sidebar state ──────────────────────────────────────────────
   let collapsed = false;
@@ -94,6 +106,7 @@
     schoolContextReady = true;
     schoolContext.load();
     schoolBranding.loadFromAuth();
+    loadCurrentTerm();
   }
 
   // ── Auth guards ────────────────────────────────────────────────
@@ -155,6 +168,13 @@
       <span class="page-title">{pageTitle}</span>
 
       <div class="topbar-spacer"></div>
+
+      {#if currentTerm}
+        <div class="term-chip">
+          <CalendarDays size={11} />
+          <span>{currentTerm.name} · {currentTerm.year_name}</span>
+        </div>
+      {/if}
 
       <button class="topbar-btn" aria-label="Notifications">
         <Bell size={14} />
@@ -543,6 +563,18 @@
   }
 
   .topbar-spacer { flex: 1; }
+
+  .term-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11.5px; font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-subtle);
+    border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+    padding: 3px 10px; border-radius: 99px;
+    white-space: nowrap;
+    letter-spacing: 0.01em;
+  }
+  @media (max-width: 560px) { .term-chip { display: none; } }
 
   .page-title {
     font-size: 13px;

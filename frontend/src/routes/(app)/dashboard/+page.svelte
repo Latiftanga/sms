@@ -24,7 +24,7 @@
     attendance_submitted_today: number;
     attendance_classes_today: number;
   }
-  interface MySubject { subject_name: string; subject_code: string; }
+  interface MySubject { class_subject_id: string; subject_name: string; subject_code: string; }
   interface MyClass {
     id: string; name: string; education_level: string;
     level: string; year: number | null; stream: string | null;
@@ -373,6 +373,12 @@
                   <a href="/students?class_id={cls.id}" class="class-btn">
                     <UsersRound size={13} /> Students
                   </a>
+                {:else}
+                  {#each cls.subjects as subj}
+                    <a href="/subject-registration/{subj.class_subject_id}" class="class-btn">
+                      <UsersRound size={13} /> {subj.subject_name}
+                    </a>
+                  {/each}
                 {/if}
                 <a href="/scores?class={cls.id}" class="class-btn">
                   <PenLine size={13} /> Scores
