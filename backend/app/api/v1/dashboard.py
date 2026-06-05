@@ -55,7 +55,10 @@ class MyClass(BaseModel):
     level: str
     year: int | None
     stream: str | None
-    subjects: list[MySubject]   # populated for subject teachers; empty for class teachers
+    subjects: list[MySubject]
+    # Attendance status for today (class teachers only)
+    # "marked" | "not_marked" | "no_school_day" | "no_students"
+    attendance_today: str
 
 
 class DashboardSummary(BaseModel):
@@ -248,6 +251,46 @@ async def _subject_list(
     return result
 
 
+async def _attendance_status(class_id: UUID, school_id: UUID, today, session) -> str:
+    """Return attendance status string for a class today."""
+    from datetime import date as _date
+    cal = await session.scalar(
+        select(SchoolCalendar).where(
+            SchoolCalendar.school_id == school_id,
+            SchoolCalendar.date == today,
+        )
+    )
+    if not cal or cal.day_type != "SCHOOL_DAY":
+        return "no_school_day"
+
+    # Count students enrolled (term enrollment)
+    total = await session.scalar(
+        select(func.count(_SCE.id))
+        .join(_STE, _STE.student_class_enrollment_id == _SCE.id)
+        .join(AcademicYear, AcademicYear.id == _SCE.academic_year_id)
+        .where(
+            _SCE.class_id == class_id,
+            AcademicYear.school_id == school_id,
+            AcademicYear.is_current.is_(True),
+            _SCE.status == "ACTIVE",
+        )
+    ) or 0
+    if total == 0:
+        return "no_students"
+
+    marked = await session.scalar(
+        select(func.count(AttendanceRecord.id))
+        .join(_STE, AttendanceRecord.student_term_enrollment_id == _STE.id)
+        .join(_SCE, _STE.student_class_enrollment_id == _SCE.id)
+        .where(
+            _SCE.class_id == class_id,
+            AttendanceRecord.school_calendar_id == cal.id,
+            AttendanceRecord.school_period_id.is_(None),
+        )
+    ) or 0
+    return "marked" if marked > 0 else "not_marked"
+
+
 async def _my_classes(
     staff_member_id: UUID, school_id: UUID, session
 ) -> tuple[list[MyClass], bool]:
@@ -286,19 +329,23 @@ async def _my_classes(
     )
     class_teacher_classes = list(ct_rows.scalars())
     if class_teacher_classes:
+        from datetime import date as _date
+        today = _date.today()
         class_ids = [c.id for c in class_teacher_classes]
         subj_map = await _subject_list(
             staff_member_id, class_ids, current_year, current_term, session
         )
-        return [
-            MyClass(
+        result = []
+        for c in class_teacher_classes:
+            att = await _attendance_status(c.id, school_id, today, session)
+            result.append(MyClass(
                 id=str(c.id), name=c.name,
                 education_level=c.education_level,
                 level=c.level, year=c.year, stream=c.stream,
                 subjects=subj_map.get(str(c.id), []),
-            )
-            for c in class_teacher_classes
-        ], True
+                attendance_today=att,
+            ))
+        return result, True
 
     # 2. Fall back to subject teacher assignments
     st_rows = await session.execute(
@@ -334,6 +381,7 @@ async def _my_classes(
             education_level=cls.education_level,
             level=cls.level, year=cls.year, stream=cls.stream,
             subjects=subj_map.get(key, []),
+            attendance_today="no_school_day",  # subject teachers don't mark attendance
         )
         for key, cls in seen.items()
     ], False

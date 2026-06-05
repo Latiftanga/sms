@@ -24,11 +24,15 @@
     attendance_submitted_today: number;
     attendance_classes_today: number;
   }
-  interface MySubject { class_subject_id: string; subject_name: string; subject_code: string; }
+  interface MySubject {
+    class_subject_id: string; subject_name: string; subject_code: string;
+    registered_count: number; total_students: number;
+  }
   interface MyClass {
     id: string; name: string; education_level: string;
     level: string; year: number | null; stream: string | null;
     subjects: MySubject[];
+    attendance_today: string; // "marked" | "not_marked" | "no_school_day" | "no_students"
   }
   interface DashboardSummary {
     role: string;
@@ -346,12 +350,12 @@
   {@const isSubjectTeacher = data?.role === "subject_teacher"}
   <div class="dash-body">
 
-    <!-- Left: class cards -->
     <div class="tc-main">
     {#if data.my_classes && data.my_classes.length > 0}
       <div class="tc-grid">
         {#each data.my_classes as cls}
-          {@const pendingCount = cls.subjects.filter(s => s.registered_count === 0 && s.total_students > 0).length}
+          {@const pendingSubjects = cls.subjects.filter(s => s.registered_count === 0 && s.total_students > 0)}
+          {@const doneSubjects   = cls.subjects.filter(s => s.registered_count > 0)}
           <div class="tc-card">
 
             <!-- Card header -->
@@ -359,63 +363,77 @@
               <div class="tc-class-mark">{cls.level.charAt(0)}{cls.year ?? ""}</div>
               <div class="tc-class-info">
                 <p class="tc-class-name">{cls.name}</p>
-                <p class="tc-class-meta">
-                  {cls.education_level.replace("_", " ")}
-                  {#if cls.subjects.length > 0}
-                    · {cls.subjects.length} subject{cls.subjects.length !== 1 ? "s" : ""}
-                  {/if}
-                  {#if pendingCount > 0}
-                    <span class="tc-pending-pill">{pendingCount} pending</span>
-                  {/if}
-                </p>
+                <p class="tc-class-edu">{cls.education_level.replace("_", " ")}</p>
               </div>
             </div>
 
-            <!-- Quick actions -->
-            <div class="tc-actions">
+            <!-- Checklist -->
+            <div class="tc-checklist">
+
+              <!-- Attendance row — class teachers only -->
               {#if !isSubjectTeacher}
-                <a href="/attendance/mark?class_id={cls.id}" class="tc-action-btn">
-                  <ClipboardCheck size={13} /> Attendance
-                </a>
-                <a href="/students?class_id={cls.id}" class="tc-action-btn">
-                  <UsersRound size={13} /> Students
-                </a>
+                {#if cls.attendance_today === "marked"}
+                  <a href="/attendance/mark?class_id={cls.id}" class="tc-check-row tc-check-done">
+                    <span class="tc-check-icon">✓</span>
+                    <span class="tc-check-label">Attendance marked</span>
+                    <span class="tc-check-action">Update</span>
+                  </a>
+                {:else if cls.attendance_today === "not_marked"}
+                  <a href="/attendance/mark?class_id={cls.id}" class="tc-check-row tc-check-urgent">
+                    <span class="tc-check-icon tc-icon-urgent">!</span>
+                    <span class="tc-check-label">Mark attendance today</span>
+                    <span class="tc-check-cta">Mark now →</span>
+                  </a>
+                {:else if cls.attendance_today === "no_students"}
+                  <div class="tc-check-row tc-check-idle">
+                    <span class="tc-check-icon">–</span>
+                    <span class="tc-check-label">No students enrolled</span>
+                  </div>
+                {/if}
               {/if}
-              <a href="/scores?class={cls.id}" class="tc-action-btn">
-                <PenLine size={13} /> Scores
-              </a>
+
+              <!-- Subject registration rows -->
+              {#if cls.subjects.length > 0}
+                {#if pendingSubjects.length > 0}
+                  <div class="tc-check-row tc-check-warn">
+                    <span class="tc-check-icon tc-icon-warn">·</span>
+                    <div class="tc-check-body">
+                      <span class="tc-check-label">{pendingSubjects.length} subject{pendingSubjects.length !== 1 ? "s" : ""} need student registration</span>
+                      <div class="tc-subj-pills">
+                        {#each pendingSubjects as subj}
+                          <a href="/subject-registration/{subj.class_subject_id}" class="tc-subj-pill tc-pill-warn">
+                            {subj.subject_name}
+                          </a>
+                        {/each}
+                      </div>
+                    </div>
+                  </div>
+                {/if}
+                {#if doneSubjects.length > 0}
+                  <div class="tc-check-row tc-check-done">
+                    <span class="tc-check-icon">✓</span>
+                    <div class="tc-check-body">
+                      <span class="tc-check-label">{doneSubjects.length} subject{doneSubjects.length !== 1 ? "s" : ""} registered</span>
+                      <div class="tc-subj-pills">
+                        {#each doneSubjects as subj}
+                          <a href="/subject-registration/{subj.class_subject_id}" class="tc-subj-pill tc-pill-done">
+                            {subj.subject_name}
+                            <span class="tc-pill-count">{subj.registered_count}/{subj.total_students}</span>
+                          </a>
+                        {/each}
+                      </div>
+                    </div>
+                  </div>
+                {/if}
+                {#if pendingSubjects.length === 0 && doneSubjects.length === 0}
+                  <div class="tc-check-row tc-check-idle">
+                    <span class="tc-check-icon">–</span>
+                    <span class="tc-check-label">No students to register yet</span>
+                  </div>
+                {/if}
+              {/if}
+
             </div>
-
-            <!-- Subject grid -->
-            {#if cls.subjects.length > 0}
-              <div class="tc-subj-section">
-                <p class="tc-subj-label">Subject Registration</p>
-                <div class="tc-subj-grid">
-                  {#each cls.subjects as subj}
-                    {@const pct = subj.total_students > 0 ? Math.round(subj.registered_count / subj.total_students * 100) : 0}
-                    {@const isDone = subj.registered_count >= subj.total_students && subj.total_students > 0}
-                    {@const isPartial = subj.registered_count > 0 && !isDone}
-                    <a href="/subject-registration/{subj.class_subject_id}" class="tc-subj-card"
-                       class:tc-subj-done={isDone}
-                       class:tc-subj-partial={isPartial}
-                       class:tc-subj-empty={subj.registered_count === 0 && subj.total_students > 0}>
-                      <span class="tc-subj-name">{subj.subject_name}</span>
-                      {#if subj.total_students > 0}
-                        <div class="tc-subj-bar-wrap">
-                          <div class="tc-subj-bar">
-                            <div class="tc-subj-bar-fill" style="width:{pct}%"></div>
-                          </div>
-                          <span class="tc-subj-frac">{subj.registered_count}/{subj.total_students}</span>
-                        </div>
-                      {:else}
-                        <span class="tc-subj-nostudent">No students</span>
-                      {/if}
-                    </a>
-                  {/each}
-                </div>
-              </div>
-            {/if}
-
           </div>
         {/each}
       </div>
@@ -425,8 +443,8 @@
         <p class="empty-title">No assignments yet</p>
         <p class="empty-body">
           {isSubjectTeacher
-            ? "Your subject assignments for " + (term?.year_name ?? "this year") + " will appear here once configured by the admin."
-            : "Your class teacher assignments for " + (term?.year_name ?? "this year") + " will appear here once configured by the admin."}
+            ? "Your subject assignments will appear here once configured by the admin."
+            : "Your class assignments will appear here once configured by the admin."}
         </p>
       </div>
     {/if}
@@ -671,96 +689,108 @@
 
 /* ── Class list (teacher view) ───────────────────────────────────── */
 /* ── Teacher view ────────────────────────────────────────────────── */
-.tc-main { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.tc-main { display: flex; flex-direction: column; min-width: 0; }
 
-.tc-grid {
-  display: flex; flex-direction: column; gap: 12px;
-}
+.tc-grid { display: flex; flex-direction: column; gap: 12px; }
 
 .tc-card {
   background: var(--surface-1); border: 1px solid var(--border-subtle);
   border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-xs);
   display: flex; flex-direction: column;
-  transition: box-shadow 0.15s;
 }
-.tc-card:hover { box-shadow: var(--shadow-sm); }
 
+/* Card header */
 .tc-card-head {
   display: flex; align-items: center; gap: 12px;
-  padding: 16px 16px 12px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface-0);
 }
 .tc-class-mark {
-  width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
   background: var(--accent); color: var(--accent-fg, #fff);
-  font-size: 14px; font-weight: 800; letter-spacing: -0.5px;
+  font-size: 13px; font-weight: 800; letter-spacing: -0.3px;
   display: flex; align-items: center; justify-content: center;
 }
 .tc-class-info { flex: 1; min-width: 0; }
 .tc-class-name {
-  font-size: 16px; font-weight: 700; color: var(--tx-high);
-  margin: 0 0 3px; letter-spacing: -0.2px;
+  font-size: 15px; font-weight: 700; color: var(--tx-high);
+  margin: 0 0 2px; letter-spacing: -0.2px;
 }
-.tc-class-meta {
-  font-size: 11.5px; color: var(--tx-low); margin: 0;
-  display: flex; align-items: center; gap: 5px; flex-wrap: wrap;
-}
-.tc-pending-pill {
-  font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 99px;
-  background: color-mix(in srgb, #f59e0b 15%, transparent); color: #d97706;
-}
+.tc-class-edu { font-size: 11px; color: var(--tx-low); margin: 0; text-transform: capitalize; }
 
-.tc-actions {
-  display: flex; gap: 6px; padding: 0 16px 14px; flex-wrap: wrap;
-}
-.tc-action-btn {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 500;
-  color: var(--tx-mid); border: 1px solid var(--border-subtle);
-  background: var(--surface-0); text-decoration: none; transition: all 0.12s;
-}
-.tc-action-btn:hover {
-  background: var(--accent-subtle); color: var(--accent);
-  border-color: color-mix(in srgb, var(--accent) 30%, var(--border-subtle));
-}
+/* Checklist */
+.tc-checklist { display: flex; flex-direction: column; }
 
-.tc-subj-section {
+.tc-check-row {
+  display: flex; align-items: flex-start; gap: 11px;
+  padding: 12px 16px;
   border-top: 1px solid var(--border-subtle);
-  padding: 12px 16px 14px; background: var(--surface-0);
+  text-decoration: none; transition: background 0.1s;
 }
-.tc-subj-label {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.07em; color: var(--tx-low); margin: 0 0 10px;
-}
-.tc-subj-grid {
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px;
-}
-@media (max-width: 400px) { .tc-subj-grid { grid-template-columns: 1fr; } }
+.tc-check-row:first-child { border-top: none; }
 
-.tc-subj-card {
-  display: flex; flex-direction: column; gap: 6px;
-  padding: 9px 11px; border-radius: 9px;
-  border: 1px solid var(--border-subtle);
-  background: var(--surface-1); text-decoration: none;
-  transition: all 0.12s;
-}
-.tc-subj-card:hover {
-  border-color: color-mix(in srgb, var(--accent) 35%, var(--border-subtle));
-  background: var(--accent-subtle); transform: translateY(-1px);
-  box-shadow: var(--shadow-xs);
-}
-.tc-subj-done    { border-color: color-mix(in srgb, #22c55e 30%, var(--border-subtle)); background: color-mix(in srgb, #22c55e 5%, var(--surface-1)); }
-.tc-subj-empty   { border-color: color-mix(in srgb, #ef4444 25%, var(--border-subtle)); background: color-mix(in srgb, #ef4444 4%, var(--surface-1)); }
-.tc-subj-partial { border-color: color-mix(in srgb, #f59e0b 30%, var(--border-subtle)); }
+/* States */
+.tc-check-done   { background: color-mix(in srgb, #22c55e 4%, transparent); }
+.tc-check-urgent { background: color-mix(in srgb, #ef4444 5%, transparent); }
+.tc-check-warn   { background: color-mix(in srgb, #f59e0b 5%, transparent); }
+.tc-check-idle   { opacity: 0.6; }
 
-.tc-subj-name { font-size: 12px; font-weight: 600; color: var(--tx-high); line-height: 1.3; }
-.tc-subj-bar-wrap { display: flex; align-items: center; gap: 6px; }
-.tc-subj-bar { flex: 1; height: 4px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
-.tc-subj-bar-fill { height: 100%; border-radius: 99px; background: var(--accent); transition: width 0.4s ease; }
-.tc-subj-done    .tc-subj-bar-fill { background: #22c55e; }
-.tc-subj-empty   .tc-subj-bar-fill { background: #ef4444; }
-.tc-subj-partial .tc-subj-bar-fill { background: #f59e0b; }
-.tc-subj-frac { font-size: 10px; font-weight: 700; color: var(--tx-low); flex-shrink: 0; }
-.tc-subj-nostudent { font-size: 10px; color: var(--tx-low); font-style: italic; }
+.tc-check-done:hover   { background: color-mix(in srgb, #22c55e 9%, transparent); }
+.tc-check-urgent:hover { background: color-mix(in srgb, #ef4444 10%, transparent); }
+.tc-check-warn:hover   { background: color-mix(in srgb, #f59e0b 10%, transparent); }
+
+/* Icon column */
+.tc-check-icon {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+}
+.tc-check-done   .tc-check-icon { background: color-mix(in srgb, #22c55e 18%, transparent); color: #15803d; }
+.tc-check-urgent .tc-check-icon { background: color-mix(in srgb, #ef4444 18%, transparent); color: #dc2626; }
+.tc-check-warn   .tc-check-icon { background: color-mix(in srgb, #f59e0b 18%, transparent); color: #d97706; }
+.tc-check-idle   .tc-check-icon { background: var(--surface-2); color: var(--tx-low); }
+
+/* Text */
+.tc-check-label {
+  flex: 1; font-size: 13px; font-weight: 500;
+  color: var(--tx-high); line-height: 1.4;
+}
+.tc-check-urgent .tc-check-label { color: #dc2626; font-weight: 600; }
+.tc-check-done   .tc-check-label { color: #15803d; }
+.tc-check-warn   .tc-check-label { color: #d97706; font-weight: 600; }
+
+.tc-check-action {
+  font-size: 11px; color: var(--tx-low); flex-shrink: 0; margin-top: 2px;
+}
+.tc-check-cta {
+  font-size: 11.5px; font-weight: 700; color: #dc2626; flex-shrink: 0; margin-top: 2px;
+}
+
+/* Check body (for multi-line rows with pills) */
+.tc-check-body { flex: 1; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+
+/* Subject pills */
+.tc-subj-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.tc-subj-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 9px; border-radius: 99px; font-size: 11.5px; font-weight: 500;
+  text-decoration: none; transition: opacity 0.1s; white-space: nowrap;
+}
+.tc-subj-pill:hover { opacity: 0.8; }
+.tc-pill-warn {
+  background: color-mix(in srgb, #f59e0b 15%, transparent);
+  color: #92400e; border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
+}
+.tc-pill-done {
+  background: color-mix(in srgb, #22c55e 12%, transparent);
+  color: #14532d; border: 1px solid color-mix(in srgb, #22c55e 25%, transparent);
+}
+.tc-pill-count {
+  font-size: 10px; font-weight: 700;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  padding: 0 4px; border-radius: 99px;
+}
 
 /* ── Term at a glance ────────────────────────────────────────────── */
 .term-label { font-size: 13px; font-weight: 600; color: var(--tx-high); margin-bottom: 3px; }
